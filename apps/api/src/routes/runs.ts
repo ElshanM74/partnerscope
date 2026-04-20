@@ -8,8 +8,9 @@
  *   POST   /v1/runs/:id/submit           — transition draft → queued, triggers scoring
  *   GET    /v1/runs/:id/report.pdf       — stream the generated PDF
  *
- * Scoring is computed inline for Starter/Free Snapshot in Wave 1. Pro &
- * Enterprise enqueue BullMQ jobs in a later wave.
+ * Starter + Free Snapshot are scored inline in Wave 2.A: scoring → PDF →
+ * TX-02 email → storage persist → runs.reportPdfUrl. Pro & Enterprise still
+ * enqueue and will be picked up by a BullMQ worker in a later wave.
  */
 
 import { and, desc, eq } from 'drizzle-orm';
@@ -25,9 +26,13 @@ import {
   questionsForTier,
 } from '@partnerscope/core';
 
+import { env } from '../config/env.js';
 import { db } from '../db/client.js';
 import { responses, runs, vendors } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
+import { sendTx02ReportReady } from '../services/email/index.js';
+import { buildReportId, renderStarterReportPdf } from '../services/pdf/index.js';
+import { StorageKeys, getStorage } from '../services/storage.js';
 
 // ────────────────────────────────────────────────────────────────
 // Schemas
@@ -57,6 +62,14 @@ const BatchResponsesSchema = z.object({
   responses: z.array(ResponseInputSchema).min(1).max(200),
 });
 
+const SubmitBodySchema = z
+  .object({
+    buyerEmail: z.string().email().optional(),
+    buyerName: z.string().min(1).max(200).optional(),
+  })
+  .optional()
+  .default({});
+
 // ────────────────────────────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────────────────────────────
@@ -71,6 +84,12 @@ async function loadRunForOrg(runId: string, organizationId: string) {
   return run;
 }
 
+async function loadVendor(vendorId: string) {
+  const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  if (!vendor) throw new ApiError(404, 'vendor_not_found', 'Vendor not found.');
+  return vendor;
+}
+
 function responsesFromRawRows(
   rows: { questionId: string; rawAnswer: unknown; numericScore: number | null }[],
 ): Response[] {
@@ -79,6 +98,92 @@ function responsesFromRawRows(
     rawAnswer: r.rawAnswer as Response['rawAnswer'],
     numericScore: r.numericScore,
   }));
+}
+
+function tierDisplayName(tier: Tier): string {
+  switch (tier) {
+    case 'free_snapshot':
+      return 'Free Snapshot';
+    case 'starter':
+      return 'Starter';
+    case 'pro':
+      return 'Pro';
+    case 'enterprise':
+      return 'Enterprise';
+  }
+}
+
+function formatDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+// ────────────────────────────────────────────────────────────────
+// Starter delivery pipeline — scoring → PDF → storage → email.
+// Pure side-effectful helper. Fails the request if any step fails.
+// ────────────────────────────────────────────────────────────────
+
+async function deliverStarterReport(args: {
+  runId: string;
+  tier: Tier;
+  vendor: { legalName: string; domain: string; country: string | null };
+  buyerEmail: string | null;
+  buyerName: string | null;
+  buyerCompany: string;
+  scoringResponses: Response[];
+}): Promise<{
+  reportPdfUrl: string;
+  scoring: ReturnType<typeof calculateScoring>;
+  emailDelivered: boolean;
+}> {
+  const scoring = calculateScoring({ tier: args.tier, responses: args.scoringResponses });
+
+  const now = new Date();
+  const validUntil = new Date(now);
+  validUntil.setUTCDate(validUntil.getUTCDate() + 90);
+
+  const reportId = buildReportId(args.tier, args.runId, now.getUTCFullYear());
+
+  const pdf = await renderStarterReportPdf({
+    reportId,
+    issueDate: formatDate(now),
+    validUntil: formatDate(validUntil),
+    tierName: tierDisplayName(args.tier),
+    vendor: {
+      legalName: args.vendor.legalName,
+      domain: args.vendor.domain,
+      country: args.vendor.country,
+    },
+    buyer: {
+      name: args.buyerName,
+      company: args.buyerCompany,
+      email: args.buyerEmail,
+    },
+    scoring,
+    upgradeUrl: `${env.APP_PUBLIC_URL}/upgrade?from=${reportId}`,
+  });
+
+  const storage = getStorage();
+  const stored = await storage.put(StorageKeys.runReportPdf(args.runId), pdf, 'application/pdf');
+  const reportPdfUrl = storage.url(stored.key);
+
+  let emailDelivered = false;
+  if (args.buyerEmail) {
+    const emailResult = await sendTx02ReportReady({
+      to: args.buyerEmail,
+      buyerName: args.buyerName ?? 'there',
+      tierName: tierDisplayName(args.tier),
+      vendorLegalName: args.vendor.legalName,
+      compositeScore: scoring.compositeScore,
+      riskBand: scoring.riskBand,
+      hardRedFlag: scoring.hardRedFlag,
+      reportPdfUrl,
+      dashboardUrl: `${env.APP_PUBLIC_URL}/runs/${args.runId}`,
+      validUntil: formatDate(validUntil),
+    });
+    emailDelivered = emailResult.delivered;
+  }
+
+  return { reportPdfUrl, scoring, emailDelivered };
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -190,6 +295,7 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.post<{ Params: { id: string } }>('/v1/runs/:id/submit', async (req) => {
     if (!req.organization) throw new ApiError(401, 'unauthorized', 'No organization context.');
     const id = z.string().uuid().parse(req.params.id);
+    const body = SubmitBodySchema.parse(req.body ?? {});
     const run = await loadRunForOrg(id, req.organization.id);
     if (run.status !== 'draft') {
       throw new ApiError(
@@ -212,35 +318,47 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
       throw new ApiError(400, 'no_responses', 'Run has no responses — cannot submit.');
     }
 
-    // Starter: compute inline. Pro/Enterprise: enqueue (TODO Wave 3+).
+    // Starter / Free Snapshot: compute inline + generate PDF + send email.
     if (run.tier === 'starter' || run.tier === 'free_snapshot') {
-      const result = calculateScoring({
+      const vendor = await loadVendor(run.vendorId);
+      const delivery = await deliverStarterReport({
+        runId: id,
         tier: run.tier as Tier,
-        responses: responsesFromRawRows(rows),
+        vendor: {
+          legalName: vendor.legalName,
+          domain: vendor.domain,
+          country: vendor.country,
+        },
+        buyerEmail: body.buyerEmail ?? null,
+        buyerName: body.buyerName ?? null,
+        buyerCompany: req.organization.legalName,
+        scoringResponses: responsesFromRawRows(rows),
       });
 
       const [updated] = await db
         .update(runs)
         .set({
           status: 'delivered',
-          compositeScore: result.compositeScore,
-          riskBand: result.riskBand,
-          hardRedFlag: result.hardRedFlag,
-          capReason: result.capReason,
-          scoringVersion: result.scoringVersion,
-          frameworkVersion: result.frameworkVersion,
-          reportJson: result,
+          compositeScore: delivery.scoring.compositeScore,
+          riskBand: delivery.scoring.riskBand,
+          hardRedFlag: delivery.scoring.hardRedFlag,
+          capReason: delivery.scoring.capReason,
+          scoringVersion: delivery.scoring.scoringVersion,
+          frameworkVersion: delivery.scoring.frameworkVersion,
+          reportJson: delivery.scoring,
+          reportPdfUrl: delivery.reportPdfUrl,
           deliveredAt: new Date(),
+          updatedAt: new Date(),
         })
         .where(eq(runs.id, id))
         .returning();
-      return updated;
+      return { ...updated, emailDelivered: delivery.emailDelivered };
     }
 
     // Pro / Enterprise: flip to queued; worker picks up later.
     const [updated] = await db
       .update(runs)
-      .set({ status: 'queued', startedAt: new Date() })
+      .set({ status: 'queued', startedAt: new Date(), updatedAt: new Date() })
       .where(eq(runs.id, id))
       .returning();
     return updated;
@@ -250,10 +368,18 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
     if (!req.organization) throw new ApiError(401, 'unauthorized', 'No organization context.');
     const id = z.string().uuid().parse(req.params.id);
     const run = await loadRunForOrg(id, req.organization.id);
-    if (!run.reportPdfUrl) {
+
+    const storage = getStorage();
+    const key = StorageKeys.runReportPdf(run.id);
+    if (!(await storage.exists(key))) {
       throw new ApiError(404, 'report_not_ready', 'Report PDF not yet generated.');
     }
-    // Wave 1: return a signed URL instead of streaming bytes directly.
-    reply.code(200).send({ url: run.reportPdfUrl });
+
+    const { stream, sizeBytes, contentType } = await storage.stream(key);
+    reply
+      .header('content-type', contentType)
+      .header('content-length', sizeBytes)
+      .header('content-disposition', `attachment; filename="partnerscope-${run.id}.pdf"`);
+    return reply.send(stream);
   });
 }

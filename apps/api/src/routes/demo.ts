@@ -1,7 +1,8 @@
 /**
  * POST /v1/demo/submit  (public)
  *   Free Snapshot lead magnet. Accepts 5-question answer set for
- *   D11/D12/D13, computes a preview score, stores a lead row.
+ *   D11/D12/D13, computes a preview score, stores a lead row, and
+ *   sends TX-03 (best-effort — email failure does not fail the request).
  */
 
 import type { FastifyInstance } from 'fastify';
@@ -9,8 +10,10 @@ import { z } from 'zod';
 
 import { calculateScoring, likertToScore, questionsForTier } from '@partnerscope/core';
 
+import { env } from '../config/env.js';
 import { db } from '../db/client.js';
 import { demoLeads } from '../db/schema.js';
+import { sendTx03FreeSnapshot } from '../services/email/index.js';
 
 const DemoAnswerSchema = z.object({
   questionId: z.string().min(1),
@@ -76,6 +79,26 @@ export async function demoRoutes(fastify: FastifyInstance): Promise<void> {
       })
       .returning({ id: demoLeads.id });
 
+    // Best-effort email — do not fail the HTTP response if the provider is
+    // down; the dry-run path simply logs when RESEND_API_KEY is absent.
+    const concerns = [...result.dimensionScores]
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 3)
+      .map((d) => `${d.dimensionName} — ${d.score}/100 (${d.band})`);
+
+    try {
+      await sendTx03FreeSnapshot({
+        to: body.email,
+        vendorDomain: body.vendorDomain,
+        snapshotScore: result.compositeScore,
+        riskBand: result.riskBand,
+        concerns,
+        upgradeUrl: `${env.APP_PUBLIC_URL}/plans?utm_source=tx03&lead=${lead?.id ?? ''}`,
+      });
+    } catch (err) {
+      req.log.warn({ err }, 'TX-03 send failed; continuing with 201');
+    }
+
     reply.code(201).send({
       leadId: lead?.id,
       compositeScore: result.compositeScore,
@@ -91,7 +114,7 @@ export async function demoRoutes(fastify: FastifyInstance): Promise<void> {
           result.compositeScore < 66
             ? 'Your snapshot suggests significant risk. Run a full Starter assessment (€99) for a complete 13-dimension audit.'
             : 'Your snapshot is clean. Upgrade to Starter (€99) for a signed 13-dimension report.',
-        starterUrl: 'https://partnerscope.eu/plans',
+        starterUrl: `${env.APP_PUBLIC_URL}/plans`,
       },
     });
   });

@@ -1,0 +1,19 @@
+Hello {{buyerName}},
+
+Your {{tierName}} assessment for {{vendorLegalName}} is complete.
+
+Composite score: {{compositeScore}} / 100
+Band: {{riskBand}}
+{{#if hardRedFlag}}
+⚠ Hard red flag identified — see the Red flags section of the report.
+{{/if}}
+
+Download PDF (signed URL, valid 72h):
+{{reportPdfUrl}}
+
+Dashboard:
+{{dashboardUrl}}
+
+Valid until {{validUntil}}. Request a refresh anytime.
+
+— PartnerScope Analyst Team

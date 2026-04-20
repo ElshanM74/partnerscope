@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PartnerScope Snapshot — {{vendor.legalName}}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 22mm 16mm;
+    @bottom-center {
+      content: "PartnerScope · EKM Global Consulting GmbH · partnerscope.eu";
+      font-size: 9px;
+      color: #6a7280;
+    }
+    @bottom-right {
+      content: "Report " string(report_id) " · " counter(page) "/" counter(pages) " · Confidential";
+      font-size: 9px;
+      color: #6a7280;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #1a2233;
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 26px; margin: 0 0 8px; letter-spacing: .3px; color: #0f1a2b; }
+  h2 { font-size: 16px; margin: 22px 0 8px; color: #0f1a2b; border-bottom: 1px solid #e5e8ec; padding-bottom: 4px; }
+  h3 { font-size: 13px; margin: 14px 0 6px; color: #0f1a2b; }
+  p { margin: 6px 0; }
+  ul { padding-left: 18px; margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e8ec; }
+  th { background: #f3f5f7; font-weight: 600; color: #0f1a2b; }
+
+  .page-break { page-break-before: always; }
+
+  .cover {
+    position: relative;
+    padding-top: 32mm;
+    string-set: report_id "{{reportId}}";
+  }
+  .brand { font-size: 12px; color: #6a7280; letter-spacing: 2px; }
+  .report-meta {
+    display: table; width: 100%; margin: 20px 0 26px;
+    border-top: 1px solid #e5e8ec; border-bottom: 1px solid #e5e8ec;
+    padding: 10px 0; font-size: 11px; color: #4a5565;
+  }
+  .report-meta > div { display: table-row; }
+  .report-meta > div > div { display: table-cell; padding: 3px 0; }
+  .report-meta .k { color: #6a7280; width: 34%; }
+
+  .score-card {
+    display: flex; align-items: center; gap: 24px;
+    padding: 18px 20px; margin-top: 10px; border-radius: 10px;
+    border: 1px solid #e5e8ec; background: #fafbfc;
+  }
+  .score-big { font-size: 60px; font-weight: 700; color: #0f1a2b; line-height: 1; }
+  .score-label { font-size: 11px; color: #6a7280; letter-spacing: 1.5px; text-transform: uppercase; }
+  .band { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 11px; letter-spacing: .4px; }
+  .band-HIGH { background: #ffe4de; color: #8a2f24; }
+  .band-MEDIUM { background: #fff0d8; color: #7b5200; }
+  .band-LOW { background: #dcf3e3; color: #1f7a3d; }
+  .band-MINIMAL { background: #cce9d4; color: #0b5d2f; }
+
+  .verdict {
+    margin-top: 18px; padding: 14px 16px; border-radius: 8px;
+    background: #eff4fb; border: 1px solid #d6e2f2; color: #0f1a2b;
+    font-size: 12.5px;
+  }
+  .verdict strong { letter-spacing: .5px; }
+
+  .two-col { display: flex; gap: 18px; margin-top: 8px; }
+  .two-col .col { flex: 1; }
+
+  .status-pass { color: #1f7a3d; font-weight: 600; }
+  .status-warn { color: #d67c00; font-weight: 600; }
+  .status-fail { color: #c0392b; font-weight: 600; }
+  .status-error { color: #6a7280; font-weight: 600; }
+
+  .red-flag {
+    padding: 10px 12px; border-left: 4px solid #c0392b;
+    background: #fff4f2; margin: 8px 0; font-size: 11.5px;
+  }
+  .red-flag .sev { font-weight: 700; color: #8a2f24; text-transform: uppercase; letter-spacing: .5px; font-size: 10px; }
+
+  .small { font-size: 10px; color: #6a7280; }
+
+  .upgrade-box {
+    border: 1px solid #d6dbe2; border-radius: 8px; padding: 14px 18px;
+    background: #f8f9fb; margin-top: 10px;
+  }
+  .upgrade-box strong { color: #0f1a2b; }
+</style>
+</head>
+<body>
+
+<!-- ────────── COVER ────────── -->
+<section class="cover">
+  <div class="brand">PARTNERSCOPE SNAPSHOT</div>
+  <h1>{{vendor.legalName}}</h1>
+  <div class="small">{{vendor.domain}}{{#if vendor.country}} · {{vendor.country}}{{/if}}</div>
+
+  <div class="report-meta">
+    <div><div class="k">Report ID</div><div>{{reportId}}</div></div>
+    <div><div class="k">Issued</div><div>{{issueDate}}</div></div>
+    <div><div class="k">Valid until</div><div>{{validUntil}}</div></div>
+    <div><div class="k">Requested by</div><div>{{buyer.company}}</div></div>
+    <div><div class="k">Tier</div><div>{{tierName}}</div></div>
+  </div>
+
+  <div class="score-card">
+    <div>
+      <div class="score-label">Composite risk score</div>
+      <div class="score-big">{{composite.score}}<span style="font-size:22px;color:#6a7280">/100</span></div>
+    </div>
+    <div>
+      <div class="score-label">Risk band</div>
+      <div><span class="band band-{{composite.band}}">{{composite.band}}</span></div>
+      {{#if capReason}}<div class="small" style="margin-top:8px;max-width:260px">Cap applied: {{capReason}}</div>{{/if}}
+      {{#if hardRedFlag}}<div class="small" style="margin-top:8px;color:#8a2f24">⚠ Hard red flag identified</div>{{/if}}
+    </div>
+  </div>
+
+  <div class="verdict">
+    <strong>Recommended action — {{verdict.label}}.</strong> {{verdict.paragraph}}
+  </div>
+</section>
+
+<!-- ────────── EXECUTIVE SUMMARY ────────── -->
+<section class="page-break">
+  <h2>Executive summary</h2>
+  <p>{{executiveSummary}}</p>
+
+  <div class="two-col">
+    <div class="col">
+      <h3>Top strengths</h3>
+      <ul>{{#each strengths}}<li>{{this}}</li>{{/each}}</ul>
+    </div>
+    <div class="col">
+      <h3>Top concerns</h3>
+      <ul>{{#each concerns}}<li>{{this}}</li>{{/each}}</ul>
+    </div>
+  </div>
+</section>
+
+<!-- ────────── 13-DIMENSION SCORECARD ────────── -->
+<section class="page-break">
+  <h2>13-dimension scorecard</h2>
+  <table>
+    <thead>
+      <tr><th style="width:22%">Pillar</th><th>Dimension</th><th style="width:14%">Weight</th><th style="width:12%">Score</th><th style="width:16%">Band</th></tr>
+    </thead>
+    <tbody>
+      {{#each dimensions}}
+        <tr>
+          <td>{{pillarName}}</td>
+          <td><strong>{{code}}</strong> · {{name}}</td>
+          <td>{{weight}}%</td>
+          <td>{{score}}</td>
+          <td><span class="band band-{{band}}">{{band}}</span></td>
+        </tr>
+      {{/each}}
+      <tr>
+        <td colspan="3" style="text-align:right"><strong>Composite</strong></td>
+        <td><strong>{{composite.score}}</strong></td>
+        <td><span class="band band-{{composite.band}}">{{composite.band}}</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ────────── AUTOMATED TESTS ────────── -->
+<section class="page-break">
+  <h2>Automated test results</h2>
+  {{#if tests.length}}
+    <table>
+      <thead>
+        <tr><th style="width:28%">Test</th><th style="width:12%">Status</th><th>Finding</th></tr>
+      </thead>
+      <tbody>
+        {{#each tests}}
+          <tr>
+            <td>{{id}}</td>
+            <td class="status-{{status}}">{{status}}</td>
+            <td>{{finding}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p class="small">No automated tests were executed for this assessment (Free Snapshot / questionnaire-only mode).</p>
+  {{/if}}
+</section>
+
+<!-- ────────── RED FLAGS ────────── -->
+<section class="page-break">
+  <h2>Red flags</h2>
+  {{#if redFlags.length}}
+    {{#each redFlags}}
+      <div class="red-flag">
+        <div class="sev">{{severity}} · {{dimensionCode}}</div>
+        <div><strong>{{title}}</strong></div>
+        <div>{{description}}</div>
+        {{#if references.length}}<div class="small" style="margin-top:4px">Ref: {{#each references}}{{this}}{{#unless @last}}; {{/unless}}{{/each}}</div>{{/if}}
+      </div>
+    {{/each}}
+  {{else}}
+    <p>No hard red flags identified.</p>
+  {{/if}}
+</section>
+
+<!-- ────────── DATA GAPS ────────── -->
+<section class="page-break">
+  <h2>Data gaps</h2>
+  {{#if dataGaps.length}}
+    <p class="small">The following items were not answered or lacked evidence. Upgrading to Pro adds documentary review + analyst verification for all of them.</p>
+    <table>
+      <thead><tr><th style="width:15%">Question</th><th style="width:12%">Dimension</th><th>Upgrade benefit</th></tr></thead>
+      <tbody>
+        {{#each dataGaps}}
+          <tr><td>{{questionId}}</td><td>{{dimensionCode}}</td><td>{{upgradeCta}}</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>No data gaps — all Starter-tier questions answered.</p>
+  {{/if}}
+</section>
+
+<!-- ────────── UPGRADE PATH ────────── -->
+<section class="page-break">
+  <h2>Upgrade path</h2>
+  <div class="upgrade-box">
+    <p><strong>Starter (current)</strong> — 24h automated + questionnaire</p>
+    <p><strong>Pro (€499, or €299 intro within 30 days)</strong> — 78-question analysis, documentary review, AI red-team (5 payloads), sanctions + adverse media + UBO + credit.</p>
+    <p class="small">Upgrade: <a href="{{upgrade.url}}">{{upgrade.url}}</a></p>
+  </div>
+</section>
+
+<!-- ────────── METHODOLOGY ────────── -->
+<section class="page-break">
+  <h2>Methodology &amp; disclaimers</h2>
+  <ul>
+    <li><strong>Scope:</strong> automated tests + buyer questionnaire. No documentary / human analyst review at the Starter tier.</li>
+    <li><strong>Validity:</strong> 90 days from issue date. Request a refresh anytime.</li>
+    <li><strong>Scoring:</strong> framework v{{frameworkVersion}}, engine v{{scoringVersion}}. 13 dimensions across behavioral, financial, and AI-compliance pillars.</li>
+    <li><strong>Disclaimer:</strong> snapshot only — not a substitute for full due diligence. PartnerScope makes no warranty of the vendor's future conduct.</li>
+  </ul>
+  <p class="small" style="margin-top:12px">Contact: reports@partnerscope.eu · PartnerScope is a product of EKM Global Consulting GmbH, Germany.</p>
+</section>
+
+</body>
+</html>

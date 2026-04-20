@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Your PartnerScope report is ready</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f7f9; margin: 0; padding: 24px; color: #1a2233; }
+      .card { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 10px; border: 1px solid #e5e8ec; overflow: hidden; }
+      .hdr { padding: 20px 28px; background: #0f1a2b; color: #fff; font-weight: 600; letter-spacing: .4px; font-size: 15px; }
+      .body { padding: 24px 28px; font-size: 15px; line-height: 1.55; }
+      .score { font-size: 38px; font-weight: 700; color: #0f1a2b; margin: 4px 0 0; }
+      .band-HIGH { color: #c0392b; }
+      .band-MEDIUM { color: #d67c00; }
+      .band-LOW { color: #1f7a3d; }
+      .band-MINIMAL { color: #0b5d2f; }
+      .cta { display: inline-block; padding: 12px 20px; background: #0f1a2b; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: 600; }
+      .muted { color: #6a7280; font-size: 13px; }
+      .redflag { background: #fff4f2; border: 1px solid #f1c7c0; color: #8a2f24; padding: 10px 14px; border-radius: 6px; margin: 14px 0; font-size: 14px; }
+      .row { margin: 14px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="hdr">PARTNERSCOPE · Report ready</div>
+      <div class="body">
+        <p>Hello {{buyerName}},</p>
+        <p>Your <strong>{{tierName}}</strong> assessment for <strong>{{vendorLegalName}}</strong> is complete.</p>
+
+        <div class="row">
+          <div class="muted">Composite score</div>
+          <div class="score">{{compositeScore}} / 100</div>
+          <div class="band-{{riskBand}}"><strong>Band: {{riskBand}}</strong></div>
+        </div>
+
+        {{#if hardRedFlag}}
+          <div class="redflag">&#9888; Hard red flag identified — see the Red flags section of the report.</div>
+        {{/if}}
+
+        <div class="row">
+          <a class="cta" href="{{reportPdfUrl}}">Download PDF report</a>
+        </div>
+
+        <p class="muted">Dashboard: <a href="{{dashboardUrl}}">{{dashboardUrl}}</a><br/>
+        Valid until {{validUntil}}. Request a refresh anytime.</p>
+
+        <p>— PartnerScope Analyst Team</p>
+      </div>
+    </div>
+  </body>
+</html>
