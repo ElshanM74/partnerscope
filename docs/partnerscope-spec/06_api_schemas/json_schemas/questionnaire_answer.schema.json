@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://partnerscope.eu/schemas/questionnaire_answer.schema.json",
+  "title": "QuestionnaireAnswer",
+  "type": "object",
+  "required": ["question_id", "raw_answer", "answered_at"],
+  "properties": {
+    "question_id": { "type": "string", "pattern": "^Q\\d{2,3}$" },
+    "dimension_code": { "type": "string", "pattern": "^D\\d{1,2}$" },
+    "raw_answer": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "array", "items": { "type": "string" } },
+        { "type": "object" }
+      ]
+    },
+    "numeric_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "analyst_notes": { "type": "string" },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" }
+    },
+    "answered_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

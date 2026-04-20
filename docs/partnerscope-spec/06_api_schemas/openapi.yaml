@@ -1,0 +1,265 @@
+openapi: 3.1.0
+info:
+  title: PartnerScope API
+  version: "1.0.0"
+  description: |
+    REST API for PartnerScope B2B vendor-risk platform.
+    Base URL: https://api.partnerscope.eu
+    Auth: Bearer API key per organization.
+  contact:
+    email: api@partnerscope.eu
+servers:
+  - url: https://api.partnerscope.eu/v1
+security:
+  - bearerAuth: []
+
+paths:
+  /demo/submit:
+    post:
+      summary: Submit free 60-second snapshot (public, no auth)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemoSubmitRequest'
+      responses:
+        '200':
+          description: Snapshot computed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemoSnapshot'
+        '429':
+          description: Rate limited
+
+  /vendors:
+    get:
+      summary: List vendors in caller's organization
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, maximum: 200 }
+        - in: query
+          name: cursor
+          schema: { type: string }
+      responses:
+        '200':
+          description: Vendor list
+    post:
+      summary: Create vendor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCreate'
+      responses:
+        '201': { description: Created }
+
+  /vendors/{vendor_id}:
+    get:
+      parameters:
+        - in: path
+          name: vendor_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Vendor detail }
+
+  /runs:
+    post:
+      summary: Start a new assessment run
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunCreate'
+      responses:
+        '202':
+          description: Run queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+
+  /runs/{run_id}:
+    get:
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Run status + partial results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+
+  /runs/{run_id}/report.pdf:
+    get:
+      summary: Download final PDF report
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: PDF stream
+          content:
+            application/pdf: {}
+        '403': { description: Not yet delivered or access denied }
+
+  /runs/{run_id}/responses:
+    post:
+      summary: Submit questionnaire answers
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuestionnaireAnswer'
+      responses:
+        '204': { description: Accepted }
+
+  /runs/{run_id}/evidence:
+    post:
+      summary: Upload evidence document
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                doc_type: { type: string, enum: [DPA, ISO27001, SOC2, ModelCard, SBOM, BCP, IR_PLAN, OTHER] }
+                dimension_code: { type: string }
+                file: { type: string, format: binary }
+      responses:
+        '201': { description: Uploaded }
+
+  /vendors/{vendor_id}/monitoring:
+    get:
+      summary: Continuous monitoring signals (Enterprise only)
+      parameters:
+        - in: path
+          name: vendor_id
+          required: true
+          schema: { type: string, format: uuid }
+        - in: query
+          name: since
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Signal list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MonitoringSignal' }
+
+  /webhooks/stripe:
+    post:
+      summary: Stripe webhook receiver (internal)
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: ok }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key
+
+  schemas:
+    DemoSubmitRequest:
+      type: object
+      required: [email, vendor_domain, answers]
+      properties:
+        email: { type: string, format: email }
+        company: { type: string }
+        vendor_domain: { type: string }
+        answers:
+          type: object
+          description: 5 snapshot question answers keyed by question id
+          additionalProperties: true
+
+    DemoSnapshot:
+      type: object
+      properties:
+        snapshot_score: { type: integer, minimum: 0, maximum: 100 }
+        risk_band: { $ref: '#/components/schemas/RiskBand' }
+        top_concerns: { type: array, items: { type: string } }
+        upgrade_url: { type: string, format: uri }
+
+    VendorCreate:
+      type: object
+      required: [legal_name, domain]
+      properties:
+        legal_name: { type: string }
+        domain: { type: string }
+        country: { type: string, minLength: 2, maxLength: 2 }
+        industry: { type: string }
+        external_ref: { type: string }
+
+    RunCreate:
+      type: object
+      required: [vendor_id, tier]
+      properties:
+        vendor_id: { type: string, format: uuid }
+        tier: { type: string, enum: [starter, pro, enterprise] }
+        sla_hours: { type: integer }
+        stripe_payment_intent: { type: string }
+
+    Run:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        vendor_id: { type: string, format: uuid }
+        tier: { type: string, enum: [free_snapshot, starter, pro, enterprise] }
+        status: { type: string, enum: [queued, running, analyst_review, qa_review, delivered, failed, cancelled] }
+        composite_score: { type: integer, nullable: true }
+        risk_band: { $ref: '#/components/schemas/RiskBand' }
+        hard_red_flag: { type: boolean }
+        report_pdf_url: { type: string, nullable: true }
+        started_at: { type: string, format: date-time, nullable: true }
+        delivered_at: { type: string, format: date-time, nullable: true }
+
+    QuestionnaireAnswer:
+      type: object
+      required: [question_id, raw_answer]
+      properties:
+        question_id: { type: string }
+        raw_answer: { type: object, additionalProperties: true }
+
+    MonitoringSignal:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        signal_code: { type: string }
+        severity: { type: string }
+        payload: { type: object }
+        detected_at: { type: string, format: date-time }
+
+    RiskBand:
+      type: string
+      enum: [HIGH, MEDIUM, LOW, MINIMAL]
+      nullable: true

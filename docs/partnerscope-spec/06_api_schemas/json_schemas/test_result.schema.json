@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://partnerscope.eu/schemas/test_result.schema.json",
+  "title": "TestResult",
+  "type": "object",
+  "required": ["test_id", "dimension_code", "status", "executed_at"],
+  "properties": {
+    "test_id": { "type": "string", "pattern": "^[A-Z]{3}_\\d{3}" },
+    "dimension_code": { "type": "string", "pattern": "^D\\d{1,2}(,D\\d{1,2})*$" },
+    "status": { "type": "string", "enum": ["pass", "warn", "fail", "error"] },
+    "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "evidence_url": { "type": "string", "format": "uri" },
+    "evidence_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "raw_payload": { "type": "object" },
+    "hard_red_flag": { "type": "boolean", "default": false },
+    "executed_at": { "type": "string", "format": "date-time" },
+    "runtime_ms": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

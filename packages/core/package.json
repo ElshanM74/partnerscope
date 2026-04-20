@@ -1,0 +1,38 @@
+{
+  "name": "@partnerscope/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PartnerScope domain core — dimensions, questions, scoring engine, compliance crosswalk",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./dimensions": {
+      "types": "./dist/dimensions.d.ts",
+      "default": "./dist/dimensions.js"
+    },
+    "./questions": {
+      "types": "./dist/questions.d.ts",
+      "default": "./dist/questions.js"
+    },
+    "./scoring": {
+      "types": "./dist/scoring.d.ts",
+      "default": "./dist/scoring.js"
+    },
+    "./crosswalk": {
+      "types": "./dist/crosswalk.d.ts",
+      "default": "./dist/crosswalk.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}

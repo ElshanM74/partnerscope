@@ -1,0 +1,43 @@
+{
+  "name": "@partnerscope/platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PartnerScope — B2B third-party AI risk assessment platform",
+  "author": "EKM Global Consulting GmbH <elshan.musayev@ekmgc.de>",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "pnpm -r typecheck",
+    "db:migrate": "pnpm --filter @partnerscope/api db:migrate",
+    "db:seed": "tsx scripts/seed_questions.ts",
+    "prepare": "husky || true"
+  },
+  "dependencies": {
+    "@partnerscope/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "pg": "^8.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md}": ["biome check --write --no-errors-on-unmatched"]
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-04-20",
+  "description": "Canonical request/response payloads for each automated test. Use as reference when implementing test_runner or as fixtures in CI.",
+  "tests": [
+    {
+      "test_id": "DNS_001",
+      "dimension_code": "D3",
+      "input": {"domain": "dataflow-gmbh.example"},
+      "output_schema_ref": "json_schemas/test_result.schema.json",
+      "sample_output": {
+        "test_id": "DNS_001",
+        "dimension_code": "D3",
+        "status": "pass",
+        "score": 100,
+        "evidence_url": "s3://partnerscope-evidence/vnd_01HXYZ/D3/dns_001.json",
+        "raw_payload": {
+          "a_records": ["203.0.113.42"],
+          "mx_records": [{"pref": 10, "host": "mail.dataflow-gmbh.example"}],
+          "ns_records": ["ns1.example", "ns2.example"],
+          "caa_records": ["0 issue \"letsencrypt.org\""],
+          "dnssec": {"enabled": true, "chain_valid": true, "algorithm": "ECDSAP256SHA256"}
+        },
+        "executed_at": "2026-04-20T17:30:00Z",
+        "runtime_ms": 812
+      }
+    },
+    {
+      "test_id": "TLS_001",
+      "dimension_code": "D3",
+      "input": {"domain": "dataflow-gmbh.example", "port": 443},
+      "sample_output": {
+        "status": "pass",
+        "score": 90,
+        "raw_payload": {
+          "protocol_versions": {"tls_1_3": true, "tls_1_2": true, "tls_1_1": false, "tls_1_0": false, "ssl_3": false},
+          "cert": {
+            "subject": "CN=dataflow-gmbh.example",
+            "issuer": "CN=R3, O=Let's Encrypt",
+            "valid_from": "2026-02-12",
+            "valid_to": "2026-05-12",
+            "key_type": "ECDSA P-256",
+            "san": ["dataflow-gmbh.example", "www.dataflow-gmbh.example"]
+          },
+          "hsts_preload": true,
+          "ocsp_stapling": true,
+          "mozilla_grade": "A",
+          "vulnerabilities": {"heartbleed": false, "robot": false, "logjam": false}
+        }
+      }
+    },
+    {
+      "test_id": "HDR_001",
+      "dimension_code": "D3",
+      "input": {"url": "https://dataflow-gmbh.example"},
+      "sample_output": {
+        "status": "warn",
+        "score": 70,
+        "raw_payload": {
+          "headers_present": {
+            "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+            "content-security-policy": "default-src 'self'",
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "DENY",
+            "referrer-policy": "strict-origin-when-cross-origin"
+          },
+          "headers_missing": ["permissions-policy", "cross-origin-opener-policy"],
+          "score_breakdown": {"hsts": 20, "csp": 25, "xcto": 10, "xfo": 10, "ref": 10, "perm": 0, "coop": 0, "subtotal": 75}
+        }
+      }
+    },
+    {
+      "test_id": "BRC_001",
+      "dimension_code": "D3",
+      "input": {"domain": "dataflow-gmbh.example"},
+      "sample_output": {
+        "status": "warn",
+        "score": 70,
+        "raw_payload": {
+          "breaches_24mo": [
+            {"name": "LinkedIn2023Scrape", "date": "2023-11-15", "records_affected": 6800, "data_classes": ["Email addresses", "Names"], "pii_passwords": false}
+          ],
+          "total_records_exposed": 6800,
+          "hard_red_flag": false
+        }
+      }
+    },
+    {
+      "test_id": "SAN_001",
+      "dimension_code": "D5,D7",
+      "input": {
+        "entity_name": "DataFlow GmbH",
+        "jurisdiction": "DE",
+        "directors": ["Markus Weber", "Sophie Klein"],
+        "ubos": ["Hans Weber"]
+      },
+      "sample_output": {
+        "status": "pass",
+        "score": 100,
+        "raw_payload": {
+          "queries_run": 4,
+          "matches": [],
+          "sources_checked": ["OFAC SDN 2026-04-18", "EU Consolidated 2026-04-19", "UK OFSI 2026-04-18", "UN SC 2026-04-17"]
+        }
+      }
+    },
+    {
+      "test_id": "SAN_001_HIT",
+      "dimension_code": "D5,D7",
+      "input": {"entity_name": "SanctionedCo OOO", "jurisdiction": "RU"},
+      "sample_output": {
+        "status": "fail",
+        "score": 0,
+        "hard_red_flag": true,
+        "raw_payload": {
+          "matches": [
+            {
+              "list": "EU Consolidated",
+              "entry_id": "EU.13849",
+              "name": "SANCTIONEDCO OOO",
+              "similarity": 0.98,
+              "sanction_type": "Asset freeze",
+              "listed_on": "2022-06-03",
+              "reg_ref": "Council Regulation (EU) 833/2014"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "test_id": "UBO_001",
+      "dimension_code": "D7",
+      "input": {"entity_name": "DataFlow GmbH", "jurisdiction": "DE", "vendor_declared_ubos": ["Hans Weber (50%)"]},
+      "sample_output": {
+        "status": "pass",
+        "score": 100,
+        "raw_payload": {
+          "source": "Transparenzregister DE",
+          "registry_ubos": [{"name": "Hans Weber", "percentage": 50, "dob": "1968-03-14"}],
+          "match_with_declared": true
+        }
+      }
+    },
+    {
+      "test_id": "CRD_001",
+      "dimension_code": "D6",
+      "input": {"entity_name": "DataFlow GmbH", "country": "DE"},
+      "sample_output": {
+        "status": "pass",
+        "score": 82,
+        "raw_payload": {
+          "provider": "CreditSafe",
+          "score": 82,
+          "rating": "A",
+          "credit_limit_eur": 250000,
+          "payment_behavior": "On time 94%",
+          "last_updated": "2026-04-10"
+        }
+      }
+    },
+    {
+      "test_id": "MDC_001",
+      "dimension_code": "D12",
+      "input": {"model_card_url": "https://hf.co/dataflow/risk-v2/raw/main/README.md"},
+      "sample_output": {
+        "status": "warn",
+        "score": 71,
+        "raw_payload": {
+          "sections_present": ["intended_use", "training_data", "evaluation_metrics", "limitations", "version"],
+          "sections_missing": ["out_of_scope_use", "ethical_considerations"],
+          "completeness_pct": 71,
+          "caps_composite_at_65": false
+        }
+      }
+    },
+    {
+      "test_id": "AIA_001",
+      "dimension_code": "D13",
+      "input": {
+        "use_case": "Credit scoring for SME lending across DACH region",
+        "deployer_sector": "financial_services",
+        "affected_persons": "natural_persons",
+        "decision_automation": "full_automation"
+      },
+      "sample_output": {
+        "status": "fail",
+        "score": 30,
+        "hard_red_flag": true,
+        "raw_payload": {
+          "annex_iii_category": "5(b) creditworthiness assessment of natural persons",
+          "risk_class": "high_risk",
+          "confidence": 0.96,
+          "missing_obligations": [
+            "Art. 9 risk_management_system",
+            "Art. 10 data_governance",
+            "Art. 11 technical_documentation",
+            "Art. 14 human_oversight"
+          ]
+        }
+      }
+    },
+    {
+      "test_id": "DRK_001",
+      "dimension_code": "D3",
+      "input": {"domain": "dataflow-gmbh.example", "employee_emails": ["ceo@dataflow-gmbh.example"]},
+      "sample_output": {
+        "status": "pass",
+        "score": 95,
+        "raw_payload": {
+          "provider": "Intel X",
+          "leaks_last_12mo": 0,
+          "credentials_for_sale": 0,
+          "insider_chatter_mentions": 0
+        }
+      }
+    }
+  ],
+  "bulk_run_example": {
+    "description": "Call to start a Pro-tier run for vendor vnd_01HXYZ",
+    "request": {
+      "method": "POST",
+      "url": "https://api.partnerscope.eu/v1/runs",
+      "headers": {"Authorization": "Bearer ${API_KEY}", "Content-Type": "application/json"},
+      "body": {
+        "vendor_id": "vnd_01HXYZ",
+        "tier": "pro",
+        "requested_by": "user_01HABC",
+        "sla_hours": 48
+      }
+    },
+    "response": {
+      "status": 202,
+      "body": {
+        "run_id": "run_01HXYZ_pro_01",
+        "status": "queued",
+        "estimated_completion": "2026-04-22T17:30:00Z",
+        "tests_planned": 18,
+        "progress_url": "https://api.partnerscope.eu/v1/runs/run_01HXYZ_pro_01"
+      }
+    }
+  }
+}

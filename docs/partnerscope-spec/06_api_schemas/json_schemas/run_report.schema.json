@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://partnerscope.eu/schemas/run_report.schema.json",
+  "title": "RunReport",
+  "type": "object",
+  "required": ["run_id", "vendor", "tier", "composite", "dimensions", "issued_at"],
+  "properties": {
+    "run_id": { "type": "string", "format": "uuid" },
+    "report_id": { "type": "string", "pattern": "^PS-\\d{4}-(STA|PRO|ENT|DEMO)-\\d{3,5}$" },
+    "tier": { "type": "string", "enum": ["free_snapshot", "starter", "pro", "enterprise"] },
+    "vendor": {
+      "type": "object",
+      "required": ["legal_name", "domain"],
+      "properties": {
+        "legal_name": { "type": "string" },
+        "domain": { "type": "string" },
+        "country": { "type": "string", "minLength": 2, "maxLength": 2 },
+        "industry": { "type": "string" }
+      }
+    },
+    "buyer": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "composite": {
+      "type": "object",
+      "required": ["score", "band"],
+      "properties": {
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "band": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "MINIMAL"] },
+        "cap_reason": { "type": "string" },
+        "hard_red_flag": { "type": "boolean" }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": {
+        "type": "object",
+        "required": ["code", "score", "band"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^D\\d{1,2}$" },
+          "name": { "type": "string" },
+          "cluster": { "type": "string", "enum": ["behavioral", "financial", "ai_compliance"] },
+          "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "band": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW", "MINIMAL"] },
+          "findings": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": { "$ref": "test_result.schema.json" }
+    },
+    "red_team": {
+      "type": "object",
+      "properties": {
+        "payloads_run": { "type": "integer" },
+        "blocked": { "type": "integer" },
+        "partial": { "type": "integer" },
+        "succeeded": { "type": "integer" },
+        "composite": { "type": "integer" },
+        "findings": { "type": "array" }
+      }
+    },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "valid_until": { "type": "string", "format": "date" }
+  },
+  "additionalProperties": false
+}

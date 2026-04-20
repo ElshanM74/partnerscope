@@ -1,0 +1,185 @@
+{
+  "framework_version": "13.0",
+  "last_updated": "2026-04-20",
+  "pillars": [
+    {
+      "id": "A",
+      "name": "Behavioral",
+      "weight_total": 25,
+      "description": "Human/organizational behavior signals from counterparty"
+    },
+    {
+      "id": "B",
+      "name": "Financial & Structural",
+      "weight_total": 30,
+      "description": "Financial health, legal structure, operational delivery"
+    },
+    {
+      "id": "C",
+      "name": "AI & Compliance",
+      "weight_total": 45,
+      "description": "Core differentiator — AI-specific + regulatory compliance"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": 1,
+      "pillar": "A",
+      "name": "Accountability & Responsibility",
+      "weight": 5,
+      "short_desc": "Ownership of failures, reliability on commitments",
+      "regulatory_anchors": ["NIST AI RMF GOVERN 2"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 3,
+      "evidence_requests_pro": ["Organizational chart", "RACI for AI systems"]
+    },
+    {
+      "id": 2,
+      "pillar": "A",
+      "name": "Communication & Transparency",
+      "weight": 5,
+      "short_desc": "Responsiveness, documentation discipline, proactive disclosure",
+      "regulatory_anchors": ["NIST AI RMF GOVERN 4"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 3,
+      "evidence_requests_pro": ["Incident communication policy", "SLA documentation"]
+    },
+    {
+      "id": 3,
+      "pillar": "A",
+      "name": "Boundaries & Conflict Resolution",
+      "weight": 5,
+      "short_desc": "Ability to handle difficult conversations, escalation paths",
+      "regulatory_anchors": [],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 3,
+      "evidence_requests_pro": ["Escalation matrix"]
+    },
+    {
+      "id": 4,
+      "pillar": "A",
+      "name": "Consistency & Reliability",
+      "weight": 5,
+      "short_desc": "Pattern of completion, duration of past relationships",
+      "regulatory_anchors": [],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 3,
+      "evidence_requests_pro": ["Client references (3)", "Uptime reports"]
+    },
+    {
+      "id": 5,
+      "pillar": "A",
+      "name": "Integrity & Ethics",
+      "weight": 5,
+      "short_desc": "Ethical track record, whistleblower protection, code of conduct",
+      "regulatory_anchors": ["EU AI Act Art. 15"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 3,
+      "evidence_requests_pro": ["Code of conduct", "Ethics committee charter"]
+    },
+    {
+      "id": 6,
+      "pillar": "B",
+      "name": "Financial Behavior",
+      "weight": 6,
+      "short_desc": "Financial transparency, spending discipline, debt management, runway",
+      "regulatory_anchors": ["DORA Art. 28"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 4,
+      "evidence_requests_pro": ["Latest audited financials", "Cap table", "Funding history"]
+    },
+    {
+      "id": 7,
+      "pillar": "B",
+      "name": "Formal Agreements",
+      "weight": 6,
+      "short_desc": "Contract clarity, IP ownership, SLA enforceability, exit terms",
+      "regulatory_anchors": ["DORA Art. 30", "GDPR Art. 28"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 4,
+      "evidence_requests_pro": ["Standard MSA/SaaS agreement", "DPA template", "SLA document"]
+    },
+    {
+      "id": 8,
+      "pillar": "B",
+      "name": "Operational Delivery",
+      "weight": 6,
+      "short_desc": "Ability to execute, capacity, resilience, incident response",
+      "regulatory_anchors": ["DORA Art. 11", "NIS2"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 4,
+      "evidence_requests_pro": ["BCP/DR plan", "Last incident post-mortem", "Pen-test summary"]
+    },
+    {
+      "id": 9,
+      "pillar": "B",
+      "name": "Governance & Decision Rights",
+      "weight": 6,
+      "short_desc": "Board structure, UBO clarity, key-man risk, power asymmetry",
+      "regulatory_anchors": ["DORA Art. 30"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 4,
+      "evidence_requests_pro": ["UBO declaration", "Board composition", "Key-man insurance"]
+    },
+    {
+      "id": 10,
+      "pillar": "B",
+      "name": "Exit & Continuity",
+      "weight": 6,
+      "short_desc": "Data portability, offboarding process, escrow, succession",
+      "regulatory_anchors": ["DORA Art. 30(3)"],
+      "required_for_tiers": ["starter", "pro", "enterprise"],
+      "questions_count": 4,
+      "evidence_requests_pro": ["Exit plan document", "Source-code escrow (if applicable)"]
+    },
+    {
+      "id": 11,
+      "pillar": "C",
+      "name": "Data Provenance",
+      "weight": 15,
+      "short_desc": "Training data lineage, consent basis, PII handling, data retention",
+      "regulatory_anchors": ["EU AI Act Art. 10", "GDPR Art. 6, 9"],
+      "required_for_tiers": ["free_snapshot", "starter", "pro", "enterprise"],
+      "questions_count": 6,
+      "evidence_requests_pro": ["Training data inventory", "Consent mechanism documentation", "Data retention policy"],
+      "automated_tests_triggered": ["data_residency_trace", "dark_web_leak_check"]
+    },
+    {
+      "id": 12,
+      "pillar": "C",
+      "name": "Model Transparency",
+      "weight": 15,
+      "short_desc": "Model card, explainability, version control, change management",
+      "regulatory_anchors": ["EU AI Act Annex IV", "EU AI Act Art. 13"],
+      "required_for_tiers": ["free_snapshot", "starter", "pro", "enterprise"],
+      "questions_count": 6,
+      "evidence_requests_pro": ["Model card", "System card", "Evaluation reports", "Bias audit results"],
+      "automated_tests_triggered": ["redteam_prompt_injection", "model_hosting_trace"]
+    },
+    {
+      "id": 13,
+      "pillar": "C",
+      "name": "Regulatory Compliance",
+      "weight": 15,
+      "short_desc": "Annex III classification, GDPR DPA, sub-processors, Art. 73 incidents",
+      "regulatory_anchors": ["EU AI Act Annex III", "EU AI Act Art. 73", "GDPR Art. 28", "DORA", "NIS2"],
+      "required_for_tiers": ["free_snapshot", "starter", "pro", "enterprise"],
+      "questions_count": 8,
+      "evidence_requests_pro": ["DPA signed", "Sub-processor list", "EU AI Act registration", "ISO 27001 / SOC 2", "NIS2 self-assessment", "DORA mapping (if in scope)"],
+      "automated_tests_triggered": ["sanctions_pep", "company_registry", "adverse_media"]
+    }
+  ],
+  "scoring_rules": {
+    "composite_formula": "sum(dim_score * dim_weight) / 100",
+    "risk_bands": {
+      "HIGH": [0, 40],
+      "MEDIUM": [41, 65],
+      "LOW": [66, 85],
+      "MINIMAL": [86, 100]
+    },
+    "ai_compliance_cap": {
+      "trigger": "any of dim 11, 12, 13 score <= 40",
+      "effect": "composite capped at 65"
+    }
+  }
+}
