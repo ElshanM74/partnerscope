@@ -57,6 +57,9 @@ importers:
       '@partnerscope/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@partnerscope/tests':
+        specifier: workspace:*
+        version: link:../../packages/tests
       bullmq:
         specifier: ^5.34.5
         version: 5.75.2
@@ -133,6 +136,16 @@ importers:
         version: 5.9.3
 
   packages/core: {}
+
+  packages/tests:
+    dependencies:
+      '@partnerscope/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.19.17)
 
 packages:
 

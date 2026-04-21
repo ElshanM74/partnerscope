@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": false,
+    "composite": true,
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "node_modules", "src/**/*.test.ts"],
-  "references": [{ "path": "../../packages/core" }, { "path": "../../packages/tests" }]
+  "references": [{ "path": "../core" }]
 }

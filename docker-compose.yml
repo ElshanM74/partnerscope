@@ -1,0 +1,78 @@
+# Local-development stack. Brings up Postgres 16, Redis 7, and the API.
+# For production prefer a managed Postgres (Supabase/RDS/Neon) + managed Redis.
+#
+#   docker compose up --build
+#   docker compose exec api pnpm --filter @partnerscope/api db:migrate
+#
+# The API container mounts a writable `storage/` volume so generated PDFs
+# survive restarts and can be served by GET /v1/runs/:id/report.pdf.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: partnerscope
+      POSTGRES_PASSWORD: partnerscope
+      POSTGRES_DB: partnerscope
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U partnerscope -d partnerscope']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      API_BASE_URL: http://localhost:4000
+      API_CORS_ORIGIN: http://localhost:5173
+      DATABASE_URL: postgres://partnerscope:partnerscope@db:5432/partnerscope
+      REDIS_URL: redis://redis:6379
+      APP_PUBLIC_URL: http://localhost:5173
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_DIR: /app/storage
+      # Optional — drop in real Stripe + Resend values via `.env` / shell env.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_STARTER: ${STRIPE_PRICE_STARTER:-}
+      STRIPE_PRICE_PRO_INTRO: ${STRIPE_PRICE_PRO_INTRO:-}
+      STRIPE_PRICE_PRO_QUARTERLY: ${STRIPE_PRICE_PRO_QUARTERLY:-}
+      STRIPE_PRICE_ENTERPRISE: ${STRIPE_PRICE_ENTERPRISE:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - '4000:4000'
+    volumes:
+      - api-storage:/app/storage
+
+volumes:
+  db-data:
+  redis-data:
+  api-storage:

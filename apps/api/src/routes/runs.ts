@@ -25,6 +25,7 @@ import {
   likertToScore,
   questionsForTier,
 } from '@partnerscope/core';
+import { type TestResult, runSuite } from '@partnerscope/tests';
 
 import { env } from '../config/env.js';
 import { db } from '../db/client.js';
@@ -130,12 +131,22 @@ async function deliverStarterReport(args: {
   buyerName: string | null;
   buyerCompany: string;
   scoringResponses: Response[];
+  /** Injection point for tests. If omitted, the real `runSuite` is called. */
+  runTestSuite?: typeof runSuite;
 }): Promise<{
   reportPdfUrl: string;
   scoring: ReturnType<typeof calculateScoring>;
+  tests: TestResult[];
   emailDelivered: boolean;
 }> {
   const scoring = calculateScoring({ tier: args.tier, responses: args.scoringResponses });
+
+  // Only Starter runs the automated test suite; Free Snapshot is questionnaire-only.
+  const suite = args.runTestSuite ?? runSuite;
+  const tests: TestResult[] =
+    args.tier === 'starter'
+      ? await suite({ tier: 'starter', domain: args.vendor.domain }).catch(() => [])
+      : [];
 
   const now = new Date();
   const validUntil = new Date(now);
@@ -159,6 +170,7 @@ async function deliverStarterReport(args: {
       email: args.buyerEmail,
     },
     scoring,
+    tests: tests.map((t) => ({ id: t.id, status: t.status, finding: t.finding })),
     upgradeUrl: `${env.APP_PUBLIC_URL}/upgrade?from=${reportId}`,
   });
 
@@ -183,7 +195,7 @@ async function deliverStarterReport(args: {
     emailDelivered = emailResult.delivered;
   }
 
-  return { reportPdfUrl, scoring, emailDelivered };
+  return { reportPdfUrl, scoring, tests, emailDelivered };
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -345,14 +357,18 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
           capReason: delivery.scoring.capReason,
           scoringVersion: delivery.scoring.scoringVersion,
           frameworkVersion: delivery.scoring.frameworkVersion,
-          reportJson: delivery.scoring,
+          reportJson: { scoring: delivery.scoring, tests: delivery.tests },
           reportPdfUrl: delivery.reportPdfUrl,
           deliveredAt: new Date(),
           updatedAt: new Date(),
         })
         .where(eq(runs.id, id))
         .returning();
-      return { ...updated, emailDelivered: delivery.emailDelivered };
+      return {
+        ...updated,
+        emailDelivered: delivery.emailDelivered,
+        testsRan: delivery.tests.length,
+      };
     }
 
     // Pro / Enterprise: flip to queued; worker picks up later.
