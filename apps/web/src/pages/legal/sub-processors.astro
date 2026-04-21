@@ -1,0 +1,82 @@
+---
+/**
+ * Sub-processors list — required by DPA Annex 2 and customary for B2B SaaS.
+ * Customers can subscribe to updates; 30 days' notice applies.
+ */
+
+import Legal from '../../layouts/Legal.astro';
+---
+<Legal
+  title="Sub-processors"
+  description="Current list of PartnerScope sub-processors, as referenced in our DPA."
+  lastUpdated="2026-04-21"
+>
+  <p>
+    This page lists the third parties ("sub-processors") that process personal data on behalf of
+    PartnerScope in delivering the service. It forms Annex 2 to our Data Processing Addendum
+    (<a href="/legal/dpa">/legal/dpa</a>) and is kept up to date.
+  </p>
+
+  <h2>Current sub-processors</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Sub-processor</th>
+        <th>Purpose</th>
+        <th>Data categories</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Stripe Payments Europe, Ltd.</td>
+        <td>Payment processing for Starter, Pro, and Enterprise orders</td>
+        <td>Name, email, billing address, VAT ID, payment token</td>
+        <td>Ireland (EU); card network partners globally</td>
+      </tr>
+      <tr>
+        <td>Resend Inc.</td>
+        <td>Transactional email delivery (order confirmations, reports, internal intake)</td>
+        <td>Name, email address, message body</td>
+        <td>United States (SCCs + supplementary measures)</td>
+      </tr>
+      <tr>
+        <td><span class="legal-placeholder">{'{{REPLACE: EU hosting provider — e.g. Hetzner Online GmbH (DE) or Scaleway S.A.S. (FR)}}'}</span></td>
+        <td>Application, database, and file hosting</td>
+        <td>All categories processed by the PartnerScope platform</td>
+        <td>European Union</td>
+      </tr>
+      <tr>
+        <td>Cloudflare, Inc.</td>
+        <td>DNS, edge caching, WAF, and DDoS protection for partnerscope.eu</td>
+        <td>IP address, request metadata; no assessment payloads</td>
+        <td>Global edge (SCCs + EU Data Boundary configuration)</td>
+      </tr>
+      <tr>
+        <td>Sentry (Functional Software, Inc.)</td>
+        <td>Application error and performance monitoring</td>
+        <td>Stack traces, request metadata; PII scrubbed in-flight</td>
+        <td>United States (SCCs)</td>
+      </tr>
+      <tr>
+        <td><span class="legal-placeholder">{'{{REPLACE: Accounting and invoicing provider — e.g. BMD / RZL / Fastbill}}'}</span></td>
+        <td>Invoice issuance and bookkeeping</td>
+        <td>Name, company, billing address, VAT ID, line-items</td>
+        <td>Austria (EU)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Updates</h2>
+  <p>
+    Customers on Pro and Enterprise tiers receive 30 days' prior notice of planned additions or
+    replacements via the email address on file. To be added to the notification list at any
+    tier, email <a href="mailto:privacy@partnerscope.eu">privacy@partnerscope.eu</a>.
+  </p>
+
+  <div class="legal-note">
+    Tokens marked <code>{'{{REPLACE: …}}'}</code> are to be filled in once the production
+    hosting and accounting providers are contracted. Keep this page under change-control — an
+    out-of-date sub-processor list can itself be a GDPR violation in audit.
+  </div>
+</Legal>

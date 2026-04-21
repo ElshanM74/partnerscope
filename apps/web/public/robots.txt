@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /checkout/
+Disallow: /get-started
 
 Sitemap: https://partnerscope.eu/sitemap-index.xml

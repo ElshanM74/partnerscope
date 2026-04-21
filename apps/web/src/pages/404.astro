@@ -1,0 +1,82 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="Page not found — PartnerScope"
+  description="The page you're looking for doesn't exist."
+>
+  <section class="section nf">
+    <div class="container nf-inner">
+      <p class="nf-code">404</p>
+      <h1>Not much to see here.</h1>
+      <p class="lead">
+        The page you're looking for has moved, been renamed, or never existed. That's on us, not
+        you.
+      </p>
+      <div class="actions">
+        <a class="btn btn-dark" href="/plans">Go to pricing</a>
+        <a class="btn btn-ghost" href="/plans#snapshot">Try the free snapshot</a>
+        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu">Email us</a>
+      </div>
+
+      <div class="helpful">
+        <h2>Popular destinations</h2>
+        <ul>
+          <li><a href="/plans">Pricing and tiers</a></li>
+          <li><a href="/plans#snapshot">60-second free snapshot</a></li>
+          <li><a href="/plans#faq">FAQ</a></li>
+          <li><a href="/legal/privacy">Privacy</a></li>
+          <li><a href="/legal/imprint">Imprint</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf-inner {
+    max-width: 640px;
+    text-align: center;
+  }
+  .nf-code {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 4rem;
+    color: var(--ps-accent-strong);
+    letter-spacing: -0.05em;
+    margin: 0 0 0.5rem;
+    line-height: 1;
+  }
+  .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 480px;
+    margin: 0.5rem auto 2rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .helpful {
+    background: var(--ps-paper-soft);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    display: inline-block;
+    min-width: 260px;
+  }
+  .helpful h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+  .helpful ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.3rem;
+  }
+</style>

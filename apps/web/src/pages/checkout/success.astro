@@ -1,0 +1,154 @@
+---
+/**
+ * /checkout/success — post-Stripe Checkout thank-you page.
+ *
+ * Stripe redirects here after a successful session (see STRIPE_SUCCESS_URL).
+ * The session_id query param is read client-side for display only — the
+ * authoritative record is the webhook (/v1/webhooks/stripe) which the API
+ * processes out-of-band. We never call Stripe from the browser.
+ */
+
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Payment received — PartnerScope"
+  description="Your PartnerScope assessment is now in our queue. We send the signed PDF report within the tier SLA."
+>
+  <section class="success section">
+    <div class="container success-inner">
+      <div class="success-check" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+
+      <p class="eyebrow">Payment received</p>
+      <h1>Thank you — your assessment is now in our queue.</h1>
+      <p class="lead">
+        A confirmation is on its way to your inbox. The signed PDF report will follow within the
+        tier SLA (24h for Starter, 48h for Pro, Mon–Fri Vienna time).
+      </p>
+
+      <div class="next">
+        <h2>What happens next</h2>
+        <ol>
+          <li>You'll receive a payment confirmation email within a few minutes.</li>
+          <li>
+            Our platform runs the automated checks (DNS, TLS, headers, breach history, CT log scan)
+            and — for Pro — the documentary review and AI red-team.
+          </li>
+          <li>
+            You receive the PDF report by email, plus a portal link for 90 days (Starter) or
+            180 days (Pro) for re-scoring.
+          </li>
+        </ol>
+      </div>
+
+      <div class="session">
+        <div class="session-label">Order reference</div>
+        <code id="session-id">—</code>
+        <p class="tiny">
+          Keep this ID — include it in any reply if you need to reach us about this order.
+        </p>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-dark" href="/plans">Back to pricing</a>
+        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu?subject=PartnerScope%20order%20question">Email us</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .success-inner {
+    max-width: 640px;
+    text-align: center;
+  }
+  .success-check {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    background: rgba(27, 143, 79, 0.12);
+    color: var(--band-minimal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .eyebrow {
+    color: var(--band-minimal);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin: 0.5rem auto 2rem;
+  }
+  .next {
+    background: var(--ps-paper-soft);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    text-align: left;
+    margin: 0 auto 1.5rem;
+  }
+  .next h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+  }
+  .next ol {
+    padding-left: 1.1rem;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .session {
+    background: var(--ps-paper);
+    border: 1px dashed var(--ps-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin: 0 auto 1.5rem;
+    max-width: 420px;
+  }
+  .session-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ps-muted);
+  }
+  .session code {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--ps-ink);
+    margin: 0.3rem 0 0.4rem;
+    word-break: break-all;
+  }
+  .tiny {
+    color: var(--ps-muted);
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  const url = new URL(window.location.href);
+  const sid = url.searchParams.get('session_id');
+  const el = document.getElementById('session-id');
+  if (el) {
+    el.textContent = sid && sid.length > 0 ? sid : '— (no session ID in URL)';
+  }
+</script>

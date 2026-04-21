@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1a2b"/>
+      <stop offset="100%" stop-color="#152238"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4f7cff"/>
+      <stop offset="100%" stop-color="#2f58e0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Soft grid -->
+  <g stroke="#1e2d47" stroke-width="1" opacity="0.45">
+    <path d="M0 150 H1200"/>
+    <path d="M0 300 H1200"/>
+    <path d="M0 450 H1200"/>
+    <path d="M300 0 V630"/>
+    <path d="M600 0 V630"/>
+    <path d="M900 0 V630"/>
+  </g>
+
+  <!-- Brand mark -->
+  <g transform="translate(72 96)">
+    <path d="M32 0 L64 32 L32 64 L0 32 Z" fill="url(#accent)"/>
+    <path d="M32 12 L52 32 L32 52 L12 32 Z" fill="#0f1a2b"/>
+  </g>
+  <text x="152" y="144" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="36" font-weight="700" fill="#ffffff" letter-spacing="-0.5">
+    PartnerScope
+  </text>
+
+  <!-- Headline -->
+  <text x="72" y="290" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="72" font-weight="800" fill="#ffffff" letter-spacing="-2">
+    Third-party AI risk
+  </text>
+  <text x="72" y="370" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="72" font-weight="800" fill="#ffffff" letter-spacing="-2">
+    assessment for EU buyers.
+  </text>
+
+  <!-- Subline -->
+  <text x="72" y="450" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="28" font-weight="400" fill="#c8d1e3">
+    13 dimensions. EU AI Act, GDPR, DORA, NIS2.
+  </text>
+  <text x="72" y="486" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="28" font-weight="400" fill="#c8d1e3">
+    Starter €99 · Pro €299 · Enterprise from €4 900 / q.
+  </text>
+
+  <!-- Band chips -->
+  <g transform="translate(72 548)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+     font-size="18" font-weight="700">
+    <g>
+      <rect width="112" height="34" rx="17" fill="#1b8f4f"/>
+      <text x="56" y="23" text-anchor="middle" fill="#ffffff" letter-spacing="1">MINIMAL</text>
+    </g>
+    <g transform="translate(124 0)">
+      <rect width="90" height="34" rx="17" fill="#4a9e3e"/>
+      <text x="45" y="23" text-anchor="middle" fill="#ffffff" letter-spacing="1">LOW</text>
+    </g>
+    <g transform="translate(226 0)">
+      <rect width="112" height="34" rx="17" fill="#c79015"/>
+      <text x="56" y="23" text-anchor="middle" fill="#ffffff" letter-spacing="1">MEDIUM</text>
+    </g>
+    <g transform="translate(350 0)">
+      <rect width="90" height="34" rx="17" fill="#d35a1d"/>
+      <text x="45" y="23" text-anchor="middle" fill="#ffffff" letter-spacing="1">HIGH</text>
+    </g>
+    <g transform="translate(452 0)">
+      <rect width="124" height="34" rx="17" fill="#c03527"/>
+      <text x="62" y="23" text-anchor="middle" fill="#ffffff" letter-spacing="1">CRITICAL</text>
+    </g>
+  </g>
+
+  <!-- Domain -->
+  <text x="1128" y="590" text-anchor="end"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="22" font-weight="600" fill="#7fb3ff">
+    partnerscope.eu
+  </text>
+</svg>

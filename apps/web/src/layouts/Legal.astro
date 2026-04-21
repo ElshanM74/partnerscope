@@ -1,0 +1,164 @@
+---
+/**
+ * Shared legal-page wrapper. Keeps typography and sidebar consistent across
+ * the 5 legal pages (imprint, privacy, terms, dpa, sub-processors).
+ */
+
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  lastUpdated: string; // ISO yyyy-mm-dd
+}
+
+const { title, description, lastUpdated } = Astro.props;
+
+const nav = [
+  { href: '/legal/imprint', label: 'Imprint' },
+  { href: '/legal/privacy', label: 'Privacy Policy' },
+  { href: '/legal/terms', label: 'Terms of Service' },
+  { href: '/legal/dpa', label: 'Data Processing Addendum' },
+  { href: '/legal/sub-processors', label: 'Sub-processors' },
+];
+const currentPath = Astro.url.pathname.replace(/\/+$/, '');
+---
+<Base title={`${title} — PartnerScope`} description={description}>
+  <section class="legal section">
+    <div class="container legal-grid">
+      <aside class="legal-nav" aria-label="Legal">
+        <p class="legal-nav-label">Legal</p>
+        <ul>
+          {nav.map((n) => (
+            <li>
+              <a href={n.href} class={currentPath === n.href ? 'active' : ''}>{n.label}</a>
+            </li>
+          ))}
+        </ul>
+        <p class="legal-contact">
+          Questions? <a href="mailto:hello@partnerscope.eu">hello@partnerscope.eu</a>
+        </p>
+      </aside>
+
+      <article class="legal-body">
+        <header>
+          <h1>{title}</h1>
+          <p class="legal-meta">Last updated {lastUpdated}</p>
+        </header>
+        <slot />
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+  @media (max-width: 820px) {
+    .legal-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+  .legal-nav-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ps-muted);
+    margin: 0 0 0.5rem;
+  }
+  .legal-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .legal-nav a {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+    color: var(--ps-text);
+    font-size: 0.92rem;
+  }
+  .legal-nav a:hover {
+    background: var(--ps-paper-soft);
+    text-decoration: none;
+  }
+  .legal-nav a.active {
+    background: var(--ps-paper-soft);
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+  }
+  .legal-contact {
+    font-size: 0.82rem;
+    color: var(--ps-muted);
+  }
+  .legal-body {
+    max-width: 720px;
+  }
+  .legal-meta {
+    color: var(--ps-muted);
+    font-size: 0.85rem;
+    margin: 0 0 1.5rem;
+  }
+  .legal-body h2 {
+    margin-top: 2rem;
+    font-size: 1.25rem;
+  }
+  .legal-body h3 {
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+  }
+  .legal-body ul,
+  .legal-body ol {
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .legal-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .legal-body th,
+  .legal-body td {
+    border: 1px solid var(--ps-border);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .legal-body th {
+    background: var(--ps-paper-soft);
+    font-weight: 600;
+  }
+  .legal-body code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--ps-paper-soft);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  .legal-note {
+    border-left: 3px solid var(--ps-accent);
+    background: rgba(79, 124, 255, 0.06);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 0.92rem;
+  }
+  .legal-placeholder {
+    background: #fff5d6;
+    color: #7a5a00;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+</style>

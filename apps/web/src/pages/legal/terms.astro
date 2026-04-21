@@ -1,0 +1,126 @@
+---
+/**
+ * Terms of Service — B2B only, Austrian law, venue Vienna.
+ *
+ * Covers scope, tier deliverables, SLA, IP, liability caps, warranty
+ * disclaimers on risk assessments, no-wet-signature clause.
+ */
+
+import Legal from '../../layouts/Legal.astro';
+---
+<Legal
+  title="Terms of Service"
+  description="Terms of Service governing the use of the PartnerScope third-party AI risk assessment service."
+  lastUpdated="2026-04-21"
+>
+  <h2>1. Scope</h2>
+  <p>
+    These Terms of Service ("Terms") govern the contract between EKM Global Consulting GmbH
+    ("PartnerScope") and any business customer ("Customer") that orders PartnerScope services.
+    PartnerScope is a B2B service: we contract only with entrepreneurs within the meaning of
+    § 1 of the Austrian Consumer Protection Act (KSchG). These Terms do not apply to consumers.
+  </p>
+
+  <h2>2. Services</h2>
+  <p>
+    PartnerScope provides third-party risk assessments across 13 dimensions (data governance,
+    AI posture, security, regulatory fit, operations, financial stability, contractual terms,
+    reputation, concentration, sustainability). Deliverables depend on the tier the Customer
+    orders:
+  </p>
+  <ul>
+    <li><strong>Starter</strong> — automated checks, 39-question questionnaire, 5–8 page PDF report, valid 90 days.</li>
+    <li><strong>Pro</strong> — full 78-question analysis, documentary review, sanctions / adverse media / PEP / UBO verification, AI red-team (5 payloads), 20–30 page report, analyst + QA named, valid 180 days.</li>
+    <li><strong>Enterprise</strong> — Pro scope plus continuous monitoring, 25-payload red-team suite, SSO, GRC and SIEM integrations, dedicated analyst.</li>
+  </ul>
+  <p>
+    The scope, deliverables and price quoted at the time of order prevail. We reserve the right
+    to refuse orders that we cannot lawfully fulfil (e.g. assessments in sanctioned jurisdictions).
+  </p>
+
+  <h2>3. Service levels</h2>
+  <ul>
+    <li>Starter delivery SLA: 24 hours from confirmed payment, Mon–Fri, Vienna time.</li>
+    <li>Pro delivery SLA: 48 hours from confirmed payment, Mon–Fri, Vienna time.</li>
+    <li>Enterprise portal availability: 99.5% monthly uptime (excluding planned maintenance).</li>
+  </ul>
+
+  <h2>4. Customer obligations</h2>
+  <p>
+    The Customer must provide accurate vendor information and, where documentary review is part
+    of the tier, deliver the requested artefacts (DPA, ISO 27001, SOC 2, Model Card, SBOM, BCP,
+    IR plan, etc.) or grant reasonable access to them. The Customer warrants that it has the
+    right to submit the information it provides.
+  </p>
+
+  <h2>5. Prices and payment</h2>
+  <ul>
+    <li>Prices are net of VAT; VAT is added where applicable.</li>
+    <li>Payment is due up-front via Stripe (card or SEPA) unless otherwise agreed in writing.</li>
+    <li>Enterprise subscriptions are billed quarterly in advance.</li>
+  </ul>
+
+  <h2>6. Nature of the assessment — disclaimers</h2>
+  <p>
+    PartnerScope reports are a <strong>decision-support tool</strong>. They do not constitute
+    legal, audit, investment, or insurance advice. The Customer remains solely responsible for
+    its vendor selection, contracting, and regulatory decisions. PartnerScope does not guarantee
+    that a vendor rated favourably will not suffer a breach, fail, or violate regulation — risk
+    assessment by its nature predicts likelihood, not outcomes.
+  </p>
+  <p>
+    Automated signals (DNS, TLS, breach databases, CT logs, open sanctions data) can change
+    between scan and report delivery. Scores reflect the data available at the time of the scan.
+  </p>
+
+  <h2>7. Intellectual property</h2>
+  <p>
+    The PartnerScope methodology, scoring framework, question bank, and report templates are the
+    IP of EKM Global Consulting GmbH. The Customer receives a perpetual, non-exclusive,
+    non-transferable licence to use delivered reports internally for its own risk decisions, and
+    to share them in redacted form with its regulators, auditors and legal counsel.
+    Re-publication, resale, or use for competing services is prohibited.
+  </p>
+
+  <h2>8. Confidentiality</h2>
+  <p>
+    Each party will treat the other's non-public information as confidential and use it only for
+    purposes of the engagement. Our confidentiality obligations on vendor-submitted documents
+    are set out separately in our Data Processing Addendum (<a href="/legal/dpa">/legal/dpa</a>).
+  </p>
+
+  <h2>9. Limitation of liability</h2>
+  <p>
+    Subject to mandatory statutory liability (in particular for personal injury, intent, and
+    gross negligence), PartnerScope's aggregate liability to the Customer is limited to the fees
+    paid under the contract giving rise to the claim during the 12 months preceding the event.
+    We are not liable for indirect, consequential, or loss-of-profit damages.
+  </p>
+
+  <h2>10. Term and termination</h2>
+  <p>
+    Starter and Pro are one-time engagements; the contract ends upon delivery of the report.
+    Enterprise subscriptions renew quarterly unless terminated with 30 days' written notice
+    before the end of the current term. Either party may terminate for material breach
+    uncured within 14 days of written notice.
+  </p>
+
+  <h2>11. Changes to these Terms</h2>
+  <p>
+    We may update these Terms for new Customers at any time. For existing subscriptions, changes
+    take effect 30 days after written notice and the Customer may terminate without penalty if
+    the change is materially adverse.
+  </p>
+
+  <h2>12. Governing law and jurisdiction</h2>
+  <p>
+    These Terms are governed by Austrian law, excluding its conflict-of-laws rules and the UN
+    Convention on Contracts for the International Sale of Goods. The exclusive place of
+    jurisdiction for all disputes is the competent court in Vienna, Austria.
+  </p>
+
+  <div class="legal-note">
+    This is a first good-faith draft. Have it reviewed by qualified Austrian counsel before
+    relying on it in customer-facing contracts.
+  </div>
+</Legal>

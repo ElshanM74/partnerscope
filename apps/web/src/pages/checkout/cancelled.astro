@@ -1,0 +1,60 @@
+---
+/**
+ * /checkout/cancelled — optional landing for Stripe Cancel URL.
+ *
+ * Default STRIPE_CANCEL_URL already points to /plans, but we keep this
+ * page in case the checkout route ever opts to send users here explicitly
+ * (e.g. to preserve the original tier selection for retry).
+ */
+
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Checkout cancelled — PartnerScope"
+  description="No payment was taken. You can restart your assessment any time."
+>
+  <section class="section cancel">
+    <div class="container cancel-inner">
+      <p class="eyebrow">Checkout cancelled</p>
+      <h1>No payment was taken.</h1>
+      <p class="lead">
+        You cancelled before completing the Stripe checkout. Nothing was charged and we haven't
+        stored a payment record. Pick up where you left off — or drop us a line if something went
+        wrong.
+      </p>
+      <div class="actions">
+        <a class="btn btn-dark" href="/plans#tiers">Back to pricing</a>
+        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu?subject=PartnerScope%20checkout%20issue">
+          Email us
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cancel-inner {
+    max-width: 560px;
+    text-align: center;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 480px;
+    margin: 0.5rem auto 2rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

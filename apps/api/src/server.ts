@@ -15,6 +15,7 @@ import errorHandlerPlugin from './plugins/error-handler.js';
 import { checkoutRoutes } from './routes/checkout.js';
 import { demoRoutes } from './routes/demo.js';
 import { healthRoutes } from './routes/health.js';
+import { intakeRoutes } from './routes/intake.js';
 import { runRoutes } from './routes/runs.js';
 import { vendorRoutes } from './routes/vendors.js';
 import { webhookRoutes } from './routes/webhooks.js';
@@ -47,6 +48,7 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
 
   await app.register(healthRoutes);
   await app.register(demoRoutes);
+  await app.register(intakeRoutes);
   await app.register(vendorRoutes);
   await app.register(runRoutes);
   await app.register(checkoutRoutes);

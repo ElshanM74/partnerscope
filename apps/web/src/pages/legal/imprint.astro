@@ -1,0 +1,89 @@
+---
+/**
+ * Imprint / Offenlegung — legally required in Austria
+ * (§ 25 MedienG and § 5 ECG). Contains media owner, company identifiers,
+ * regulator, and chamber membership.
+ *
+ * Placeholder tokens (FN number, UID, business purpose, etc.) must be
+ * replaced with the real EKM Global Consulting GmbH values before launch.
+ */
+
+import Legal from '../../layouts/Legal.astro';
+---
+<Legal
+  title="Imprint"
+  description="Statutory disclosure for PartnerScope, operated by EKM Global Consulting GmbH, Vienna."
+  lastUpdated="2026-04-21"
+>
+  <p>
+    Disclosure pursuant to § 25 of the Austrian Media Act (MedienG) and § 5 of the Austrian
+    E-Commerce Act (ECG).
+  </p>
+
+  <h2>Operator</h2>
+  <p>
+    <strong>EKM Global Consulting GmbH</strong><br />
+    <span class="legal-placeholder">{'{{REPLACE: street address, 1xxx Wien, Austria}}'}</span><br />
+    Phone: <span class="legal-placeholder">{'{{REPLACE: +43 ...}}'}</span><br />
+    Email: <a href="mailto:hello@partnerscope.eu">hello@partnerscope.eu</a>
+  </p>
+
+  <h2>Company identifiers</h2>
+  <ul>
+    <li>Commercial register number (Firmenbuchnummer): <span class="legal-placeholder">{'{{REPLACE: FN xxxxxxx}}'}</span></li>
+    <li>Court of registration (Firmenbuchgericht): Handelsgericht Wien</li>
+    <li>VAT identification number (UID): <span class="legal-placeholder">{'{{REPLACE: ATU xxxxxxxx}}'}</span></li>
+    <li>Managing director (Geschäftsführer): Elshan Musayev</li>
+  </ul>
+
+  <h2>Business purpose</h2>
+  <p>
+    <span class="legal-placeholder">{'{{REPLACE: Unternehmensgegenstand — e.g. Unternehmensberatung mit Schwerpunkt auf IT-Risiko und Drittpartei-Compliance}}'}</span>
+  </p>
+
+  <h2>Regulator and supervisory authority</h2>
+  <ul>
+    <li>
+      Trade regulation authority (Gewerbebehörde):
+      <span class="legal-placeholder">{'{{REPLACE: Magistratisches Bezirksamt für den X. Bezirk, Wien}}'}</span>
+    </li>
+    <li>Chamber membership: Wirtschaftskammer Wien, Fachgruppe Unternehmensberatung, Buchhaltung und IT</li>
+    <li>Applicable trade regulation: Austrian Trade Code (Gewerbeordnung — GewO 1994), in the current version, available at <a href="https://www.ris.bka.gv.at" target="_blank" rel="noopener noreferrer">ris.bka.gv.at</a></li>
+  </ul>
+
+  <h2>Media owner and publisher</h2>
+  <p>
+    Media owner, publisher and content responsibility per § 25 MedienG:<br />
+    EKM Global Consulting GmbH, address as above.
+  </p>
+
+  <h2>Fundamental orientation (Blattlinie)</h2>
+  <p>
+    The website partnerscope.eu is a commercial product information and marketing site for the
+    PartnerScope third-party AI risk assessment service. Content is oriented towards informing
+    prospective B2B customers about the methodology, tier offerings, and regulatory context of
+    our services. The site does not carry editorial content unrelated to our products.
+  </p>
+
+  <h2>Online dispute resolution</h2>
+  <p>
+    The European Commission provides an online dispute resolution platform, available at
+    <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
+    We are not, however, obliged nor willing to participate in dispute resolution proceedings
+    before a consumer arbitration board.
+  </p>
+
+  <h2>Copyright</h2>
+  <p>
+    All content on this site — text, graphics, logos, the PartnerScope methodology, and report
+    templates — is protected by copyright. Reproduction or adaptation requires the written consent
+    of EKM Global Consulting GmbH, except where permitted by statute.
+  </p>
+
+  <div class="legal-note">
+    Tokens marked <code>{'{{REPLACE: …}}'}</code> are placeholders. They must be replaced with the
+    registered company values from the Austrian commercial register (Firmenbuch) before public
+    launch. The imprint is a legal disclosure; incorrect information can trigger administrative
+    penalties.
+  </div>
+</Legal>

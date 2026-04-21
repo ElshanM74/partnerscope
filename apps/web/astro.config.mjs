@@ -1,4 +1,5 @@
 // @ts-check
+import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 /**
@@ -22,6 +23,14 @@ export default defineConfig({
       destination: '/plans',
     },
   },
+  integrations: [
+    sitemap({
+      // /checkout/success isn't a crawl target — keep it out of the index.
+      filter: (page) => !page.includes('/checkout/') && !page.includes('/get-started'),
+      changefreq: 'weekly',
+      priority: 0.7,
+    }),
+  ],
   server: {
     host: '0.0.0.0',
     port: 5173,

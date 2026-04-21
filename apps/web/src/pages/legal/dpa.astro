@@ -1,0 +1,152 @@
+---
+/**
+ * Data Processing Addendum (DPA) — Art. 28 GDPR.
+ *
+ * Applies to any personal data the Customer asks PartnerScope to process
+ * on its behalf (e.g. vendor employee contact details in questionnaire
+ * responses, documents in Pro tier, account logs in Enterprise).
+ */
+
+import Legal from '../../layouts/Legal.astro';
+---
+<Legal
+  title="Data Processing Addendum"
+  description="Art. 28 GDPR Data Processing Addendum between the Customer and PartnerScope."
+  lastUpdated="2026-04-21"
+>
+  <p>
+    This Data Processing Addendum ("DPA") forms part of the contract between the Customer
+    ("Controller") and EKM Global Consulting GmbH ("PartnerScope", "Processor") for the
+    PartnerScope service. It reflects the requirements of Art. 28 GDPR and is incorporated
+    into the Terms of Service (<a href="/legal/terms">/legal/terms</a>).
+  </p>
+
+  <h2>1. Subject-matter and duration</h2>
+  <p>
+    PartnerScope processes personal data on the Controller's documented instructions for the
+    purpose of performing third-party risk assessments. Processing continues for the duration of
+    the underlying service contract and the agreed retention periods set out in this DPA.
+  </p>
+
+  <h2>2. Nature and purpose of processing</h2>
+  <p>
+    Storage, organisation, analysis, consultation, and transmission of personal data contained in
+    (a) assessment questionnaires, (b) vendor documentation uploaded by the Controller, and
+    (c) account and audit logs. Processing is necessary to produce the risk assessment report
+    and to maintain the portal and audit trail.
+  </p>
+
+  <h2>3. Categories of data subject</h2>
+  <ul>
+    <li>The Controller's employees and authorised users of the PartnerScope portal</li>
+    <li>Employees and officers of the vendor under assessment (as named in questionnaires or documentation)</li>
+    <li>Beneficial owners and directors appearing in public registers used for verification</li>
+  </ul>
+
+  <h2>4. Types of personal data</h2>
+  <ul>
+    <li>Contact data (name, work email, phone, role)</li>
+    <li>Organisational data (employer, department, reporting line)</li>
+    <li>Content of documents the Controller uploads (may include signatures, ID references in DPAs)</li>
+    <li>Public-register and sanctions-screening data</li>
+    <li>Account and audit logs (IP address, user-agent, timestamps, action taken)</li>
+  </ul>
+  <p>
+    Special categories of data (Art. 9 GDPR) are not required for our service. The Controller
+    must not upload such data unless it has first agreed with PartnerScope in writing that the
+    uploaded artefact is needed and appropriate safeguards are in place.
+  </p>
+
+  <h2>5. Obligations of the Processor</h2>
+  <p>PartnerScope will:</p>
+  <ol>
+    <li>Process personal data only on the Controller's documented instructions, including with regard to transfers of personal data to a third country, unless required to do so by Union or Member-State law; in such a case, PartnerScope will inform the Controller of that legal requirement before processing.</li>
+    <li>Ensure that persons authorised to process the personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality.</li>
+    <li>Take the technical and organisational measures described in Annex 1 (Art. 32 GDPR).</li>
+    <li>Respect the conditions for engaging sub-processors set out in Section 7.</li>
+    <li>Assist the Controller in fulfilling its obligations to respond to data-subject requests under Chapter III GDPR.</li>
+    <li>Assist the Controller in ensuring compliance with Arts. 32 to 36 GDPR (security of processing, breach notification, DPIAs).</li>
+    <li>At the Controller's choice, delete or return all personal data after the end of the services, and delete existing copies unless Union or Member-State law requires storage.</li>
+    <li>Make available to the Controller all information necessary to demonstrate compliance with Art. 28 GDPR and allow for audits, including inspections, conducted by the Controller or another auditor mandated by the Controller, subject to reasonable confidentiality and notice requirements.</li>
+  </ol>
+
+  <h2>6. Security of processing (Art. 32 GDPR)</h2>
+  <p>
+    PartnerScope implements the technical and organisational measures ("TOMs") set out in
+    Annex 1. TOMs include EU-resident infrastructure, encryption in transit (TLS 1.2+) and at
+    rest, access control on a least-privilege basis, MFA for administrative access, logged and
+    monitored production access, vendor-risk reviews of every sub-processor, and a documented
+    incident response plan with a 72-hour breach-notification workflow.
+  </p>
+
+  <h2>7. Sub-processors</h2>
+  <p>
+    The Controller grants general authorisation for PartnerScope to engage sub-processors,
+    subject to the following conditions:
+  </p>
+  <ul>
+    <li>
+      The current list of sub-processors is published at
+      <a href="/legal/sub-processors">/legal/sub-processors</a>. Controllers who have subscribed
+      to notifications receive 30 days' prior notice of any planned addition or replacement.
+    </li>
+    <li>PartnerScope imposes on every sub-processor the same data-protection obligations as in this DPA, by way of a written contract.</li>
+    <li>The Controller may object to a new sub-processor for reasonable cause within the notice period; if we cannot accommodate the objection, the Controller may terminate the affected service without penalty.</li>
+  </ul>
+
+  <h2>8. International transfers</h2>
+  <p>
+    Primary processing is in the EU. Where a sub-processor transfers data outside the EEA, we
+    rely on the European Commission's Standard Contractual Clauses (Art. 46 GDPR), apply a
+    Transfer Impact Assessment, and deploy supplementary measures where required.
+  </p>
+
+  <h2>9. Personal data breach</h2>
+  <p>
+    PartnerScope notifies the Controller without undue delay, and in any event within 48 hours,
+    after becoming aware of a personal data breach affecting the Controller's data. The notice
+    will contain at minimum the categories and approximate number of data subjects and records
+    affected, the likely consequences, and the measures taken or proposed to address the breach.
+  </p>
+
+  <h2>10. Data-subject requests</h2>
+  <p>
+    PartnerScope assists the Controller, by appropriate technical and organisational measures,
+    insofar as possible, for the fulfilment of the Controller's obligation to respond to
+    requests for exercising the data subject's rights under Chapter III GDPR.
+  </p>
+
+  <h2>11. Term, return and deletion</h2>
+  <p>
+    This DPA remains in force for the duration of the underlying service contract and any
+    statutory retention period thereafter. At the Controller's written request within 30 days of
+    termination, PartnerScope returns or deletes all personal data it processes on the
+    Controller's behalf, except to the extent storage is required by Union or Austrian law
+    (e.g. BAO § 132 accounting records).
+  </p>
+
+  <h2>Annex 1 — Technical and Organisational Measures</h2>
+  <ul>
+    <li>Infrastructure in EU Member States only for controller-specific data.</li>
+    <li>Network: TLS 1.2+ in transit; internal traffic over private networks.</li>
+    <li>Storage: encrypted at rest (AES-256 or equivalent).</li>
+    <li>Identity: MFA for all staff; SSO for Enterprise customers; short-lived session tokens.</li>
+    <li>Authorisation: least-privilege RBAC; production access on break-glass basis only; every action logged.</li>
+    <li>Change management: code review, static analysis, dependency scanning, CI-gated releases.</li>
+    <li>Monitoring: centralised logs, anomaly alerts, 24/7 on-call rotation.</li>
+    <li>Backup: daily encrypted backups, 30-day retention, quarterly restore tests.</li>
+    <li>Vulnerability management: monthly scans and annual third-party penetration test.</li>
+    <li>People: confidentiality agreements, security training at onboarding, annual refresh.</li>
+  </ul>
+
+  <h2>Annex 2 — List of sub-processors</h2>
+  <p>
+    See <a href="/legal/sub-processors">/legal/sub-processors</a>.
+  </p>
+
+  <div class="legal-note">
+    To countersign this DPA as the signed Art. 28 agreement between your entity and PartnerScope,
+    email <a href="mailto:privacy@partnerscope.eu">privacy@partnerscope.eu</a>. We accept
+    electronic signature (DocuSign / Qualified Electronic Signature under eIDAS).
+  </div>
+</Legal>
