@@ -1,6 +1,6 @@
 ---
 /**
- * Terms of Service — B2B only, Austrian law, venue Vienna.
+ * Terms of Service — B2B only, German law, venue Baden-Baden.
  *
  * Covers scope, tier deliverables, SLA, IP, liability caps, warranty
  * disclaimers on risk assessments, no-wet-signature clause.
@@ -15,10 +15,12 @@ import Legal from '../../layouts/Legal.astro';
 >
   <h2>1. Scope</h2>
   <p>
-    These Terms of Service ("Terms") govern the contract between EKM Global Consulting GmbH
-    ("PartnerScope") and any business customer ("Customer") that orders PartnerScope services.
-    PartnerScope is a B2B service: we contract only with entrepreneurs within the meaning of
-    § 1 of the Austrian Consumer Protection Act (KSchG). These Terms do not apply to consumers.
+    These Terms of Service ("Terms") govern the contract between EM Consulting,
+    Inhaber Elshan Musayev ("PartnerScope", "we") and any business customer ("Customer") that
+    orders PartnerScope services. PartnerScope is a B2B service: we contract exclusively with
+    entrepreneurs within the meaning of § 14 German Civil Code (BGB). These Terms do not apply
+    to consumers (§ 13 BGB). The application of the Customer's general terms and conditions is
+    excluded unless expressly agreed in writing.
   </p>
 
   <h2>2. Services</h2>
@@ -35,13 +37,15 @@ import Legal from '../../layouts/Legal.astro';
   </ul>
   <p>
     The scope, deliverables and price quoted at the time of order prevail. We reserve the right
-    to refuse orders that we cannot lawfully fulfil (e.g. assessments in sanctioned jurisdictions).
+    to refuse orders that we cannot lawfully fulfil (e.g. assessments in sanctioned jurisdictions
+    or otherwise restricted under the EU Dual-Use Regulation 2021/821 and the German Foreign
+    Trade Act, AWG).
   </p>
 
   <h2>3. Service levels</h2>
   <ul>
-    <li>Starter delivery SLA: 24 hours from confirmed payment, Mon–Fri, Vienna time.</li>
-    <li>Pro delivery SLA: 48 hours from confirmed payment, Mon–Fri, Vienna time.</li>
+    <li>Starter delivery SLA: 24 hours from confirmed payment, Mon–Fri, Europe/Berlin time.</li>
+    <li>Pro delivery SLA: 48 hours from confirmed payment, Mon–Fri, Europe/Berlin time.</li>
     <li>Enterprise portal availability: 99.5% monthly uptime (excluding planned maintenance).</li>
   </ul>
 
@@ -50,14 +54,17 @@ import Legal from '../../layouts/Legal.astro';
     The Customer must provide accurate vendor information and, where documentary review is part
     of the tier, deliver the requested artefacts (DPA, ISO 27001, SOC 2, Model Card, SBOM, BCP,
     IR plan, etc.) or grant reasonable access to them. The Customer warrants that it has the
-    right to submit the information it provides.
+    right to submit the information it provides and that such submission does not breach any
+    obligation of confidentiality, data-protection law, or third-party rights.
   </p>
 
   <h2>5. Prices and payment</h2>
   <ul>
-    <li>Prices are net of VAT; VAT is added where applicable.</li>
-    <li>Payment is due up-front via Stripe (card or SEPA) unless otherwise agreed in writing.</li>
+    <li>Prices are net of VAT (netto); value-added tax is added where applicable at the statutory rate.</li>
+    <li>For customers established in the EU outside Germany with a valid VAT ID (USt-IdNr), invoices are issued under the reverse-charge procedure (Art. 196 VAT Directive / § 13b UStG).</li>
+    <li>Payment is due up-front via Stripe (card or SEPA Direct Debit) unless otherwise agreed in writing.</li>
     <li>Enterprise subscriptions are billed quarterly in advance.</li>
+    <li>In the event of payment default, statutory interest applies (§ 288 Abs. 2 BGB).</li>
   </ul>
 
   <h2>6. Nature of the assessment — disclaimers</h2>
@@ -76,10 +83,10 @@ import Legal from '../../layouts/Legal.astro';
   <h2>7. Intellectual property</h2>
   <p>
     The PartnerScope methodology, scoring framework, question bank, and report templates are the
-    IP of EKM Global Consulting GmbH. The Customer receives a perpetual, non-exclusive,
-    non-transferable licence to use delivered reports internally for its own risk decisions, and
-    to share them in redacted form with its regulators, auditors and legal counsel.
-    Re-publication, resale, or use for competing services is prohibited.
+    intellectual property of EM Consulting. The Customer receives a simple, non-exclusive,
+    non-transferable right (einfaches Nutzungsrecht) to use delivered reports internally for its
+    own risk decisions, and to share them in redacted form with its regulators, auditors and
+    legal counsel. Re-publication, resale, or use for competing services is prohibited.
   </p>
 
   <h2>8. Confidentiality</h2>
@@ -87,22 +94,37 @@ import Legal from '../../layouts/Legal.astro';
     Each party will treat the other's non-public information as confidential and use it only for
     purposes of the engagement. Our confidentiality obligations on vendor-submitted documents
     are set out separately in our Data Processing Addendum (<a href="/legal/dpa">/legal/dpa</a>).
+    This confidentiality obligation continues for three years after the end of the engagement.
   </p>
 
-  <h2>9. Limitation of liability</h2>
+  <h2>9. Warranty and limitation of liability</h2>
   <p>
-    Subject to mandatory statutory liability (in particular for personal injury, intent, and
-    gross negligence), PartnerScope's aggregate liability to the Customer is limited to the fees
-    paid under the contract giving rise to the claim during the 12 months preceding the event.
-    We are not liable for indirect, consequential, or loss-of-profit damages.
+    Warranty (Gewährleistung) for paid services follows the statutory rules of §§ 634 ff. BGB
+    insofar as the service qualifies as a work contract (Werkvertrag), and §§ 535 ff. BGB for
+    the portal access component, subject to the modifications below.
+  </p>
+  <p>
+    PartnerScope is liable without limitation for damages resulting from (a) intent or gross
+    negligence, (b) injury to life, body or health, (c) liability under the German Product
+    Liability Act (Produkthaftungsgesetz), and (d) breach of a guarantee (Garantie) we have
+    expressly assumed. For breaches of a material contractual obligation (a "cardinal duty",
+    Kardinalpflicht) caused by simple negligence, our liability is limited to foreseeable damages
+    typical for this type of contract. Liability for simple negligence in breach of non-material
+    obligations is excluded.
+  </p>
+  <p>
+    Insofar as permissible under the rules above, our aggregate liability to the Customer is
+    limited to the fees paid under the contract giving rise to the claim during the 12 months
+    preceding the event.
   </p>
 
   <h2>10. Term and termination</h2>
   <p>
     Starter and Pro are one-time engagements; the contract ends upon delivery of the report.
     Enterprise subscriptions renew quarterly unless terminated with 30 days' written notice
-    before the end of the current term. Either party may terminate for material breach
-    uncured within 14 days of written notice.
+    (Textform, § 126b BGB) before the end of the current term. Either party may terminate for
+    cause (Kündigung aus wichtigem Grund, § 314 BGB) for material breach uncured within 14 days
+    of written notice.
   </p>
 
   <h2>11. Changes to these Terms</h2>
@@ -114,13 +136,24 @@ import Legal from '../../layouts/Legal.astro';
 
   <h2>12. Governing law and jurisdiction</h2>
   <p>
-    These Terms are governed by Austrian law, excluding its conflict-of-laws rules and the UN
-    Convention on Contracts for the International Sale of Goods. The exclusive place of
-    jurisdiction for all disputes is the competent court in Vienna, Austria.
+    These Terms are governed by the laws of the Federal Republic of Germany, excluding its
+    conflict-of-laws rules and the UN Convention on Contracts for the International Sale of
+    Goods (CISG). The exclusive place of jurisdiction for all disputes arising out of or in
+    connection with this contract is Baden-Baden, Germany, provided the Customer is a merchant
+    (Kaufmann), a legal person under public law, or a special fund under public law (§ 38 Abs. 1
+    ZPO). PartnerScope may at its option also sue the Customer at the Customer's general place
+    of jurisdiction.
+  </p>
+
+  <h2>13. Severability</h2>
+  <p>
+    Should any provision of these Terms be or become invalid or unenforceable, the validity of
+    the remaining provisions shall not be affected. The invalid provision shall be replaced by
+    a provision that comes closest to the economic intent of the invalid one.
   </p>
 
   <div class="legal-note">
-    This is a first good-faith draft. Have it reviewed by qualified Austrian counsel before
+    This is a first good-faith draft. Have it reviewed by qualified German counsel before
     relying on it in customer-facing contracts.
   </div>
 </Legal>
