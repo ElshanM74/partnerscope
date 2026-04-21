@@ -1,0 +1,34 @@
+# Keep build context small — speeds up builds and prevents secrets leaking in.
+
+**/node_modules
+**/dist
+**/.astro
+**/.turbo
+**/coverage
+
+# Local env files — secrets live on the server, not in images.
+.env
+.env.*
+!.env.example
+apps/*/.env
+apps/*/.env.*
+
+# VCS + editor
+.git
+.gitignore
+.github
+.vscode
+.idea
+.DS_Store
+*.swp
+
+# CI artefacts
+**/*.log
+**/npm-debug.log*
+**/pnpm-debug.log*
+
+# Tests + docs — not needed in the runtime image
+docs
+ops
+**/*.test.ts
+**/*.spec.ts

@@ -1,0 +1,140 @@
+# Deploy PartnerScope on push to main.
+#
+#   - Builds the API docker image and pushes to GHCR
+#   - Builds the Astro site (apps/web) and rsyncs dist/ to the server
+#   - Rsyncs docker-compose.prod.yml + ops/nginx.conf + ops/deploy.sh to the server
+#   - Runs ./deploy.sh on the server to pull + reload
+#
+# Required GitHub repo secrets:
+#   DEPLOY_HOST        — e.g. 1.2.3.4 or partnerscope.eu
+#   DEPLOY_USER        — deploy
+#   DEPLOY_SSH_KEY     — private half of the ed25519 deploy key added in cloud-init.yaml
+#   DEPLOY_SSH_KNOWN_HOSTS — output of: ssh-keyscan -t ed25519 <DEPLOY_HOST>
+#
+# GHCR write uses the built-in GITHUB_TOKEN (no extra secret needed).
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────
+  # 1. Build API image and push to ghcr.io/<repo>/api:<sha>,latest
+  # ─────────────────────────────────────────────────────────────────────
+  build-api:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_sha: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/api
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build + push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────────────────────────────
+  # 2. Build Astro site
+  # ─────────────────────────────────────────────────────────────────────
+  build-web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @partnerscope/web build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+          retention-days: 7
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────
+  # 3. Deploy to server
+  # ─────────────────────────────────────────────────────────────────────
+  deploy:
+    needs: [build-api, build-web]
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Sync web static site
+        run: |
+          rsync -az --delete \
+            apps/web/dist/ \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/partnerscope/web/
+
+      - name: Sync server-side config
+        run: |
+          rsync -az \
+            docker-compose.prod.yml \
+            ops/nginx.conf \
+            ops/deploy.sh \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/partnerscope/
+
+      - name: Run deploy.sh
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "cd /opt/partnerscope \
+             && export API_IMAGE_TAG=sha-$(echo ${{ github.sha }} | cut -c1-7) \
+             && ./deploy.sh"

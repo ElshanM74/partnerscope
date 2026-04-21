@@ -52,6 +52,7 @@ FROM deps AS build
 COPY tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/api ./apps/api
+COPY migrations ./migrations
 RUN pnpm --filter @partnerscope/core build \
  && pnpm --filter @partnerscope/tests build \
  && pnpm --filter @partnerscope/api build
@@ -77,6 +78,8 @@ COPY --from=build /app/apps/api/dist ./apps/api/dist
 # Handlebars templates and static assets shipped next to sources.
 COPY --from=build /app/apps/api/src/services/email/templates ./apps/api/dist/services/email/templates
 COPY --from=build /app/apps/api/src/services/pdf/templates ./apps/api/dist/services/pdf/templates
+# SQL migrations — migrate.js resolves ../../../../migrations relative to dist/db.
+COPY --from=build /app/migrations ./migrations
 
 ENV NODE_ENV=production \
     API_PORT=4000 \

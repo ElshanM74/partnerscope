@@ -1,0 +1,73 @@
+# PartnerScope production compose stack — single-node (Hetzner CX22+).
+#
+# Runs on the server under /opt/partnerscope. Secrets come from /opt/partnerscope/.env
+# which is NEVER committed. Host nginx terminates TLS and reverse-proxies into these
+# services on the docker-internal network.
+#
+#   cd /opt/partnerscope
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml exec api pnpm --filter @partnerscope/api db:migrate
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-partnerscope}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-partnerscope}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-partnerscope} -d ${POSTGRES_DB:-partnerscope}']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    # No ports — db only reachable over the internal docker network.
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    image: ghcr.io/${GITHUB_REPOSITORY:-partnerscope/platform}/api:${API_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      API_BASE_URL: https://api.partnerscope.eu
+      API_CORS_ORIGIN: https://partnerscope.eu
+      DATABASE_URL: postgres://${POSTGRES_USER:-partnerscope}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-partnerscope}
+      REDIS_URL: redis://redis:6379
+      APP_PUBLIC_URL: https://partnerscope.eu
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_DIR: /app/storage
+      STRIPE_SUCCESS_URL: https://partnerscope.eu/checkout/success
+      STRIPE_CANCEL_URL: https://partnerscope.eu/checkout/cancelled
+      LOG_LEVEL: info
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      # Bind to loopback only — host nginx proxies into here.
+      - '127.0.0.1:4000:4000'
+    volumes:
+      - api-storage:/app/storage
+
+volumes:
+  db-data:
+  redis-data:
+  api-storage:
