@@ -1,0 +1,105 @@
+---
+const FAQ = [
+  {
+    q: 'How is this different from our existing GRC tool?',
+    a: 'We plug in as a data source, not a replacement. Findings export as JSON, CSV, Parquet and deliver via direct webhook to ServiceNow, Archer, OneTrust and SAP Ariba.',
+  },
+  {
+    q: 'Do vendors have to pay?',
+    a: 'No. The buyer pays; vendors respond to a questionnaire at no cost.',
+  },
+  {
+    q: 'Who runs the red-team?',
+    a: 'Our analysts, using a maintained catalogue aligned to OWASP LLM Top 10 (2025), MITRE ATLAS and NIST AI RMF. Sandbox only; production is never exposed.',
+  },
+  {
+    q: 'GDPR / EU hosting?',
+    a: 'Yes. All data stored in EU (Frankfurt). DPAs signed with every customer. Sub-processors listed on trust.partnerscope.eu.',
+  },
+  {
+    q: 'Refunds?',
+    a: 'Starter refundable within 24h if automated tests cannot complete. Pro and Enterprise refundable pro-rata for undelivered work.',
+  },
+  {
+    q: 'Can we self-serve?',
+    a: 'Starter and Pro, yes — instant Stripe checkout and portal access. Enterprise requires a scoping call (portfolio sizing, SSO, integrations).',
+  },
+] as const;
+---
+
+<section id="faq" class="faq section section-alt">
+  <div class="container">
+    <div class="faq-head">
+      <p class="eyebrow">Frequently asked</p>
+      <h2>Questions buyers ask before signing the PO</h2>
+    </div>
+    <div class="faq-list">
+      {FAQ.map((item, i) => (
+        <details class="faq-item" open={i === 0}>
+          <summary>
+            <span>{item.q}</span>
+            <svg class="faq-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-head {
+    max-width: 680px;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .faq-list {
+    max-width: 760px;
+    margin: 0 auto;
+    display: grid;
+    gap: 0.65rem;
+  }
+  .faq-item {
+    background: #fff;
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-md);
+    padding: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .faq-item summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.15rem;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    color: var(--ps-ink);
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-chev {
+    color: var(--ps-muted);
+    transition: transform 0.15s ease;
+  }
+  .faq-item[open] .faq-chev {
+    transform: rotate(180deg);
+  }
+  .faq-item p {
+    margin: 0;
+    padding: 0 1.15rem 1.15rem;
+    color: var(--ps-text);
+    line-height: 1.55;
+  }
+</style>

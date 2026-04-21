@@ -1,0 +1,176 @@
+/*
+ * PartnerScope brand tokens + global reset.
+ * Palette mirrors the Starter PDF report so scorecards match across surfaces.
+ */
+
+:root {
+  /* Brand */
+  --ps-navy: #0f1a2b;
+  --ps-navy-2: #152238;
+  --ps-navy-3: #1e2d47;
+  --ps-ink: #0b1220;
+  --ps-paper: #ffffff;
+  --ps-paper-soft: #f7f8fb;
+  --ps-border: #e3e6ee;
+  --ps-muted: #6b7488;
+  --ps-text: #1a2238;
+  --ps-accent: #4f7cff;
+  --ps-accent-strong: #2f58e0;
+
+  /* Risk bands — match PDF template */
+  --band-minimal: #1b8f4f;
+  --band-low: #4a9e3e;
+  --band-medium: #c79015;
+  --band-high: #d35a1d;
+  --band-critical: #c03527;
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(15, 26, 43, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 26, 43, 0.08);
+
+  /* Type */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--ps-text);
+  background: var(--ps-paper);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--ps-accent-strong);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--ps-ink);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+}
+h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease, border-color 0.15s ease;
+  text-decoration: none;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: var(--ps-accent-strong);
+  color: var(--ps-paper);
+}
+.btn-primary:hover {
+  background: #2449c7;
+  text-decoration: none;
+}
+.btn-dark {
+  background: var(--ps-navy);
+  color: var(--ps-paper);
+}
+.btn-dark:hover {
+  background: #17243d;
+  text-decoration: none;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ps-ink);
+  border-color: var(--ps-border);
+}
+.btn-ghost:hover {
+  border-color: var(--ps-navy);
+  text-decoration: none;
+}
+
+/* Band chips */
+.band {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.band-MINIMAL {
+  background: var(--band-minimal);
+}
+.band-LOW {
+  background: var(--band-low);
+}
+.band-MEDIUM {
+  background: var(--band-medium);
+}
+.band-HIGH {
+  background: var(--band-high);
+}
+.band-CRITICAL {
+  background: var(--band-critical);
+}
+
+.section {
+  padding: 4rem 0;
+}
+.section-alt {
+  background: var(--ps-paper-soft);
+}

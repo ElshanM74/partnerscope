@@ -12,10 +12,12 @@
       "**/build/**",
       "**/node_modules/**",
       "**/coverage/**",
+      "**/.astro/**",
       "docs/**",
       "migrations/**/*.sql",
       "pnpm-lock.yaml",
-      "**/*.md"
+      "**/*.md",
+      "**/*.astro"
     ]
   },
   "organizeImports": { "enabled": true },

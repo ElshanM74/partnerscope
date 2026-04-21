@@ -1,0 +1,476 @@
+---
+/**
+ * Free Snapshot form — 4 Likert questions (D11/D12/D13 FS-gated),
+ * email capture, vendor domain. POSTs to ${API_BASE_URL}/v1/demo/submit.
+ *
+ * Server-side: API_BASE_URL comes from PUBLIC_API_BASE_URL env (baked at build).
+ * Defaults to same-origin /api for prod behind a reverse proxy.
+ */
+
+const apiBase =
+  import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+
+const QUESTIONS = [
+  {
+    id: 'Q11_1',
+    dimension: 'Data Provenance',
+    prompt: 'The vendor can fully document training data sources for their AI models.',
+    anchor1: 'No lineage — cannot say where data came from.',
+    anchor5: 'Complete lineage with licences and consent basis.',
+  },
+  {
+    id: 'Q12_1',
+    dimension: 'Model Transparency',
+    prompt: 'The vendor publishes a Model Card or System Card for each model in production.',
+    anchor1: 'None published.',
+    anchor5: 'Comprehensive, updated with every release.',
+  },
+  {
+    id: 'Q12_2',
+    dimension: 'Model Versioning',
+    prompt: 'Model versions are tracked and clients are notified of material changes.',
+    anchor1: 'No versioning.',
+    anchor5: 'SemVer + changelog + client notice.',
+  },
+  {
+    id: 'Q13_2',
+    dimension: 'EU AI Act Readiness',
+    prompt: 'The vendor has completed EU AI Act Annex III self-assessment (and registered, if applicable).',
+    anchor1: 'Not started.',
+    anchor5: 'Registered, documentation ready.',
+  },
+] as const;
+---
+
+<section id="snapshot" class="snapshot">
+  <div class="snapshot-inner">
+    <header class="snapshot-head">
+      <p class="eyebrow">Free snapshot · 60 seconds · no account</p>
+      <h2>Get a 60-second AI-risk snapshot</h2>
+      <p class="snapshot-sub">
+        Answer 4 questions about a vendor you're evaluating. We score it against three AI-specific
+        dimensions (data provenance, model transparency, regulatory readiness) and email you a
+        preview alongside your upgrade path.
+      </p>
+    </header>
+
+    <form id="snapshot-form" class="snapshot-form" novalidate data-api-base={apiBase}>
+      <div class="row">
+        <label>
+          <span>Your work email</span>
+          <input type="email" name="email" required autocomplete="email" placeholder="you@company.com" />
+        </label>
+        <label>
+          <span>Vendor domain to assess</span>
+          <input type="text" name="vendorDomain" required autocomplete="off" placeholder="vendor.com" />
+        </label>
+      </div>
+      <label class="company">
+        <span>Your company (optional)</span>
+        <input type="text" name="company" autocomplete="organization" placeholder="ACME GmbH" />
+      </label>
+
+      <ol class="questions">
+        {QUESTIONS.map((q, i) => (
+          <li class="q">
+            <div class="q-head">
+              <span class="q-index">{i + 1}</span>
+              <div>
+                <div class="q-dim">{q.dimension}</div>
+                <div class="q-prompt">{q.prompt}</div>
+              </div>
+            </div>
+            <div class="scale" role="radiogroup" aria-label={q.prompt}>
+              {[1, 2, 3, 4, 5].map((v) => (
+                <label class="scale-opt">
+                  <input type="radio" name={`q_${q.id}`} value={v} required />
+                  <span>{v}</span>
+                </label>
+              ))}
+            </div>
+            <div class="anchors">
+              <span>1 — {q.anchor1}</span>
+              <span>5 — {q.anchor5}</span>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <label class="consent">
+        <input type="checkbox" name="consent" required />
+        <span>I agree to receive my snapshot by email. No spam; one-click unsubscribe.</span>
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Score this vendor →</button>
+        <span class="tiny">
+          GDPR: EU-hosted, 90-day lead retention, <a href="/legal/privacy">privacy</a>.
+        </span>
+      </div>
+    </form>
+
+    <div id="snapshot-result" class="snapshot-result" hidden>
+      <div class="result-card">
+        <div class="result-top">
+          <div>
+            <div class="result-label">Snapshot score</div>
+            <div class="result-score">
+              <span id="result-score">—</span><small>/100</small>
+            </div>
+          </div>
+          <span id="result-band" class="band band-LOW">—</span>
+        </div>
+        <p id="result-message" class="result-msg">Scoring…</p>
+        <ul id="result-dims" class="result-dims"></ul>
+        <a id="result-cta" class="btn btn-dark" href="#tiers">Start a Starter assessment (€99) →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .snapshot {
+    background: linear-gradient(180deg, #0f1a2b 0%, #152238 100%);
+    color: #e6ecf7;
+    padding: 3rem 0 4rem;
+  }
+  .snapshot-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+  .snapshot-head {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .snapshot h2 {
+    color: #ffffff;
+    margin-top: 0.25rem;
+  }
+  .eyebrow {
+    color: #7fb3ff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin-bottom: 0.25rem;
+  }
+  .snapshot-sub {
+    color: #c8d1e3;
+    max-width: 640px;
+    margin: 0.5rem auto 0;
+  }
+  .snapshot-form {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: #c8d1e3;
+  }
+  label.company {
+    margin-top: 1rem;
+  }
+  label > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  input[type='email'],
+  input[type='text'] {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input[type='email']::placeholder,
+  input[type='text']::placeholder {
+    color: #8894ae;
+  }
+  input[type='email']:focus,
+  input[type='text']:focus {
+    outline: none;
+    border-color: #7fb3ff;
+    box-shadow: 0 0 0 3px rgba(127, 179, 255, 0.18);
+  }
+  .questions {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 1rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .q-head {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+  }
+  .q-index {
+    flex: 0 0 auto;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: rgba(127, 179, 255, 0.16);
+    color: #b8d4ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .q-dim {
+    font-size: 0.75rem;
+    color: #7fb3ff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .q-prompt {
+    color: #f1f5fd;
+    font-weight: 500;
+    margin-top: 0.1rem;
+  }
+  .scale {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+  }
+  .scale-opt {
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .scale-opt input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .scale-opt span {
+    display: block;
+    padding: 0.55rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.03);
+    font-weight: 600;
+    color: #e6ecf7;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .scale-opt:hover span {
+    border-color: #7fb3ff;
+  }
+  .scale-opt input:checked + span {
+    background: #2f58e0;
+    border-color: #2f58e0;
+    color: #fff;
+  }
+  .anchors {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.78rem;
+    color: #8894ae;
+    margin-top: 0.55rem;
+  }
+  .consent {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+    color: #c8d1e3;
+  }
+  .consent input {
+    margin-top: 0.2rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .actions .btn-primary {
+    background: #4f7cff;
+  }
+  .actions .btn-primary:hover {
+    background: #2f58e0;
+  }
+  .tiny {
+    color: #8894ae;
+    font-size: 0.78rem;
+  }
+  .tiny a {
+    color: #b8d4ff;
+  }
+
+  .snapshot-result {
+    margin-top: 2rem;
+  }
+  .result-card {
+    background: #fff;
+    color: var(--ps-ink);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+  }
+  .result-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .result-label {
+    color: var(--ps-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .result-score {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ps-ink);
+    line-height: 1;
+    margin-top: 0.3rem;
+  }
+  .result-score small {
+    font-size: 1rem;
+    color: var(--ps-muted);
+    font-weight: 600;
+    margin-left: 0.15rem;
+  }
+  .result-msg {
+    color: var(--ps-text);
+    margin-top: 0.75rem;
+  }
+  .result-dims {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1.25rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .result-dims li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-md);
+    background: var(--ps-paper-soft);
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  type DimScore = { dimensionCode: string; score: number; band: string };
+  type SubmitResponse = {
+    leadId?: string;
+    compositeScore: number;
+    riskBand: 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH';
+    capReason?: string | null;
+    dimensionScores: DimScore[];
+    upsell: { message: string; starterUrl: string };
+  };
+
+  const form = document.getElementById('snapshot-form') as HTMLFormElement | null;
+  const result = document.getElementById('snapshot-result') as HTMLDivElement | null;
+  const scoreEl = document.getElementById('result-score');
+  const bandEl = document.getElementById('result-band');
+  const msgEl = document.getElementById('result-message');
+  const dimsEl = document.getElementById('result-dims');
+  const ctaEl = document.getElementById('result-cta') as HTMLAnchorElement | null;
+
+  if (form && result) {
+    const apiBase = form.dataset.apiBase || 'http://localhost:4000';
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+      const email = String(fd.get('email') ?? '').trim();
+      const vendorDomain = String(fd.get('vendorDomain') ?? '').trim();
+      const company = String(fd.get('company') ?? '').trim() || undefined;
+
+      const answers: Array<{ questionId: string; likert: number }> = [];
+      for (const [key, val] of fd.entries()) {
+        if (key.startsWith('q_') && typeof val === 'string') {
+          answers.push({ questionId: key.slice(2), likert: Number(val) });
+        }
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Scoring…';
+      }
+
+      try {
+        const url = new URL(window.location.href);
+        const utm = {
+          source: url.searchParams.get('utm_source') ?? undefined,
+          medium: url.searchParams.get('utm_medium') ?? undefined,
+          campaign: url.searchParams.get('utm_campaign') ?? undefined,
+        };
+
+        const res = await fetch(`${apiBase}/v1/demo/submit`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email, company, vendorDomain, answers, utm }),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API ${res.status}: ${text.slice(0, 200)}`);
+        }
+        const data = (await res.json()) as SubmitResponse;
+
+        if (scoreEl) scoreEl.textContent = String(data.compositeScore);
+        if (bandEl) {
+          bandEl.textContent = data.riskBand;
+          bandEl.className = `band band-${data.riskBand}`;
+        }
+        if (msgEl) msgEl.textContent = data.upsell.message;
+        if (ctaEl) ctaEl.href = data.upsell.starterUrl;
+        if (dimsEl) {
+          dimsEl.innerHTML = '';
+          for (const d of data.dimensionScores) {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${d.dimensionCode}</span><span>${d.score}/100 · <span class="band band-${d.band}">${d.band}</span></span>`;
+            dimsEl.appendChild(li);
+          }
+        }
+        result.hidden = false;
+        result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        if (msgEl) msgEl.textContent = `Sorry — couldn't score right now. ${(err as Error).message}`;
+        result.hidden = false;
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Score this vendor →';
+        }
+      }
+    });
+  }
+</script>

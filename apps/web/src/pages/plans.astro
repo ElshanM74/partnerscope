@@ -1,0 +1,250 @@
+---
+import Base from '../layouts/Base.astro';
+import SnapshotForm from '../components/SnapshotForm.astro';
+import TierCards from '../components/TierCards.astro';
+import Faq from '../components/Faq.astro';
+
+const title = 'Pricing — PartnerScope · Third-party AI risk assessment';
+const description =
+  'Starter €99 · Pro €299 (launch) · Enterprise €4 900/qtr. Automated tests, documentary review and AI red-teaming across 13 dimensions. EU AI Act, GDPR, DORA, NIS2.';
+---
+
+<Base title={title} description={description}>
+  <section class="hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">PartnerScope · Plans</p>
+      <h1>Third-party AI risk — without the 40-page questionnaire</h1>
+      <p class="hero-sub">
+        PartnerScope assesses your vendors across 13 dimensions — behavioural, financial, and
+        AI-compliance — with automated tests, documentary review and AI red-teaming. Drop-in
+        reports aligned with EU AI Act, GDPR, DORA and NIS2.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#tiers">See the plans →</a>
+        <a class="btn btn-ghost" href="#snapshot">Try the free snapshot</a>
+      </div>
+      <ul class="trust-strip" aria-label="Trust indicators">
+        <li>Used by DACH risk teams</li>
+        <li>48h SLA</li>
+        <li>EU-hosted · GDPR-compliant</li>
+        <li>Independent analysts</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="snapshot-strip">
+    <div class="container snapshot-strip-inner">
+      <div>
+        <strong>Not ready to buy?</strong>
+        Get a 60-second risk snapshot — 4 questions, no account.
+      </div>
+      <a class="btn btn-dark" href="#snapshot">Try it free →</a>
+    </div>
+  </section>
+
+  <TierCards />
+
+  <section class="why section section-alt">
+    <div class="container">
+      <div class="why-head">
+        <p class="eyebrow">Why PartnerScope</p>
+        <h2>Built for the EU risk stack.</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-col">
+          <div class="why-icon">EU</div>
+          <h3>Built for the EU stack.</h3>
+          <p>
+            EU AI Act, GDPR Art. 28, DORA Art. 28–30, NIS2. Every finding mapped to regulation and
+            Annex.
+          </p>
+        </div>
+        <div class="why-col">
+          <div class="why-icon">✓</div>
+          <h3>Evidence you can audit.</h3>
+          <p>
+            Every claim linked to timestamped, SHA-256-hashed artefacts. 7-year object-locked
+            storage.
+          </p>
+        </div>
+        <div class="why-col">
+          <div class="why-icon">★</div>
+          <h3>Independent and named.</h3>
+          <p>
+            Every report signed by a named analyst and QA reviewer. 15-day vendor right-of-reply.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <SnapshotForm />
+
+  <Faq />
+
+  <section class="cta-strip section">
+    <div class="container cta-inner">
+      <div>
+        <h2>Ready to start?</h2>
+        <p>Run a Starter in minutes — or talk to us about Enterprise.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="#tiers">See the plans →</a>
+        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu?subject=PartnerScope%20question">
+          Email us
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding: 4rem 0 2.5rem;
+    background:
+      radial-gradient(1000px 400px at 90% -10%, rgba(79, 124, 255, 0.08), transparent 60%),
+      radial-gradient(800px 400px at -10% 20%, rgba(79, 124, 255, 0.05), transparent 60%);
+  }
+  .hero-inner {
+    max-width: 820px;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0 0 0.75rem;
+  }
+  .hero h1 {
+    margin-bottom: 1rem;
+  }
+  .hero-sub {
+    color: var(--ps-text);
+    font-size: 1.1rem;
+    max-width: 680px;
+    margin: 0 auto 1.5rem;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .trust-strip {
+    list-style: none;
+    display: flex;
+    gap: 1rem 2rem;
+    padding: 0;
+    margin: 2.5rem 0 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    color: var(--ps-muted);
+    font-size: 0.85rem;
+  }
+  .trust-strip li {
+    position: relative;
+  }
+  .trust-strip li + li::before {
+    content: '·';
+    position: absolute;
+    left: -1rem;
+    color: var(--ps-border);
+  }
+
+  .snapshot-strip {
+    padding: 1.25rem 0;
+    background: linear-gradient(90deg, #0f1a2b 0%, #1e2d47 100%);
+    color: #e6ecf7;
+  }
+  .snapshot-strip-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .snapshot-strip strong {
+    color: #fff;
+    margin-right: 0.5rem;
+  }
+  .snapshot-strip .btn-dark {
+    background: #fff;
+    color: var(--ps-navy);
+  }
+  .snapshot-strip .btn-dark:hover {
+    background: #e6ecf7;
+  }
+
+  .why-head {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 2.5rem;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  @media (max-width: 900px) {
+    .why-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .why-col {
+    background: #fff;
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .why-col h3 {
+    margin: 0.75rem 0 0.5rem;
+  }
+  .why-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    background: rgba(79, 124, 255, 0.1);
+    color: var(--ps-accent-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .cta-strip .cta-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 2rem;
+    background: linear-gradient(135deg, #0f1a2b 0%, #1e2d47 100%);
+    border-radius: var(--radius-lg);
+    color: #e6ecf7;
+  }
+  .cta-strip h2 {
+    color: #fff;
+    margin: 0 0 0.25rem;
+  }
+  .cta-strip p {
+    margin: 0;
+    color: #c8d1e3;
+  }
+  .cta-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .cta-actions .btn-ghost {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .cta-actions .btn-ghost:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+</style>

@@ -1,0 +1,169 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+}
+
+const {
+  title,
+  description = 'Third-party AI risk assessment for EU buyers. Automated tests, documentary review and AI red-teaming across 13 dimensions. EU AI Act, GDPR, DORA, NIS2.',
+  canonical,
+} = Astro.props;
+
+const year = new Date().getFullYear();
+const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site ?? 'https://partnerscope.eu').toString();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalHref} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalHref} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header-inner">
+        <a class="brand" href="/plans">
+          <span class="brand-mark">◆</span>
+          <span class="brand-name">PartnerScope</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="/plans">Pricing</a>
+          <a href="/plans#snapshot">Free snapshot</a>
+          <a href="/plans#faq">FAQ</a>
+          <a class="btn btn-dark nav-cta" href="/plans#tiers">Get a report</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer-inner">
+        <div class="footer-left">
+          <div class="footer-brand">
+            <span class="brand-mark">◆</span>
+            <span class="brand-name">PartnerScope</span>
+          </div>
+          <p class="footer-legal">
+            EKM Global Consulting GmbH · Vienna, AT · Registered FN {'{{fn_number}}'}<br />
+            © {year} PartnerScope. All rights reserved.
+          </p>
+        </div>
+        <nav class="footer-nav" aria-label="Legal">
+          <a href="/legal/terms">Terms</a>
+          <a href="/legal/privacy">Privacy</a>
+          <a href="/legal/dpa">DPA</a>
+          <a href="/legal/sub-processors">Sub-processors</a>
+          <a href="/legal/imprint">Imprint</a>
+          <a href="mailto:hello@partnerscope.eu">Contact</a>
+        </nav>
+      </div>
+    </footer>
+
+    <style>
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: saturate(160%) blur(8px);
+        border-bottom: 1px solid var(--ps-border);
+      }
+      .site-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+      }
+      .brand,
+      .footer-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        color: var(--ps-ink);
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .brand-mark {
+        color: var(--ps-accent-strong);
+        font-size: 1.1rem;
+      }
+      .brand-name {
+        font-size: 1.05rem;
+      }
+      .site-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .site-nav a {
+        color: var(--ps-text);
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .site-nav a.nav-cta {
+        color: var(--ps-paper);
+      }
+      @media (max-width: 720px) {
+        .site-nav a:not(.nav-cta) {
+          display: none;
+        }
+      }
+
+      .site-footer {
+        background: var(--ps-navy);
+        color: #c8d1e3;
+        padding: 3rem 0 2.5rem;
+        margin-top: 4rem;
+      }
+      .site-footer .brand-name {
+        color: var(--ps-paper);
+      }
+      .site-footer-inner {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+      }
+      .footer-legal {
+        font-size: 0.85rem;
+        margin-top: 0.75rem;
+        color: #8894ae;
+      }
+      .footer-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        align-items: center;
+      }
+      .footer-nav a {
+        color: #c8d1e3;
+        font-size: 0.9rem;
+      }
+      .footer-nav a:hover {
+        color: var(--ps-paper);
+      }
+    </style>
+  </body>
+</html>
