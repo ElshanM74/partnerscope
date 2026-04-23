@@ -1,0 +1,371 @@
+---
+/**
+ * /account — user profile + account-deletion surface.
+ *
+ * The top card is a thin read-only profile summary with a log-out button.
+ *
+ * The Danger Zone below exposes self-service account deletion (Apple
+ * Guideline 5.1.1(v), GDPR right-to-erasure). The flow is:
+ *   tap "Delete account…" → confirmation <dialog> → type `DELETE` literally
+ *   → submit → DELETE /v1/auth/me → 204 → localStorage cleared → redirect to /.
+ *
+ * Password change + email change remain deferred.
+ */
+import Base from '../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Account — PartnerScope"
+  description="Your PartnerScope account settings."
+>
+  <section class="account section" data-api-base={apiBase}>
+    <div class="container account-inner">
+      <div id="acc-loading" class="acc-state">
+        <p class="muted">Loading…</p>
+      </div>
+
+      <div id="acc-content" hidden>
+        <header class="acc-head">
+          <h1>Account</h1>
+          <p class="muted"><a href="/dashboard">← Back to dashboard</a></p>
+        </header>
+
+        <div class="card">
+          <dl class="kv">
+            <dt>Email</dt>
+            <dd id="acc-email" class="mono"></dd>
+
+            <dt>Full name</dt>
+            <dd id="acc-name"></dd>
+
+            <dt>Role</dt>
+            <dd id="acc-role"></dd>
+
+            <dt>Organization ID</dt>
+            <dd id="acc-org-id" class="mono tiny"></dd>
+          </dl>
+
+          <div class="acc-actions">
+            <button type="button" class="btn btn-primary" id="btn-logout">Log out</button>
+            <button type="button" class="btn btn-ghost" disabled title="Coming soon">Change password</button>
+          </div>
+        </div>
+
+        <section class="danger-zone" aria-labelledby="danger-title">
+          <h2 id="danger-title">Danger zone</h2>
+          <p class="muted">
+            Delete your account. This removes your user record, cancels any
+            active subscription, and cannot be undone.
+          </p>
+          <button type="button" class="btn btn-danger" id="btn-delete-open">Delete account…</button>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="delete-dialog" class="delete-dialog" aria-labelledby="delete-title">
+    <form method="dialog" id="delete-form" class="delete-dialog-inner">
+      <button type="button" class="delete-dialog-close" aria-label="Close" data-delete-close>×</button>
+      <h2 id="delete-title">Delete your account?</h2>
+      <p class="muted">
+        This will permanently delete your user record, cancel any active
+        Stripe subscription on your organization, and sign you out on every
+        device. Assessments and audit history remain retained under your
+        organization with your name detached.
+      </p>
+      <p class="muted">
+        To confirm, type <strong>DELETE</strong> in the field below.
+      </p>
+      <label class="delete-dialog-field">
+        <span class="visually-hidden">Type DELETE to confirm</span>
+        <input
+          type="text"
+          name="confirm"
+          id="delete-confirm"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          placeholder="DELETE"
+          required
+        />
+      </label>
+      <p class="delete-error" id="delete-error" role="alert" hidden></p>
+      <div class="delete-dialog-actions">
+        <button type="button" class="btn btn-ghost" data-delete-close>Cancel</button>
+        <button type="submit" class="btn btn-danger" id="btn-delete-confirm" disabled>
+          Delete my account
+        </button>
+      </div>
+    </form>
+  </dialog>
+</Base>
+
+<style>
+  .account-inner { max-width: 640px; }
+  .acc-head { margin-bottom: 1.5rem; }
+  .acc-head h1 { margin: 0 0 0.35rem; }
+  .card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 0.6rem 1rem; margin: 0 0 1.25rem; }
+  .kv dt { color: var(--ps-muted); font-size: 0.9rem; font-weight: 500; }
+  .kv dd { margin: 0; color: var(--ps-text); }
+  .acc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; border-top: 1px solid var(--ps-border); padding-top: 1.25rem; }
+  .muted { color: var(--ps-muted); }
+  .tiny { font-size: 0.82rem; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9rem; }
+  .acc-state { padding: 3rem 0; text-align: center; }
+
+  .danger-zone {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #fff7f6;
+    border: 1px solid #f1c3be;
+    border-radius: var(--radius-lg);
+  }
+  .danger-zone h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+    color: #7a2019;
+  }
+  .danger-zone p.muted {
+    margin: 0 0 1rem;
+    color: #8a3b33;
+  }
+  .btn-danger {
+    background: #b42318;
+    color: #fff;
+    border: 1px solid #b42318;
+  }
+  .btn-danger:hover:not(:disabled) { background: #912217; }
+  .btn-danger:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .delete-dialog {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 0;
+    max-width: 480px;
+    box-shadow: 0 18px 48px rgba(15, 26, 43, 0.18);
+  }
+  .delete-dialog::backdrop {
+    background: rgba(15, 26, 43, 0.45);
+  }
+  .delete-dialog-inner {
+    position: relative;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .delete-dialog-inner h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: #7a2019;
+  }
+  .delete-dialog-inner p.muted { margin: 0; }
+  .delete-dialog-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.6rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ps-muted);
+  }
+  .delete-dialog-field input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--ps-border);
+    border-radius: 8px;
+    font: inherit;
+    letter-spacing: 0.04em;
+  }
+  .delete-dialog-field input:focus {
+    outline: 2px solid #b42318;
+    outline-offset: 1px;
+  }
+  .delete-error {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.9rem;
+  }
+  .delete-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+
+<script>
+  const root = document.querySelector('.account.section') as HTMLElement | null;
+  const apiBase = root?.dataset.apiBase || '/api';
+
+  function logoutAndRedirect(target = '/'): void {
+    try {
+      localStorage.removeItem('ps_token');
+      localStorage.removeItem('ps_user');
+    } catch {}
+    window.location.replace(target);
+  }
+
+  document.getElementById('btn-logout')?.addEventListener('click', () => {
+    logoutAndRedirect('/');
+  });
+
+  // ── Account deletion (Apple 5.1.1(v)) ─────────────────────────────────
+  const deleteDialog = document.getElementById('delete-dialog') as HTMLDialogElement | null;
+  const deleteOpenBtn = document.getElementById('btn-delete-open');
+  const deleteForm = document.getElementById('delete-form') as HTMLFormElement | null;
+  const deleteConfirmInput = document.getElementById('delete-confirm') as HTMLInputElement | null;
+  const deleteConfirmBtn = document.getElementById('btn-delete-confirm') as HTMLButtonElement | null;
+  const deleteErrorEl = document.getElementById('delete-error');
+
+  function closeDeleteDialog(): void {
+    if (!deleteDialog) return;
+    if (deleteConfirmInput) deleteConfirmInput.value = '';
+    if (deleteConfirmBtn) deleteConfirmBtn.disabled = true;
+    if (deleteErrorEl) {
+      deleteErrorEl.hidden = true;
+      deleteErrorEl.textContent = '';
+    }
+    if (deleteDialog.open) deleteDialog.close();
+  }
+
+  deleteOpenBtn?.addEventListener('click', () => {
+    if (!deleteDialog) return;
+    // Native <dialog> modal — backdrop blocks page interaction, Esc closes.
+    if (typeof deleteDialog.showModal === 'function') deleteDialog.showModal();
+    else deleteDialog.setAttribute('open', '');
+    deleteConfirmInput?.focus();
+  });
+
+  document.querySelectorAll('[data-delete-close]').forEach((el) => {
+    el.addEventListener('click', (evt) => {
+      evt.preventDefault();
+      closeDeleteDialog();
+    });
+  });
+
+  deleteConfirmInput?.addEventListener('input', () => {
+    if (!deleteConfirmBtn || !deleteConfirmInput) return;
+    // Exact-match only — any other value keeps the button disabled.
+    deleteConfirmBtn.disabled = deleteConfirmInput.value !== 'DELETE';
+  });
+
+  deleteForm?.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+    if (!deleteConfirmBtn || !deleteConfirmInput) return;
+    if (deleteConfirmInput.value !== 'DELETE') return;
+
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) {
+      // No session → nothing to delete server-side, just bounce to login.
+      logoutAndRedirect('/login');
+      return;
+    }
+
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.textContent = 'Deleting…';
+    if (deleteErrorEl) {
+      deleteErrorEl.hidden = true;
+      deleteErrorEl.textContent = '';
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/v1/auth/me`, {
+        method: 'DELETE',
+        headers: {
+          authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ confirm: 'DELETE' }),
+      });
+      if (res.status === 401) {
+        // Session already invalid — still clear client state.
+        logoutAndRedirect('/');
+        return;
+      }
+      if (res.status !== 204) {
+        let detail = `Delete failed (HTTP ${res.status}).`;
+        try {
+          const body = await res.json() as { message?: string };
+          if (body && typeof body.message === 'string' && body.message) {
+            detail = body.message;
+          }
+        } catch {}
+        throw new Error(detail);
+      }
+      // Success — clear everything and bounce to the landing page.
+      logoutAndRedirect('/');
+    } catch (err) {
+      if (deleteErrorEl) {
+        deleteErrorEl.textContent = (err as Error).message || 'Something went wrong. Please try again.';
+        deleteErrorEl.hidden = false;
+      }
+      if (deleteConfirmBtn) {
+        deleteConfirmBtn.textContent = 'Delete my account';
+        deleteConfirmBtn.disabled = deleteConfirmInput.value !== 'DELETE';
+      }
+    }
+  });
+
+  (async () => {
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) {
+      logoutAndRedirect('/login');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/v1/auth/me`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        logoutAndRedirect('/login');
+        return;
+      }
+      if (!res.ok) throw new Error(`me failed: ${res.status}`);
+      const body = await res.json() as {
+        user: { id: string; organizationId: string | null; email: string; fullName: string | null; role: string };
+      };
+      const u = body.user;
+
+      const emailEl = document.getElementById('acc-email');
+      const nameEl = document.getElementById('acc-name');
+      const roleEl = document.getElementById('acc-role');
+      const orgEl = document.getElementById('acc-org-id');
+      if (emailEl) emailEl.textContent = u.email;
+      if (nameEl) nameEl.textContent = u.fullName || '—';
+      if (roleEl) roleEl.textContent = u.role;
+      if (orgEl) orgEl.textContent = u.organizationId || '—';
+
+      const loading = document.getElementById('acc-loading');
+      const content = document.getElementById('acc-content');
+      if (loading) loading.hidden = true;
+      if (content) content.hidden = false;
+    } catch {
+      logoutAndRedirect('/login');
+    }
+  })();
+</script>

@@ -8,10 +8,13 @@
  * - Event dispatch — maps Stripe events to application-level effects.
  */
 
+import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 import type { Tier } from '@partnerscope/core';
 import { env } from '../../config/env.js';
+import { db } from '../../db/client.js';
+import { organizations } from '../../db/schema.js';
 
 // ────────────────────────────────────────────────────────────────
 // Client (lazy — so env var can be absent in dev/tests)
@@ -163,4 +166,87 @@ export function parseCheckoutCompleted(event: Stripe.Event): PaymentSucceededPay
     amountTotal: session.amount_total,
     currency: session.currency,
   };
+}
+
+// ────────────────────────────────────────────────────────────────
+// Subscription cancellation (for account deletion — Apple 5.1.1(v))
+// ────────────────────────────────────────────────────────────────
+
+/**
+ * Cancel every billable Stripe subscription attached to an organization.
+ *
+ * Called by DELETE /v1/auth/me so users exercising their right-to-erasure
+ * don't keep getting charged. Per-subscription errors are logged and
+ * swallowed — the caller must be able to delete the user row even if
+ * Stripe is unreachable (privacy > billing hygiene; ops reconciles via
+ * the Stripe dashboard).
+ *
+ * Returns the count of subscriptions we successfully cancelled.
+ */
+export async function cancelOrgSubscriptions(
+  orgId: string,
+): Promise<{ cancelled: number; errors: number }> {
+  // If Stripe isn't configured in this environment (local dev, preview) we
+  // no-op rather than throw — account deletion must still work.
+  if (!env.STRIPE_SECRET_KEY) {
+    return { cancelled: 0, errors: 0 };
+  }
+
+  const rows = await db
+    .select({ customerId: organizations.stripeCustomerId })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
+  const customerId = rows[0]?.customerId;
+  if (!customerId) {
+    return { cancelled: 0, errors: 0 };
+  }
+
+  let stripe: Stripe;
+  try {
+    stripe = getStripe();
+  } catch (err) {
+    console.error('[stripe.cancelOrgSubscriptions] getStripe() failed:', err);
+    return { cancelled: 0, errors: 1 };
+  }
+
+  const cancellableStatuses = new Set<Stripe.Subscription.Status>([
+    'active',
+    'trialing',
+    'past_due',
+    'unpaid',
+    'paused',
+  ]);
+
+  let cancelled = 0;
+  let errors = 0;
+
+  try {
+    const listing = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'all',
+      limit: 100,
+    });
+    for (const sub of listing.data) {
+      if (!cancellableStatuses.has(sub.status)) continue;
+      try {
+        await stripe.subscriptions.cancel(sub.id);
+        cancelled += 1;
+      } catch (subErr) {
+        errors += 1;
+        console.error(
+          `[stripe.cancelOrgSubscriptions] cancel(${sub.id}) failed for org ${orgId}:`,
+          subErr,
+        );
+      }
+    }
+  } catch (listErr) {
+    errors += 1;
+    console.error(
+      `[stripe.cancelOrgSubscriptions] list(customer=${customerId}) failed:`,
+      listErr,
+    );
+  }
+
+  return { cancelled, errors };
 }
