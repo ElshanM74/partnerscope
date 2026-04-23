@@ -6,7 +6,8 @@ import { defineConfig } from 'astro/config';
  * PartnerScope marketing site config.
  *
  * Static build; canonical host is partnerscope.eu.
- * Redirects here cover the in-domain rewrite /pricing → /plans.
+ * Redirects here cover in-domain rewrites: /pricing → /plans and
+ * /privacy → /legal/privacy (canonical location of the privacy policy).
  * The apex → /plans home and the legacy b2b.partnerscope.eu/* → partnerscope.eu/plans
  * rewrites are handled at the edge (nginx / CDN) — documented in ops/README.
  */
@@ -21,6 +22,14 @@ export default defineConfig({
     '/pricing': {
       status: 301,
       destination: '/plans',
+    },
+    // Short-URL redirect for the privacy policy so external consumers that
+    // declared /privacy (e.g. Google Play Console's App Content field, older
+    // business-card copy, third-party directories) resolve correctly. The
+    // canonical path is /legal/privacy — all internal links use that form.
+    '/privacy': {
+      status: 301,
+      destination: '/legal/privacy',
     },
   },
   integrations: [
