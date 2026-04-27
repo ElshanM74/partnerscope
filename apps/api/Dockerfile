@@ -38,22 +38,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xdg-utils \
   && rm -rf /var/lib/apt/lists/*
 
-# ─── Stage: dependency layer (exploits Docker cache) ────────────────────
-FROM base AS deps
+# ─── Stage: build (install + compile in one stage so workspace links resolve) ──
+# Previously we split deps + build, but pnpm workspace symlinks were created
+# before packages/*/src/ were copied, so `@partnerscope/core` couldn't be
+# resolved during `tsc -p apps/api/tsconfig.json`. Copying sources first, then
+# installing, makes workspace resolution reliable at the cost of one cache layer.
+FROM base AS build
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
-COPY apps/api/package.json ./apps/api/package.json
-COPY packages/core/package.json ./packages/core/package.json
-COPY packages/tests/package.json ./packages/tests/package.json
-RUN pnpm install --frozen-lockfile --prod=false
-
-# ─── Stage: build ───────────────────────────────────────────────────────
-FROM deps AS build
-COPY tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/api ./apps/api
 COPY migrations ./migrations
-RUN pnpm --filter @partnerscope/core build \
+RUN pnpm install --frozen-lockfile --prod=false \
+ && pnpm --filter @partnerscope/core build \
  && pnpm --filter @partnerscope/tests build \
  && pnpm --filter @partnerscope/api build
 
