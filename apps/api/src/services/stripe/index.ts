@@ -242,10 +242,7 @@ export async function cancelOrgSubscriptions(
     }
   } catch (listErr) {
     errors += 1;
-    console.error(
-      `[stripe.cancelOrgSubscriptions] list(customer=${customerId}) failed:`,
-      listErr,
-    );
+    console.error(`[stripe.cancelOrgSubscriptions] list(customer=${customerId}) failed:`, listErr);
   }
 
   return { cancelled, errors };

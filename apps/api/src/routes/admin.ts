@@ -12,8 +12,8 @@
  * deferred follow-up (see plans/.../staff-admin-dashboard).
  */
 
-import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { db } from '../db/client.js';
@@ -44,18 +44,10 @@ export async function adminRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.get('/v1/admin/stats', async (req, reply) => {
     requireStaff(req);
 
-    const [orgCount] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(organizations);
-    const [userCount] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(users);
-    const [runCount] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(runs);
-    const [leadCount] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(demoLeads);
+    const [orgCount] = await db.select({ n: sql<number>`count(*)::int` }).from(organizations);
+    const [userCount] = await db.select({ n: sql<number>`count(*)::int` }).from(users);
+    const [runCount] = await db.select({ n: sql<number>`count(*)::int` }).from(runs);
+    const [leadCount] = await db.select({ n: sql<number>`count(*)::int` }).from(demoLeads);
 
     reply.send({
       organizations: orgCount?.n ?? 0,
@@ -201,9 +193,10 @@ export async function adminRoutes(fastify: FastifyInstance): Promise<void> {
     }
 
     const newHash = await hashPassword(body.password);
-    const actorId = req.user && typeof req.user === 'object' && 'sub' in req.user
-      ? (req.user.sub as string)
-      : null;
+    const actorId =
+      req.user && typeof req.user === 'object' && 'sub' in req.user
+        ? (req.user.sub as string)
+        : null;
 
     await db.transaction(async (tx) => {
       await tx.update(users).set({ passwordHash: newHash }).where(eq(users.id, target.id));

@@ -10,8 +10,8 @@
  * without a user context) are rejected.
  */
 
-import type { FastifyInstance } from 'fastify';
 import { and, eq, sql } from 'drizzle-orm';
+import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
 import { db } from '../db/client.js';

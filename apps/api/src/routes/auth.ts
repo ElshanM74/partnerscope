@@ -11,8 +11,8 @@
 
 import { createHash, randomBytes } from 'node:crypto';
 
-import type { FastifyInstance } from 'fastify';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
 import type { AuthUser } from '@partnerscope/core';
@@ -68,7 +68,11 @@ function isStaffEmail(email: string): boolean {
 }
 
 const RegisterSchema = z.object({
-  email: z.string().email().max(254).transform((s) => s.toLowerCase()),
+  email: z
+    .string()
+    .email()
+    .max(254)
+    .transform((s) => s.toLowerCase()),
   password: z.string().min(8).max(128),
   fullName: z.string().min(1).max(200).optional(),
   organizationName: z.string().min(1).max(200),
@@ -79,15 +83,17 @@ const RegisterSchema = z.object({
 });
 
 const LoginSchema = z.object({
-  email: z.string().email().max(254).transform((s) => s.toLowerCase()),
+  email: z
+    .string()
+    .email()
+    .max(254)
+    .transform((s) => s.toLowerCase()),
   password: z.string().min(1).max(128),
 });
 
 // Dummy hash used on unknown-email login to equalise timing (prevents
 // email-existence enumeration via response-time side channel).
-const DUMMY_HASH =
-  'scrypt$16384$00000000000000000000000000000000$' +
-  '0'.repeat(128);
+const DUMMY_HASH = `scrypt$16384$00000000000000000000000000000000$${'0'.repeat(128)}`;
 
 function toPublicUser(u: typeof users.$inferSelect): AuthUser {
   return {
@@ -165,9 +171,14 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     const user = rows[0];
 
     // Always run verifyPassword (even on unknown emails) to keep timings flat.
-    const ok = user?.passwordHash
-      ? await verifyPassword(body.password, user.passwordHash)
-      : ((await verifyPassword(body.password, DUMMY_HASH)), false);
+    let ok = false;
+    if (user?.passwordHash) {
+      ok = await verifyPassword(body.password, user.passwordHash);
+    } else {
+      // Timing equalization — always do the hash check even when the user
+      // doesn't exist, so attackers can't enumerate emails by response time.
+      await verifyPassword(body.password, DUMMY_HASH);
+    }
 
     if (!user || !ok) {
       throw new ApiError(401, 'invalid_credentials', 'Email or password is incorrect.');
@@ -305,10 +316,7 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
         .update(monitoringSignals)
         .set({ ackedBy: null })
         .where(eq(monitoringSignals.ackedBy, userId));
-      await tx
-        .update(auditLog)
-        .set({ actorUserId: null })
-        .where(eq(auditLog.actorUserId, userId));
+      await tx.update(auditLog).set({ actorUserId: null }).where(eq(auditLog.actorUserId, userId));
 
       // (3) Hard delete. push_devices cascades automatically.
       await tx.delete(users).where(eq(users.id, userId));
@@ -333,7 +341,11 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
   //     url via the dry-run sender and returns delivered=false; we still
   //     respond 200 so the flow is testable end-to-end.
   const ForgotPasswordSchema = z.object({
-    email: z.string().email().max(254).transform((s) => s.toLowerCase()),
+    email: z
+      .string()
+      .email()
+      .max(254)
+      .transform((s) => s.toLowerCase()),
   });
   fastify.post('/v1/auth/forgot-password', { config: { public: true } }, async (req, reply) => {
     const body = ForgotPasswordSchema.parse(req.body);
