@@ -262,3 +262,37 @@ export const auditLog = pgTable('audit_log', {
   payload: jsonb('payload'),
   at: timestamp('at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+// Password reset tokens. One row per forgot-password request; token_hash is
+// sha256 of the URL-safe random token (raw token is never stored). A token is
+// "spent" once `used_at` is set. See migrations/003_password_reset_tokens.sql.
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  usedAt: timestamp('used_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// APNs / FCM device registration for native push notifications.
+// One row per (user, device_token); upsert on conflict refreshes last_seen_at.
+// See migrations/002_push_devices.sql for schema details.
+export const pushDevices = pgTable(
+  'push_devices',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    deviceToken: text('device_token').notNull(),
+    platform: text('platform').notNull(), // 'ios' | 'android'
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({
+    userDeviceUniq: unique('push_devices_user_device_key').on(t.userId, t.deviceToken),
+  }),
+);
