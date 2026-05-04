@@ -30,12 +30,18 @@ fail() { printf '\033[1;31m[deploy] %s\033[0m\n' "$*" >&2; exit 1; }
 cd "${PROJECT_DIR}"
 
 # ─── 1. Sync nginx config if it changed ───────────────────────────────────
-if [[ -f "${NGINX_CONF_SRC}" ]]; then
+# nginx config is hand-tuned on this server (signup/register unblock,
+# manual server_name, certbot bindings) and ops/nginx.conf in repo is
+# stale. Skip by default; opt-in with SKIP_NGINX=0 once repo + prod
+# are reconciled and deploy user has NOPASSWD sudo for cp + ln.
+if [[ "${SKIP_NGINX:-1}" != "1" && -f "${NGINX_CONF_SRC}" ]]; then
     sudo cp "${NGINX_CONF_SRC}" "${NGINX_CONF_DST}"
     sudo ln -sf "${NGINX_CONF_DST}" "${NGINX_CONF_LINK}"
     sudo nginx -t || fail "nginx config test failed — not reloading"
     sudo systemctl reload nginx
     log "nginx reloaded"
+else
+    log "nginx sync skipped (SKIP_NGINX=${SKIP_NGINX:-1})"
 fi
 
 # ─── 2. Pull the new API image ────────────────────────────────────────────
