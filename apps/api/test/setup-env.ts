@@ -16,7 +16,6 @@ process.env.STRIPE_SECRET_KEY ??= 'sk_test_unit_dummy_key_do_not_use';
 process.env.STRIPE_WEBHOOK_SECRET ??= 'whsec_dummy_secret_for_unit_tests_only';
 process.env.STRIPE_PRICE_STARTER ??= 'price_starter_dummy';
 process.env.STRIPE_PRICE_PRO_INTRO ??= 'price_pro_intro_dummy';
-process.env.STRIPE_PRICE_PRO_QUARTERLY ??= 'price_pro_quarterly_dummy';
 process.env.STRIPE_PRICE_ENTERPRISE ??= 'price_enterprise_dummy';
 
 // Resend left undefined on purpose — email service should be in dry-run mode.

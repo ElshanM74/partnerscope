@@ -5,6 +5,9 @@
 **/.astro
 **/.turbo
 **/coverage
+# tsc incremental stamps — MUST be excluded or the Docker build skips compilation
+# (tsc sees the stamp, thinks artefacts already exist, never writes new dist/).
+**/*.tsbuildinfo
 
 # Local env files — secrets live on the server, not in images.
 .env

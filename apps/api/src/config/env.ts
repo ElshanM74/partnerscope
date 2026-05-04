@@ -23,8 +23,8 @@ const EnvSchema = z.object({
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_STARTER: z.string().optional(),
+  // Pro is a one-time purchase at €299 today; no quarterly tier for now.
   STRIPE_PRICE_PRO_INTRO: z.string().optional(),
-  STRIPE_PRICE_PRO_QUARTERLY: z.string().optional(),
   STRIPE_PRICE_ENTERPRISE: z.string().optional(),
   STRIPE_SUCCESS_URL: z.string().url().default('http://localhost:5173/checkout/success'),
   STRIPE_CANCEL_URL: z.string().url().default('http://localhost:5173/plans'),
@@ -45,7 +45,30 @@ const EnvSchema = z.object({
   JWT_SECRET: z.string().min(16).default('dev_only_change_me_dev_only_change_me'),
   SESSION_SECRET: z.string().min(16).default('dev_only_change_me_dev_only_change_me'),
 
+  // Comma-separated allowlist of emails with platform-staff privileges (the
+  // /v1/admin/* endpoints and the /admin Astro page). Lowercased & trimmed
+  // at load time; empty string → [] (fail-closed: nobody is staff by default).
+  STAFF_EMAILS: z
+    .string()
+    .default('')
+    .transform((s) =>
+      s
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+
   SENTRY_DSN: z.string().optional(),
+
+  // APNs (Apple Push Notification service) — optional in dev; required for
+  // actual push delivery in prod. If any are missing at runtime, the push
+  // service no-ops with a warning log (token registration still succeeds).
+  // See docs/runbooks/apns.md for how to provision a .p8 auth key.
+  APNS_TEAM_ID: z.string().optional(),
+  APNS_KEY_ID: z.string().optional(),
+  APNS_P8_KEY: z.string().optional(), // base64 of AuthKey_XXXXXXXXXX.p8
+  APNS_TOPIC: z.string().default('eu.partnerscope.app'),
+  APNS_PRODUCTION: z.enum(['true', 'false']).default('false'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
