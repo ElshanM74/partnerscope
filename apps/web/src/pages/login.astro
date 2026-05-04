@@ -1,0 +1,161 @@
+---
+/**
+ * /login — email + password → JWT, stored in localStorage, then /dashboard.
+ */
+import Base from '../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Log in to PartnerScope"
+  description="Log in to your PartnerScope account."
+>
+  <section class="auth section">
+    <div class="container auth-inner">
+      <header class="auth-head">
+        <h1>Log in</h1>
+        <p class="auth-sub">
+          New to PartnerScope? <a href="/signup">Create an account</a>.
+        </p>
+      </header>
+
+      <p class="reset-banner" id="reset-banner" hidden>
+        Password updated. Please log in with your new password.
+      </p>
+
+      <form id="login-form" class="auth-form" novalidate data-api-base={apiBase}>
+        <label class="full">
+          <span>Email <em>*</em></span>
+          <input type="email" name="email" required autocomplete="email" placeholder="you@company.com" />
+        </label>
+
+        <label class="full">
+          <span>Password <em>*</em></span>
+          <input type="password" name="password" required autocomplete="current-password" />
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="login-submit">Log in →</button>
+          <a class="btn btn-ghost" href="/">Back to home</a>
+        </div>
+
+        <p class="forgot"><a href="/forgot-password">Forgot password?</a></p>
+
+        <p class="tiny" id="login-error" hidden></p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .auth-inner { max-width: 420px; }
+  .auth-head { text-align: center; margin-bottom: 1.5rem; }
+  .auth-sub { color: var(--ps-muted); margin-top: 0.25rem; }
+  .auth-form {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  label { display: block; font-size: 0.9rem; color: var(--ps-text); }
+  label.full { margin-bottom: 1rem; }
+  label > span { display: block; margin-bottom: 0.35rem; font-weight: 500; }
+  label em { color: var(--ps-accent-strong); font-style: normal; }
+  input[type='email'],
+  input[type='password'] {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus { outline: none; border-color: var(--ps-accent); box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18); }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+  .forgot { margin: 1rem 0 0; font-size: 0.88rem; text-align: center; }
+  .forgot a { color: var(--ps-muted); }
+  .forgot a:hover { color: var(--ps-accent-strong); }
+  .reset-banner {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .tiny { color: var(--band-high); font-size: 0.85rem; margin-top: 1rem; margin-bottom: 0; }
+</style>
+
+<script>
+  const form = document.getElementById('login-form') as HTMLFormElement | null;
+  const submit = document.getElementById('login-submit') as HTMLButtonElement | null;
+  const errEl = document.getElementById('login-error') as HTMLParagraphElement | null;
+  if (form && submit && errEl) {
+    const apiBase = form.dataset.apiBase || '/api';
+
+    // Same-origin `next` redirect parsing. Prevents `?next=//evil.com`
+    // and `?next=https://evil.com` open-redirect by requiring a single
+    // leading slash. Fragments (#tiers) pass through fine.
+    const urlParams = new URL(window.location.href).searchParams;
+    const nextParam = urlParams.get('next');
+    const nextSafe = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/dashboard';
+
+    // /reset-password redirects here with ?reset=1 after success.
+    if (urlParams.get('reset') === '1') {
+      const banner = document.getElementById('reset-banner');
+      if (banner) banner.hidden = false;
+    }
+
+    // Already logged in? Skip the form — honour ?next= too.
+    try {
+      const existing = localStorage.getItem('ps_token');
+      if (existing) window.location.replace(nextSafe);
+    } catch {}
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      errEl.hidden = true;
+      errEl.textContent = '';
+      const data = new FormData(form);
+      const payload = {
+        email: String(data.get('email') || '').trim(),
+        password: String(data.get('password') || ''),
+      };
+      submit.disabled = true;
+      submit.textContent = 'Logging in…';
+      try {
+        const res = await fetch(`${apiBase}/v1/auth/login`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = res.status === 401
+            ? 'Email or password is incorrect.'
+            : body?.message || `Login failed (${res.status}).`;
+          throw new Error(msg);
+        }
+        if (body.token && body.user) {
+          try {
+            localStorage.setItem('ps_token', body.token);
+            localStorage.setItem('ps_user', JSON.stringify(body.user));
+          } catch {}
+        }
+        window.location.href = nextSafe;
+      } catch (err: any) {
+        errEl.textContent = err?.message || 'Unexpected error.';
+        errEl.hidden = false;
+        submit.disabled = false;
+        submit.textContent = 'Log in →';
+      }
+    });
+  }
+</script>

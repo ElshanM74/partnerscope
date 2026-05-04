@@ -87,15 +87,55 @@ const description =
       <div>
         <h2>Ready to start?</h2>
         <p>Run a Starter in minutes — or talk to us about Enterprise.</p>
+        <p class="cta-method">
+          Curious how we score vendors?
+          <a href="/methodology">See our assessment methodology →</a>
+        </p>
       </div>
       <div class="cta-actions">
         <a class="btn btn-primary" href="#tiers">See the plans →</a>
-        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu?subject=PartnerScope%20question">
+        <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20question">
           Email us
         </a>
       </div>
     </div>
   </section>
+
+  <!--
+    Buy Starter dialog. Opened by any anchor href="#buy-starter" (see TierCards).
+    Flow:
+      1. Anchor click → if logged out, redirect to /signup?next=/plans#tiers
+      2. Logged in → open modal with vendor legal name + domain
+      3. Submit → POST /v1/vendors (409 falls back to GET /v1/vendors)
+      4. Then POST /v1/checkout/session → window.location = coBody.url (Stripe)
+  -->
+  <dialog id="buy-starter-dialog" class="buy-dialog" aria-labelledby="buy-starter-title">
+    <form method="dialog" class="buy-dialog-inner" id="buy-starter-form">
+      <button type="button" class="buy-dialog-close" aria-label="Close" data-buy-close>×</button>
+      <h2 id="buy-starter-title">Starter — €99</h2>
+      <p class="buy-dialog-sub">Which vendor are you assessing? You'll be redirected to Stripe to pay.</p>
+
+      <label class="buy-dialog-field">
+        <span>Vendor legal name <em>*</em></span>
+        <input type="text" name="legalName" required autocomplete="off" placeholder="e.g. OpenAI, L.L.C." />
+      </label>
+      <label class="buy-dialog-field">
+        <span>Vendor domain <em>*</em></span>
+        <input type="text" name="domain" required autocomplete="off" placeholder="openai.com" />
+      </label>
+      <label class="buy-dialog-field">
+        <span>Country (ISO-2, optional)</span>
+        <input type="text" name="country" maxlength="2" minlength="2" pattern="[A-Za-z]{2}" placeholder="US" />
+      </label>
+
+      <div class="buy-dialog-actions">
+        <button type="submit" class="btn btn-primary" id="buy-starter-submit">Continue to Stripe →</button>
+        <button type="button" class="btn btn-ghost" data-buy-close>Cancel</button>
+      </div>
+
+      <p class="tiny" id="buy-starter-error" hidden></p>
+    </form>
+  </dialog>
 </Base>
 
 <style>
@@ -235,6 +275,20 @@ const description =
     margin: 0;
     color: #c8d1e3;
   }
+  .cta-strip p.cta-method {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #a5b1c9;
+  }
+  .cta-strip p.cta-method a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+  }
+  .cta-strip p.cta-method a:hover {
+    text-decoration-color: #fff;
+  }
   .cta-actions {
     display: flex;
     gap: 0.75rem;
@@ -247,4 +301,231 @@ const description =
   .cta-actions .btn-ghost:hover {
     border-color: rgba(255, 255, 255, 0.6);
   }
+
+  /* Buy Starter dialog — native <dialog> + ::backdrop. Fully keyboard-
+     accessible; Esc closes via browser default. */
+  .buy-dialog {
+    border: 0;
+    border-radius: var(--radius-lg);
+    padding: 0;
+    max-width: 460px;
+    width: 90vw;
+    box-shadow: var(--shadow-lg);
+  }
+  .buy-dialog::backdrop {
+    background: rgba(15, 26, 43, 0.55);
+  }
+  .buy-dialog-inner {
+    padding: 1.75rem 1.75rem 1.5rem;
+    position: relative;
+  }
+  .buy-dialog-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: none;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--ps-muted);
+    cursor: pointer;
+  }
+  .buy-dialog-close:hover {
+    color: var(--ps-ink);
+  }
+  .buy-dialog h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.4rem;
+  }
+  .buy-dialog-sub {
+    color: var(--ps-muted);
+    font-size: 0.9rem;
+    margin: 0 0 1.25rem;
+  }
+  .buy-dialog-field {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .buy-dialog-field > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  .buy-dialog-field em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  .buy-dialog-field input {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .buy-dialog-field input:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+  .buy-dialog-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  .buy-dialog .tiny {
+    color: var(--band-high);
+    font-size: 0.85rem;
+    margin: 0.9rem 0 0;
+  }
 </style>
+
+<!--
+  Buy Starter flow.
+
+  Click delegation: any <a href="#buy-starter"> on the page opens the modal.
+  Logged-out users are routed to /signup?next=/plans#tiers instead so they
+  can come back and buy in one click after signup.
+
+  Submit flow:
+    1. POST /v1/vendors (legalName + domain). On 409 (existing vendor for
+       this org + domain) we GET /v1/vendors and reuse the id — valid UX
+       since the 90-day Starter report expires and users will re-assess.
+    2. POST /v1/checkout/session with {tier:'starter', vendorId, buyerEmail,
+       successUrl, cancelUrl}. Explicit URLs so we don't depend on the
+       STRIPE_SUCCESS_URL/CANCEL_URL env defaults (localhost:5173 in dev).
+    3. window.location.href = coBody.url — off to Stripe.
+-->
+<script define:vars={{ apiBase: import.meta.env.PUBLIC_API_BASE_URL ?? '/api' }}>
+  (() => {
+    const dialog = document.getElementById('buy-starter-dialog');
+    const form = document.getElementById('buy-starter-form');
+    const submit = document.getElementById('buy-starter-submit');
+    const errEl = document.getElementById('buy-starter-error');
+    if (!dialog || !form || !submit || !errEl) return;
+
+    const readToken = () => {
+      try { return localStorage.getItem('ps_token'); } catch { return null; }
+    };
+    const readUser = () => {
+      try {
+        const raw = localStorage.getItem('ps_user');
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    // Delegate click on any anchor to #buy-starter. Logged-out users bounce
+    // to /signup with a `next` param so they come back to tiers section.
+    document.addEventListener('click', (ev) => {
+      const a = ev.target && ev.target.closest && ev.target.closest('a[href="#buy-starter"]');
+      if (!a) return;
+      ev.preventDefault();
+
+      if (!readToken()) {
+        window.location.href = '/signup?next=' + encodeURIComponent('/plans#tiers');
+        return;
+      }
+      errEl.hidden = true;
+      errEl.textContent = '';
+      submit.disabled = false;
+      submit.textContent = 'Continue to Stripe →';
+      form.reset();
+      // Feature-detect <dialog>. iOS Safari < 15.4 falls back to the old
+      // intake form — degraded but not broken.
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        window.location.href = '/get-started?tier=starter';
+      }
+    });
+
+    // Any element with [data-buy-close] inside the dialog closes it.
+    dialog.addEventListener('click', (ev) => {
+      const t = ev.target;
+      if (t && t.hasAttribute && t.hasAttribute('data-buy-close')) dialog.close();
+    });
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      errEl.hidden = true;
+      errEl.textContent = '';
+      const data = new FormData(form);
+      const legalName = String(data.get('legalName') || '').trim();
+      const domain = String(data.get('domain') || '').trim().toLowerCase();
+      const country = String(data.get('country') || '').trim().toUpperCase() || undefined;
+      if (!legalName || !domain) {
+        errEl.textContent = 'Legal name and domain are required.';
+        errEl.hidden = false;
+        return;
+      }
+
+      const token = readToken();
+      const user = readUser();
+      const buyerEmail = user && user.email ? user.email : '';
+      if (!token || !buyerEmail) {
+        window.location.href = '/login?next=' + encodeURIComponent('/plans#tiers');
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = 'Creating vendor…';
+
+      try {
+        // 1) Vendor: create or reuse on 409.
+        let vendorId;
+        const createRes = await fetch(`${apiBase}/v1/vendors`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+          body: JSON.stringify({ legalName, domain, country }),
+        });
+        if (createRes.status === 409) {
+          const listRes = await fetch(`${apiBase}/v1/vendors`, {
+            headers: { authorization: `Bearer ${token}` },
+          });
+          if (!listRes.ok) throw new Error('Could not load existing vendors.');
+          const listBody = await listRes.json();
+          const match = (listBody.vendors || []).find((v) => v.domain === domain);
+          if (!match) throw new Error('Vendor exists but could not be loaded.');
+          vendorId = match.id;
+        } else if (createRes.ok) {
+          const body = await createRes.json();
+          vendorId = body && body.vendor && body.vendor.id;
+          if (!vendorId) throw new Error('Vendor creation returned no id.');
+        } else {
+          const body = await createRes.json().catch(() => ({}));
+          throw new Error((body && body.message) || `Vendor creation failed (${createRes.status}).`);
+        }
+
+        submit.textContent = 'Redirecting to Stripe…';
+
+        // 2) Checkout Session → redirect.
+        const coRes = await fetch(`${apiBase}/v1/checkout/session`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            tier: 'starter',
+            vendorId,
+            buyerEmail,
+            successUrl: `${window.location.origin}/checkout/success`,
+            cancelUrl: `${window.location.origin}/plans#tiers`,
+          }),
+        });
+        const coBody = await coRes.json().catch(() => ({}));
+        if (!coRes.ok || !coBody || !coBody.url) {
+          throw new Error((coBody && coBody.message) || `Checkout session failed (${coRes.status}).`);
+        }
+        window.location.href = coBody.url;
+      } catch (err) {
+        errEl.textContent = (err && err.message) || 'Unexpected error.';
+        errEl.hidden = false;
+        submit.disabled = false;
+        submit.textContent = 'Continue to Stripe →';
+      }
+    });
+  })();
+</script>

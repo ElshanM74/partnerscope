@@ -42,6 +42,10 @@ import Base from '../../layouts/Base.astro';
             180 days (Pro) for re-scoring.
           </li>
         </ol>
+        <p class="next-method">
+          Want to know exactly how we score your vendor?
+          <a href="/methodology">Read our assessment methodology →</a>
+        </p>
       </div>
 
       <div class="session">
@@ -53,8 +57,8 @@ import Base from '../../layouts/Base.astro';
       </div>
 
       <div class="actions">
-        <a class="btn btn-dark" href="/plans">Back to pricing</a>
-        <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu?subject=PartnerScope%20order%20question">Email us</a>
+        <a class="btn btn-primary" href="/dashboard">Go to dashboard →</a>
+        <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20order%20question">Email us</a>
       </div>
     </div>
   </section>
@@ -107,6 +111,21 @@ import Base from '../../layouts/Base.astro';
     margin: 0;
     display: grid;
     gap: 0.5rem;
+  }
+  .next-method {
+    margin: 1rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--ps-border);
+    font-size: 0.9rem;
+    color: var(--ps-muted);
+  }
+  .next-method a {
+    color: var(--ps-accent-strong);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .next-method a:hover {
+    text-decoration: underline;
   }
   .session {
     background: var(--ps-paper);

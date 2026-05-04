@@ -7,8 +7,9 @@
  * Defaults to same-origin /api for prod behind a reverse proxy.
  */
 
-const apiBase =
-  import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+// Default to same-origin /api in production (nginx proxies /api/* to Fastify).
+// Override via PUBLIC_API_BASE_URL=http://localhost:4000 in apps/web/.env for dev.
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
 const QUESTIONS = [
   {

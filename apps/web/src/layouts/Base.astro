@@ -60,7 +60,10 @@ const ogImageHref = new URL(ogImage, site).toString();
           <a href="/plans">Pricing</a>
           <a href="/plans#snapshot">Free snapshot</a>
           <a href="/plans#faq">FAQ</a>
-          <a class="btn btn-dark nav-cta" href="/plans#tiers">Get a report</a>
+          <span id="nav-auth-slot" class="nav-auth">
+            <a href="/login" class="nav-login">Log in</a>
+            <a class="btn btn-dark nav-cta" href="/signup">Sign up</a>
+          </span>
         </nav>
       </div>
     </header>
@@ -81,13 +84,48 @@ const ogImageHref = new URL(ogImage, site).toString();
             © {year} PartnerScope. All rights reserved.
           </p>
         </div>
+        <div class="footer-apps">
+          <p class="footer-apps-label">Get the PartnerScope app</p>
+          <div class="footer-apps-row">
+            <a
+              class="app-badge"
+              href="https://apps.apple.com/app/partnerscope/id6762094242"
+              aria-label="Download PartnerScope on the App Store"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg class="app-badge-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M17.5 12.5c-.03-2.66 2.17-3.94 2.27-4-1.24-1.81-3.17-2.06-3.85-2.09-1.64-.17-3.2 .96-4.03 .96-.84 0-2.12-.94-3.49-.91-1.79 .03-3.45 1.04-4.37 2.64-1.86 3.23-.48 8.02 1.34 10.65 .89 1.29 1.94 2.74 3.31 2.69 1.33-.05 1.83-.86 3.44-.86 1.6 0 2.06 .86 3.46 .83 1.43-.03 2.34-1.31 3.21-2.61 1.01-1.49 1.43-2.93 1.45-3-.03-.01-2.78-1.07-2.81-4.3zM14.85 4.84c.74-.89 1.23-2.13 1.1-3.36-1.06 .04-2.34 .7-3.1 1.59-.68 .79-1.27 2.05-1.11 3.26 1.18 .09 2.38-.6 3.11-1.49z" />
+              </svg>
+              <span class="app-badge-text">
+                <span class="app-badge-line1">Download on the</span>
+                <span class="app-badge-line2">App Store</span>
+              </span>
+            </a>
+            <a
+              class="app-badge"
+              href="https://play.google.com/store/apps/details?id=eu.partnerscope.app"
+              aria-label="Get PartnerScope on Google Play"
+              target="_blank"
+              rel="noopener"
+            >
+              <svg class="app-badge-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M3.5 20.7V3.3c0-.66 .55-1.07 1.07-.84l13.21 8.7c.5 .27 .5 .97 0 1.24l-13.21 8.7c-.52 .23-1.07-.18-1.07-.84z" />
+              </svg>
+              <span class="app-badge-text">
+                <span class="app-badge-line1">GET IT ON</span>
+                <span class="app-badge-line2">Google Play</span>
+              </span>
+            </a>
+          </div>
+        </div>
         <nav class="footer-nav" aria-label="Legal">
           <a href="/legal/terms">Terms</a>
           <a href="/legal/privacy">Privacy</a>
           <a href="/legal/dpa">DPA</a>
           <a href="/legal/sub-processors">Sub-processors</a>
           <a href="/legal/imprint">Impressum</a>
-          <a href="mailto:hello@partnerscope.eu">Contact</a>
+          <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
         </nav>
       </div>
     </footer>
@@ -138,8 +176,21 @@ const ogImageHref = new URL(ogImage, site).toString();
       .site-nav a.nav-cta {
         color: var(--ps-paper);
       }
+      .nav-auth {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.85rem;
+      }
+      .nav-login {
+        color: var(--ps-text);
+      }
+      .nav-admin {
+        color: var(--ps-accent-strong);
+        font-weight: 600;
+      }
       @media (max-width: 720px) {
-        .site-nav a:not(.nav-cta) {
+        .site-nav a:not(.nav-cta),
+        .site-nav .nav-login {
           display: none;
         }
       }
@@ -182,6 +233,123 @@ const ogImageHref = new URL(ogImage, site).toString();
       .footer-nav a:hover {
         color: var(--ps-paper);
       }
+
+      .footer-apps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        align-items: flex-start;
+      }
+      .footer-apps-label {
+        font-size: 0.78rem;
+        color: #8894ae;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      .footer-apps-row {
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+      }
+      .app-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        background: #0f172a;
+        color: #ffffff;
+        border: 1px solid #2a3756;
+        border-radius: 0.55rem;
+        padding: 0.45rem 0.85rem;
+        text-decoration: none;
+        line-height: 1.05;
+        transition: background 120ms ease, border-color 120ms ease;
+      }
+      .app-badge:hover {
+        background: #1e293b;
+        border-color: #3a4970;
+      }
+      .app-badge-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        flex-shrink: 0;
+      }
+      .app-badge-text {
+        display: inline-flex;
+        flex-direction: column;
+      }
+      .app-badge-line1 {
+        font-size: 0.62rem;
+        opacity: 0.85;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 500;
+      }
+      .app-badge-line2 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      @media (max-width: 720px) {
+        .footer-apps {
+          align-items: center;
+          width: 100%;
+        }
+        .footer-apps-row {
+          justify-content: center;
+        }
+      }
     </style>
+
+    <!--
+      Header auth-state swap. If a ps_user blob is in localStorage, swap the
+      "Log in / Sign up" CTA for a "Dashboard / <name>" pair. Purely cosmetic —
+      the actual auth check happens server-side on every /api/v1/* call, and
+      client-side on /dashboard + /account page loads.
+    -->
+    <script>
+      (() => {
+        const slot = document.getElementById('nav-auth-slot');
+        if (!slot) return;
+        try {
+          const raw = localStorage.getItem('ps_user');
+          if (!raw) return;
+          const u = JSON.parse(raw);
+          if (!u || typeof u !== 'object' || !u.email) return;
+          const label = (u.fullName && String(u.fullName).trim()) || String(u.email).split('@')[0] || 'Account';
+          // textContent for the dynamic label — prevents reflected-XSS if anyone
+          // ever puts a <script> in their fullName.
+          const dash = document.createElement('a');
+          dash.href = '/dashboard';
+          dash.className = 'nav-login';
+          dash.textContent = 'Dashboard';
+
+          const children = [dash];
+
+          // Staff-only link. Strict `=== true` so older ps_user blobs (lacking
+          // the field) hide the link. Server still enforces 403 on /v1/admin/*.
+          if (u.isStaff === true) {
+            const admin = document.createElement('a');
+            admin.href = '/admin';
+            admin.className = 'nav-login nav-admin';
+            admin.textContent = 'Admin';
+            children.push(admin);
+          }
+
+          const acc = document.createElement('a');
+          acc.href = '/account';
+          acc.className = 'btn btn-dark nav-cta';
+          acc.textContent = label;
+          children.push(acc);
+
+          slot.replaceChildren(...children);
+        } catch {}
+      })();
+    </script>
+
+    <!-- Sofia AI chat widget removed 2026-05-04: chatwidget2.js was lost in
+         a prior rsync deploy and the script tag was generating 404s on every
+         page view. Re-add when widget asset is restored on /var/www. -->
   </body>
 </html>

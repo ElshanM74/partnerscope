@@ -4,14 +4,16 @@
  *
  * The ?tier= query param is parsed client-side (we stay static). We capture
  * buyer email + company + vendor domain + (optional) notes and POST to
- * ${PUBLIC_API_BASE_URL}/v1/intake. The API emails hello@partnerscope.eu so
+ * ${PUBLIC_API_BASE_URL}/v1/intake. The API emails elshan.musayev@partnerscope.eu so
  * a human can confirm scope and issue the Stripe link. This keeps the
  * conversion funnel unblocked while Stripe Price IDs are still being wired.
  */
 
 import Base from '../layouts/Base.astro';
 
-const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+// Default to same-origin /api in production (nginx proxies /api/* to Fastify).
+// Override via PUBLIC_API_BASE_URL=http://localhost:4000 in apps/web/.env for dev.
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 ---
 <Base title="Get started — PartnerScope" description="Start a PartnerScope assessment — we confirm scope within one business day and issue a secure payment link.">
   <section class="intake section">
@@ -80,7 +82,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
         <p class="tiny">
           Prefer to talk first?
-          <a href="mailto:hello@partnerscope.eu?subject=PartnerScope%20scope%20call">Book a 15-minute call</a>.
+          <a href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20scope%20call">Book a 15-minute call</a>.
         </p>
       </form>
 
@@ -95,11 +97,11 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
           <p>
             We have your details. A human — not a bot — will confirm scope and email you a secure
             Stripe payment link within one business day (Europe/Berlin time, Mon–Fri). Keep an eye on
-            <strong>hello@partnerscope.eu</strong>; if it ends up in spam, we apologise in advance.
+            <strong>elshan.musayev@partnerscope.eu</strong>; if it ends up in spam, we apologise in advance.
           </p>
           <div class="success-actions">
             <a class="btn btn-dark" href="/plans">Back to pricing</a>
-            <a class="btn btn-ghost" href="mailto:hello@partnerscope.eu">Email us directly</a>
+            <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu">Email us directly</a>
           </div>
         </div>
       </div>
@@ -107,7 +109,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
       <div id="intake-error" class="intake-error" hidden>
         <div class="error-card">
           <h3>Couldn't submit the request.</h3>
-          <p id="intake-error-msg">Something went wrong. Please try again or email hello@partnerscope.eu.</p>
+          <p id="intake-error-msg">Something went wrong. Please try again or email elshan.musayev@partnerscope.eu.</p>
           <button type="button" class="btn btn-ghost" id="intake-retry">Try again</button>
         </div>
       </div>
@@ -359,7 +361,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
       } catch (err) {
         if (errorBox) errorBox.hidden = false;
         if (errorMsg) {
-          errorMsg.textContent = `We couldn\u2019t reach the API. ${(err as Error).message}. Please email hello@partnerscope.eu and we will handle it manually.`;
+          errorMsg.textContent = `We couldn\u2019t reach the API. ${(err as Error).message}. Please email elshan.musayev@partnerscope.eu and we will handle it manually.`;
         }
       } finally {
         if (submitBtn) {

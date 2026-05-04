@@ -1,0 +1,411 @@
+---
+/**
+ * /dashboard — authenticated landing page.
+ *
+ * Thin MVP: verifies the JWT via GET /api/v1/auth/me on load. If the token is
+ * missing or invalid, redirects to /login. Otherwise greets the user and
+ * shows placeholder sections for "Your runs" and a CTA to start one.
+ */
+import Base from '../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Dashboard — PartnerScope"
+  description="Your PartnerScope dashboard."
+>
+  <section class="dash section" data-api-base={apiBase}>
+    <div class="container dash-inner">
+      <div id="dash-banner" class="dash-banner" role="status" hidden>
+        <span id="dash-banner-text"></span>
+        <button id="dash-banner-action" type="button" hidden>Retry</button>
+      </div>
+      <div id="dash-loading" class="dash-state" aria-live="polite">
+        <div class="dash-spinner" aria-hidden="true"></div>
+        <p class="muted">Loading your assessments…</p>
+      </div>
+
+      <div id="dash-content" hidden>
+        <header class="dash-head">
+          <h1>Welcome, <span id="dash-name">there</span>.</h1>
+          <p class="dash-sub">
+            You're logged in as <span id="dash-email" class="mono"></span> ·
+            <a href="/account">Account settings</a>
+          </p>
+        </header>
+
+        <div class="cards">
+          <div class="card">
+            <h2>Your assessments</h2>
+            <div id="run-list" class="run-list">
+              <p class="muted">Loading…</p>
+            </div>
+            <div id="run-empty" class="card-actions" hidden>
+              <a class="btn btn-primary" href="/plans#snapshot">Run a free snapshot</a>
+              <a class="btn btn-ghost" href="/plans#tiers">View plans</a>
+            </div>
+            <div class="dash-cta-row">
+              <a href="/methodology">How we score &rarr;</a>
+              <a href="mailto:hello@partnerscope.eu?subject=New%20assessment%20request">Request a new assessment &rarr;</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Organization</h2>
+            <p class="muted">
+              <span id="dash-role" class="badge">viewer</span>
+              <span id="dash-org-id" class="mono tiny"></span>
+            </p>
+            <p class="muted tiny">
+              Multi-user orgs and team invites are coming soon. For now every
+              account owns one organization.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .dash-inner { max-width: 960px; }
+  .dash-head { margin-bottom: 2rem; }
+  .dash-head h1 { margin: 0 0 0.35rem; }
+  .dash-sub { color: var(--ps-muted); margin: 0; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .card h2 { margin-top: 0; font-size: 1.1rem; }
+  .card-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+  .muted { color: var(--ps-muted); }
+  .tiny { font-size: 0.82rem; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; }
+  .badge {
+    display: inline-block;
+    background: rgba(79, 124, 255, 0.12);
+    color: var(--ps-accent-strong);
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 0.5rem;
+  }
+  .dash-state { padding: 3rem 0; text-align: center; }
+  .dash-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--ps-border);
+    border-top-color: var(--ps-accent-strong);
+    border-radius: 50%;
+    margin: 0 auto 0.75rem;
+    animation: dashSpin 0.85s linear infinite;
+  }
+  @keyframes dashSpin { to { transform: rotate(360deg); } }
+  .dash-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem;
+    background: #fef3c7; color: #92400e;
+    border: 1px solid #fde68a;
+    border-radius: 0.55rem;
+    padding: 0.7rem 0.95rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .dash-banner.dash-banner-error {
+    background: #fee2e2; color: #991b1b; border-color: #fecaca;
+  }
+  .dash-banner button {
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: inherit;
+    font-size: 0.82rem;
+  }
+  .run-list { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 0.25rem; }
+  .run-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.7rem 0.85rem; border: 1px solid var(--ps-border);
+    border-radius: 0.55rem; background: rgba(255,255,255,0.55);
+  }
+  .run-name { font-weight: 600; font-size: 0.95rem; margin: 0; }
+  .run-domain { color: var(--ps-muted); font-size: 0.78rem; margin: 0.15rem 0 0; }
+  .run-meta { display: flex; gap: 0.5rem; align-items: center; font-size: 0.74rem; }
+  .pill {
+    display: inline-block; padding: 0.18rem 0.55rem; border-radius: 999px;
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .pill-tier-starter { background: #e0f2fe; color: #0369a1; }
+  .pill-tier-pro { background: #ede9fe; color: #6d28d9; }
+  .pill-tier-enterprise { background: #fef3c7; color: #b45309; }
+  .pill-tier-free_snapshot { background: #f1f5f9; color: #475569; }
+  /* Static-class rules — Astro keeps these because the classes appear in markup. */
+  .pill-status-draft { background: #f1f5f9; color: #64748b; }
+  .pill-status-queued { background: #fef9c3; color: #a16207; }
+  .pill-status-running { background: #dbeafe; color: #1e40af; }
+  .pill-status-scoring { background: #dbeafe; color: #1e40af; }
+  .pill-status-analyst_review { background: #fae8ff; color: #86198f; }
+  .pill-status-qa_review { background: #fae8ff; color: #86198f; }
+  .pill-status-scored { background: #dcfce7; color: #166534; }
+  .pill-status-delivered { background: #dcfce7; color: #166534; }
+  .pill-status-failed { background: #fee2e2; color: #b91c1c; }
+  .pill-status-cancelled { background: #f1f5f9; color: #64748b; }
+  .pill-status-archived { background: #f1f5f9; color: #64748b; }
+  .pill-band-MINIMAL { background: #d1fae5; color: #065f46; }
+  .pill-band-LOW { background: #dcfce7; color: #166534; }
+  .pill-band-MEDIUM { background: #fef3c7; color: #92400e; }
+  .pill-band-HIGH { background: #fee2e2; color: #991b1b; }
+  .run-score {
+    font: 700 1.05rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--ps-accent-strong);
+    margin-right: 0.4rem;
+  }
+  .run-score-out-of {
+    font-size: 0.7rem;
+    color: var(--ps-muted);
+    font-weight: 500;
+  }
+  .run-delivered {
+    font-size: 0.72rem;
+    color: var(--ps-muted);
+    margin: 0.2rem 0 0;
+  }
+  .dash-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ps-border);
+  }
+  .dash-cta-row a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 0.5rem;
+    background: rgba(79, 124, 255, 0.08);
+    color: var(--ps-accent-strong);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .dash-cta-row a:hover { background: rgba(79, 124, 255, 0.15); }
+</style>
+
+<!-- Astro scopes <style> to selectors that appear in the static markup; classes
+     applied only by client-side JS (template literals below) get stripped. We need
+     these dynamic-class rules to be GLOBAL so they survive the build. -->
+<style is:global>
+  .pill { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pill-tier-starter { background: #e0f2fe; color: #0369a1; }
+  .pill-tier-pro { background: #ede9fe; color: #6d28d9; }
+  .pill-tier-enterprise { background: #fef3c7; color: #b45309; }
+  .pill-tier-free_snapshot { background: #f1f5f9; color: #475569; }
+  .pill-status-draft { background: #f1f5f9; color: #64748b; }
+  .pill-status-queued { background: #fef9c3; color: #a16207; }
+  .pill-status-running { background: #dbeafe; color: #1e40af; }
+  .pill-status-scoring { background: #dbeafe; color: #1e40af; }
+  .pill-status-analyst_review { background: #fae8ff; color: #86198f; }
+  .pill-status-qa_review { background: #fae8ff; color: #86198f; }
+  .pill-status-scored { background: #dcfce7; color: #166534; }
+  .pill-status-delivered { background: #dcfce7; color: #166534; }
+  .pill-status-failed { background: #fee2e2; color: #b91c1c; }
+  .pill-status-cancelled { background: #f1f5f9; color: #64748b; }
+  .pill-status-archived { background: #f1f5f9; color: #64748b; }
+  .pill-band-MINIMAL { background: #d1fae5; color: #065f46; }
+  .pill-band-LOW { background: #dcfce7; color: #166534; }
+  .pill-band-MEDIUM { background: #fef3c7; color: #92400e; }
+  .pill-band-HIGH { background: #fee2e2; color: #991b1b; }
+  .run-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.55rem; background: rgba(255,255,255,0.55); }
+  .run-name { font-weight: 600; font-size: 0.95rem; margin: 0; }
+  .run-domain { color: #64748b; font-size: 0.78rem; margin: 0.15rem 0 0; }
+  .run-meta { display: flex; gap: 0.5rem; align-items: center; font-size: 0.74rem; }
+  .run-score { font: 700 1.05rem ui-monospace, SFMono-Regular, Menlo, monospace; color: #4f7cff; margin-right: 0.4rem; }
+  .run-score-out-of { font-size: 0.7rem; color: #64748b; font-weight: 500; }
+  .run-delivered { font-size: 0.72rem; color: #64748b; margin: 0.2rem 0 0; }
+</style>
+
+<script>
+  const root = document.querySelector('.dash.section') as HTMLElement | null;
+  const apiBase = root?.dataset.apiBase || '/api';
+
+  function showBanner(message: string, options?: { error?: boolean; retry?: () => void }): void {
+    const banner = document.getElementById('dash-banner');
+    const text = document.getElementById('dash-banner-text');
+    const action = document.getElementById('dash-banner-action') as HTMLButtonElement | null;
+    if (text) text.textContent = message;
+    if (banner) {
+      banner.classList.toggle('dash-banner-error', options?.error === true);
+      banner.hidden = false;
+    }
+    if (action) {
+      if (options?.retry) {
+        action.hidden = false;
+        action.onclick = () => {
+          if (banner) banner.hidden = true;
+          options.retry?.();
+        };
+      } else {
+        action.hidden = true;
+        action.onclick = null;
+      }
+    }
+  }
+
+  function logoutAndRedirect(target = '/login', reason?: string): void {
+    showBanner(reason ?? 'Signing you out…');
+    setTimeout(() => {
+      try {
+        localStorage.removeItem('ps_token');
+        localStorage.removeItem('ps_user');
+      } catch {}
+      window.location.replace(target);
+    }, 800);
+  }
+
+  (async () => {
+    let token: string | null = null;
+    try {
+      token = localStorage.getItem('ps_token');
+    } catch {}
+    if (!token) {
+      logoutAndRedirect('/login', 'Please sign in to view your dashboard. Redirecting…');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/v1/auth/me`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        logoutAndRedirect('/login', 'Your session expired. Redirecting to sign in…');
+        return;
+      }
+      if (!res.ok) throw new Error(`me failed: ${res.status}`);
+      const body = await res.json() as {
+        user: { id: string; organizationId: string | null; email: string; fullName: string | null; role: string };
+      };
+      const u = body.user;
+      try { localStorage.setItem('ps_user', JSON.stringify(u)); } catch {}
+
+      const name = u.fullName?.trim() || u.email.split('@')[0] || 'there';
+      const nameEl = document.getElementById('dash-name');
+      const emailEl = document.getElementById('dash-email');
+      const roleEl = document.getElementById('dash-role');
+      const orgEl = document.getElementById('dash-org-id');
+      if (nameEl) nameEl.textContent = name;
+      if (emailEl) emailEl.textContent = u.email;
+      if (roleEl) roleEl.textContent = u.role;
+      if (orgEl && u.organizationId) orgEl.textContent = `org ${u.organizationId.slice(0, 8)}…`;
+
+      const loading = document.getElementById('dash-loading');
+      const content = document.getElementById('dash-content');
+      if (loading) loading.hidden = true;
+      if (content) content.hidden = false;
+
+      // Fetch runs + vendors in parallel and render the assessment list
+      try {
+        const [runsRes, vendorsRes] = await Promise.all([
+          fetch(`${apiBase}/v1/runs`, { headers: { authorization: `Bearer ${token}` } }),
+          fetch(`${apiBase}/v1/vendors`, { headers: { authorization: `Bearer ${token}` } }),
+        ]);
+        const runsBody = runsRes.ok ? await runsRes.json() : { data: [] };
+        const vendorsBody = vendorsRes.ok ? await vendorsRes.json() : { data: [] };
+        const vendors = new Map<string, { legalName: string; domain: string; country: string | null }>();
+        for (const v of (vendorsBody as { data: Array<{ id: string; legalName: string; domain: string; country: string | null }> }).data) {
+          vendors.set(v.id, { legalName: v.legalName, domain: v.domain, country: v.country });
+        }
+        type RunRow = {
+          id: string;
+          vendorId: string;
+          tier: string;
+          status: string;
+          createdAt: string;
+          compositeScore: number | null;
+          riskBand: string | null;
+          deliveredAt: string | null;
+        };
+        const runs = (runsBody as { data: RunRow[] }).data;
+        const list = document.getElementById('run-list');
+        const empty = document.getElementById('run-empty');
+
+        function escapeHtml(s: string): string {
+          return s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        function formatDeliveredAt(iso: string): string {
+          try {
+            const d = new Date(iso);
+            const now = new Date();
+            const diffMs = now.getTime() - d.getTime();
+            const days = Math.floor(diffMs / 86400000);
+            if (days === 0) return 'delivered today';
+            if (days === 1) return 'delivered yesterday';
+            if (days < 7) return `delivered ${days} days ago`;
+            return `delivered ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
+          } catch { return ''; }
+        }
+
+        if (list) {
+          if (runs.length === 0) {
+            list.innerHTML = '<p class="muted">No assessments yet. Start with a free snapshot or request a full report.</p>';
+            if (empty) empty.hidden = false;
+          } else {
+            list.innerHTML = runs.map((r) => {
+              const v = vendors.get(r.vendorId);
+              const name = escapeHtml(v ? v.legalName : 'Unknown vendor');
+              const meta = escapeHtml([v?.domain, v?.country].filter(Boolean).join(' · '));
+              const tierLabel = escapeHtml(r.tier.replace('_', ' '));
+              const statusLabel = escapeHtml(r.status);
+              const scoreBlock = (r.compositeScore !== null && r.riskBand)
+                ? `<span class="run-score">${r.compositeScore}<span class="run-score-out-of">/100</span></span>
+                   <span class="pill pill-band-${escapeHtml(r.riskBand)}">${escapeHtml(r.riskBand.toLowerCase())} risk</span>`
+                : '';
+              const deliveredLine = r.deliveredAt
+                ? `<p class="run-delivered">${escapeHtml(formatDeliveredAt(r.deliveredAt))}</p>`
+                : '';
+              return `
+                <div class="run-row">
+                  <div>
+                    <p class="run-name">${name}</p>
+                    <p class="run-domain">${meta || '—'}</p>
+                    ${deliveredLine}
+                  </div>
+                  <div class="run-meta">
+                    ${scoreBlock}
+                    <span class="pill pill-tier-${escapeHtml(r.tier)}">${tierLabel}</span>
+                    <span class="pill pill-status-${escapeHtml(r.status)}">${statusLabel}</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            if (empty) empty.hidden = true;
+          }
+        }
+      } catch {
+        // Surface the failure so the user knows the page is incomplete.
+        showBanner("Couldn't load your assessments.", {
+          error: true,
+          retry: () => window.location.reload(),
+        });
+      }
+    } catch {
+      logoutAndRedirect('/login', "Couldn't verify your session. Redirecting to sign in…");
+    }
+  })();
+</script>

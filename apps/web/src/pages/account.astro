@@ -48,8 +48,30 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
           <div class="acc-actions">
             <button type="button" class="btn btn-primary" id="btn-logout">Log out</button>
-            <button type="button" class="btn btn-ghost" disabled title="Coming soon">Change password</button>
+            <button type="button" class="btn btn-ghost" id="btn-change-pw-open">Change password</button>
           </div>
+
+          <form id="change-pw-form" class="change-pw" hidden novalidate>
+            <h3>Change password</h3>
+            <label class="full">
+              <span>Current password <em>*</em></span>
+              <input type="password" name="currentPassword" required autocomplete="current-password" />
+            </label>
+            <label class="full">
+              <span>New password <em>*</em></span>
+              <input type="password" name="newPassword" required minlength="8" maxlength="128" autocomplete="new-password" />
+            </label>
+            <label class="full">
+              <span>Confirm new password <em>*</em></span>
+              <input type="password" name="confirm" required minlength="8" maxlength="128" autocomplete="new-password" />
+            </label>
+            <div class="change-pw-actions">
+              <button type="submit" class="btn btn-primary" id="btn-change-pw-submit">Update password</button>
+              <button type="button" class="btn btn-ghost" id="btn-change-pw-cancel">Cancel</button>
+            </div>
+            <p class="change-pw-msg" id="change-pw-error" hidden></p>
+            <p class="change-pw-ok" id="change-pw-success" hidden>Password updated.</p>
+          </form>
         </div>
 
         <section class="danger-zone" aria-labelledby="danger-title">
@@ -116,6 +138,35 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
   .kv dt { color: var(--ps-muted); font-size: 0.9rem; font-weight: 500; }
   .kv dd { margin: 0; color: var(--ps-text); }
   .acc-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; border-top: 1px solid var(--ps-border); padding-top: 1.25rem; }
+
+  .change-pw {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ps-border);
+  }
+  .change-pw h3 { margin: 0 0 1rem; font-size: 1rem; }
+  .change-pw label { display: block; font-size: 0.9rem; color: var(--ps-text); }
+  .change-pw label.full { margin-bottom: 0.85rem; }
+  .change-pw label > span { display: block; margin-bottom: 0.3rem; font-weight: 500; }
+  .change-pw label em { color: var(--ps-accent-strong); font-style: normal; }
+  .change-pw input[type='password'] {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .change-pw input:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+  .change-pw-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+  .change-pw-msg { color: var(--band-high); font-size: 0.88rem; margin: 0.9rem 0 0; }
+  .change-pw-ok { color: #15803d; font-size: 0.9rem; margin: 0.9rem 0 0; }
   .muted { color: var(--ps-muted); }
   .tiny { font-size: 0.82rem; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9rem; }
@@ -229,6 +280,109 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
   document.getElementById('btn-logout')?.addEventListener('click', () => {
     logoutAndRedirect('/');
+  });
+
+  // ── Change password ──────────────────────────────────────────────────
+  const changePwForm = document.getElementById('change-pw-form') as HTMLFormElement | null;
+  const changePwOpen = document.getElementById('btn-change-pw-open');
+  const changePwCancel = document.getElementById('btn-change-pw-cancel');
+  const changePwSubmit = document.getElementById('btn-change-pw-submit') as HTMLButtonElement | null;
+  const changePwErr = document.getElementById('change-pw-error');
+  const changePwOk = document.getElementById('change-pw-success');
+
+  function resetChangePwForm(): void {
+    if (!changePwForm) return;
+    changePwForm.reset();
+    if (changePwErr) { changePwErr.hidden = true; changePwErr.textContent = ''; }
+    if (changePwOk) changePwOk.hidden = true;
+    if (changePwSubmit) {
+      changePwSubmit.disabled = false;
+      changePwSubmit.textContent = 'Update password';
+    }
+  }
+
+  changePwOpen?.addEventListener('click', () => {
+    if (!changePwForm) return;
+    resetChangePwForm();
+    changePwForm.hidden = false;
+    (changePwForm.elements.namedItem('currentPassword') as HTMLInputElement | null)?.focus();
+  });
+
+  changePwCancel?.addEventListener('click', () => {
+    if (!changePwForm) return;
+    resetChangePwForm();
+    changePwForm.hidden = true;
+  });
+
+  changePwForm?.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+    if (!changePwForm || !changePwSubmit) return;
+
+    if (changePwErr) { changePwErr.hidden = true; changePwErr.textContent = ''; }
+    if (changePwOk) changePwOk.hidden = true;
+
+    const data = new FormData(changePwForm);
+    const currentPassword = String(data.get('currentPassword') || '');
+    const newPassword = String(data.get('newPassword') || '');
+    const confirm = String(data.get('confirm') || '');
+
+    if (newPassword.length < 8) {
+      if (changePwErr) {
+        changePwErr.textContent = 'New password must be at least 8 characters.';
+        changePwErr.hidden = false;
+      }
+      return;
+    }
+    if (newPassword !== confirm) {
+      if (changePwErr) {
+        changePwErr.textContent = 'New passwords do not match.';
+        changePwErr.hidden = false;
+      }
+      return;
+    }
+
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) { logoutAndRedirect('/login'); return; }
+
+    changePwSubmit.disabled = true;
+    changePwSubmit.textContent = 'Updating…';
+    try {
+      const res = await fetch(`${apiBase}/v1/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      if (res.status === 401) {
+        const body = await res.json().catch(() => ({}));
+        const msg = body?.error === 'invalid_credentials'
+          ? 'Current password is incorrect.'
+          : 'Your session has expired. Please log in again.';
+        if (body?.error !== 'invalid_credentials') {
+          logoutAndRedirect('/login');
+          return;
+        }
+        throw new Error(msg);
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Request failed (${res.status}).`);
+      }
+      changePwForm.reset();
+      if (changePwOk) changePwOk.hidden = false;
+      changePwSubmit.textContent = 'Update password';
+      changePwSubmit.disabled = false;
+    } catch (err) {
+      if (changePwErr) {
+        changePwErr.textContent = (err as Error).message || 'Unexpected error.';
+        changePwErr.hidden = false;
+      }
+      changePwSubmit.disabled = false;
+      changePwSubmit.textContent = 'Update password';
+    }
   });
 
   // ── Account deletion (Apple 5.1.1(v)) ─────────────────────────────────

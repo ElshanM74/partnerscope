@@ -1,0 +1,748 @@
+---
+/**
+ * /admin — platform-staff dashboard.
+ *
+ * Access is gated three ways:
+ *  1. No `ps_token` in localStorage → redirect /login.
+ *  2. GET /v1/auth/me fails (401) → clear storage + redirect /login.
+ *  3. Response `user.isStaff !== true` → redirect /dashboard (the user is
+ *     logged in, just not staff — no reason to dump them to /login).
+ *
+ * The server is authoritative on every /v1/admin/* call — even if someone
+ * forges `isStaff: true` into their cached `ps_user`, the endpoints will
+ * return 403. This client check is purely for UX (don't show a blank page
+ * with five failed fetches).
+ */
+import Base from '../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Admin — PartnerScope"
+  description="PartnerScope staff dashboard."
+>
+  <section class="admin section" data-api-base={apiBase}>
+    <div class="container admin-inner">
+      <div id="adm-loading" class="adm-state">
+        <p class="muted">Loading…</p>
+      </div>
+
+      <div id="adm-content" hidden>
+        <header class="adm-head">
+          <h1>Admin</h1>
+          <p class="muted">
+            Platform-wide view. <a href="/dashboard">← Back to dashboard</a>
+          </p>
+        </header>
+
+        <!-- Stats strip -->
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Organizations</div>
+            <div id="stat-orgs" class="stat-value">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Users</div>
+            <div id="stat-users" class="stat-value">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Runs</div>
+            <div id="stat-runs" class="stat-value">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Demo leads</div>
+            <div id="stat-leads" class="stat-value">—</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" role="tablist" aria-label="Admin sections">
+          <button type="button" class="tab is-active" role="tab" aria-selected="true" data-tab="users">Users</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="orgs">Organizations</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="runs">Runs</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-tab="leads">Demo leads</button>
+        </div>
+
+        <!-- Users panel -->
+        <section class="panel" role="tabpanel" data-panel="users">
+          <div class="panel-head">
+            <h2>Users</h2>
+            <p class="muted tiny">Most recent 500, newest first.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Organization</th>
+                  <th>Last login</th>
+                  <th>Signed up</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-users"></tbody>
+            </table>
+          </div>
+          <p id="empty-users" class="muted empty" hidden>No users yet.</p>
+        </section>
+
+        <!-- Orgs panel -->
+        <section class="panel" role="tabpanel" data-panel="orgs" hidden>
+          <div class="panel-head">
+            <h2>Organizations</h2>
+            <p class="muted tiny">Most recent 500, newest first.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Legal name</th>
+                  <th>Country</th>
+                  <th>Billing email</th>
+                  <th>Users</th>
+                  <th>Runs</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-orgs"></tbody>
+            </table>
+          </div>
+          <p id="empty-orgs" class="muted empty" hidden>No organizations yet.</p>
+        </section>
+
+        <!-- Runs panel -->
+        <section class="panel" role="tabpanel" data-panel="runs" hidden>
+          <div class="panel-head">
+            <h2>Runs</h2>
+            <p class="muted tiny">Paid assessments across all organizations.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Status</th>
+                  <th>Score</th>
+                  <th>Band</th>
+                  <th>Vendor</th>
+                  <th>Organization</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-runs"></tbody>
+            </table>
+          </div>
+          <p id="empty-runs" class="muted empty" hidden>No runs yet.</p>
+        </section>
+
+        <!-- Leads panel -->
+        <section class="panel" role="tabpanel" data-panel="leads" hidden>
+          <div class="panel-head">
+            <h2>Demo leads</h2>
+            <p class="muted tiny">Free-snapshot submissions from the landing page.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Company</th>
+                  <th>Vendor domain</th>
+                  <th>Score</th>
+                  <th>Band</th>
+                  <th>UTM</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-leads"></tbody>
+            </table>
+          </div>
+          <p id="empty-leads" class="muted empty" hidden>No leads yet.</p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="set-pw-dialog" class="pw-dialog" aria-labelledby="set-pw-title">
+    <form id="set-pw-form" class="pw-dialog-inner" novalidate>
+      <button type="button" class="pw-dialog-close" aria-label="Close" data-pw-close>×</button>
+      <h2 id="set-pw-title">Set password</h2>
+      <p class="muted">
+        Set a new password for <strong id="set-pw-target">—</strong>.
+        The user must be informed out-of-band (Slack, phone, etc.).
+      </p>
+      <label class="pw-dialog-field">
+        <span>New password</span>
+        <input type="password" name="password" id="set-pw-input" required minlength="8" maxlength="128" autocomplete="new-password" />
+      </label>
+      <label class="pw-dialog-field">
+        <span>Confirm</span>
+        <input type="password" name="confirm" id="set-pw-confirm" required minlength="8" maxlength="128" autocomplete="new-password" />
+      </label>
+      <p class="pw-error" id="set-pw-error" role="alert" hidden></p>
+      <p class="pw-ok" id="set-pw-ok" hidden></p>
+      <div class="pw-dialog-actions">
+        <button type="button" class="btn btn-ghost" data-pw-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="set-pw-submit">Set password</button>
+      </div>
+    </form>
+  </dialog>
+</Base>
+
+<style>
+  .admin-inner { max-width: 1200px; }
+  .adm-head { margin-bottom: 1.5rem; }
+  .adm-head h1 { margin: 0 0 0.35rem; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  .stat {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-label {
+    color: var(--ps-muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--ps-ink);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--ps-border);
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+  }
+  .tab {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 0.65rem 1rem;
+    font: inherit;
+    font-weight: 500;
+    color: var(--ps-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--ps-ink); }
+  .tab.is-active {
+    color: var(--ps-ink);
+    border-bottom-color: var(--ps-accent-strong);
+  }
+
+  .panel { margin-bottom: 2rem; }
+  .panel-head { margin-bottom: 0.75rem; }
+  .panel-head h2 { margin: 0 0 0.2rem; font-size: 1.15rem; }
+
+  .table-wrap {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    overflow: auto;
+    box-shadow: var(--shadow-sm);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  thead th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ps-muted);
+    border-bottom: 1px solid var(--ps-border);
+    background: rgba(0, 0, 0, 0.015);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--ps-border);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+
+  .badge {
+    display: inline-block;
+    background: rgba(79, 124, 255, 0.12);
+    color: var(--ps-accent-strong);
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+  .badge-HIGH { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+  .badge-MEDIUM { background: rgba(234, 179, 8, 0.15); color: #a16207; }
+  .badge-LOW { background: rgba(34, 197, 94, 0.14); color: #15803d; }
+  .badge-MINIMAL { background: rgba(34, 197, 94, 0.14); color: #15803d; }
+
+  .muted { color: var(--ps-muted); }
+  .tiny { font-size: 0.82rem; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+  .empty { padding: 1rem 0; }
+  .adm-state { padding: 3rem 0; text-align: center; }
+
+  .btn-sm {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    background: rgba(79, 124, 255, 0.08);
+    color: var(--ps-accent-strong);
+    border: 1px solid rgba(79, 124, 255, 0.25);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-sm:hover { background: rgba(79, 124, 255, 0.14); }
+
+  .pw-dialog {
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 0;
+    max-width: 460px;
+    box-shadow: 0 18px 48px rgba(15, 26, 43, 0.18);
+  }
+  .pw-dialog::backdrop { background: rgba(15, 26, 43, 0.45); }
+  .pw-dialog-inner {
+    position: relative;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .pw-dialog-inner h2 { margin: 0; font-size: 1.15rem; }
+  .pw-dialog-inner p.muted { margin: 0; font-size: 0.9rem; }
+  .pw-dialog-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.6rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ps-muted);
+  }
+  .pw-dialog-field span {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+  }
+  .pw-dialog-field input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--ps-border);
+    border-radius: 8px;
+    font: inherit;
+  }
+  .pw-dialog-field input:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+  .pw-error { margin: 0; color: #b42318; font-size: 0.88rem; }
+  .pw-ok { margin: 0; color: #15803d; font-size: 0.88rem; }
+  .pw-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<script>
+  type AdminUser = {
+    id: string;
+    email: string;
+    fullName: string | null;
+    role: string;
+    lastLoginAt: string | null;
+    createdAt: string;
+    organizationId: string | null;
+    organizationName: string | null;
+    organizationCountry: string | null;
+  };
+  type AdminOrg = {
+    id: string;
+    legalName: string;
+    country: string;
+    billingEmail: string;
+    createdAt: string;
+    userCount: number;
+    runCount: number;
+  };
+  type AdminRun = {
+    id: string;
+    tier: string;
+    status: string;
+    compositeScore: number | null;
+    riskBand: string | null;
+    createdAt: string;
+    deliveredAt: string | null;
+    vendorDomain: string | null;
+    vendorLegalName: string | null;
+    organizationId: string | null;
+    organizationName: string | null;
+  };
+  type AdminLead = {
+    id: string;
+    email: string;
+    company: string | null;
+    vendorDomain: string;
+    snapshotScore: number | null;
+    riskBand: string | null;
+    convertedRunId: string | null;
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    createdAt: string;
+  };
+  type AdminStats = {
+    organizations: number;
+    users: number;
+    runs: number;
+    demoLeads: number;
+  };
+
+  const root = document.querySelector('.admin.section') as HTMLElement | null;
+  const apiBase = root?.dataset.apiBase || '/api';
+
+  function logoutAndRedirect(target = '/login'): void {
+    try {
+      localStorage.removeItem('ps_token');
+      localStorage.removeItem('ps_user');
+    } catch {}
+    window.location.replace(target);
+  }
+
+  function fmtDate(iso: string | null | undefined): string {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString();
+    } catch {
+      return iso;
+    }
+  }
+
+  function shortId(id: string | null | undefined): string {
+    if (!id) return '—';
+    return id.length > 9 ? `${id.slice(0, 8)}…` : id;
+  }
+
+  /** Append a <td> with textContent — never innerHTML. All values are untrusted. */
+  function td(tr: HTMLTableRowElement, text: string, opts: { mono?: boolean; title?: string } = {}): void {
+    const el = document.createElement('td');
+    el.textContent = text;
+    if (opts.mono) el.classList.add('mono');
+    if (opts.title) el.title = opts.title;
+    tr.appendChild(el);
+  }
+
+  /** Append a <td> containing a styled <span class="badge"> — still textContent-safe. */
+  function tdBadge(tr: HTMLTableRowElement, text: string, variant?: string): void {
+    const el = document.createElement('td');
+    const span = document.createElement('span');
+    span.className = variant ? `badge badge-${variant}` : 'badge';
+    span.textContent = text;
+    el.appendChild(span);
+    tr.appendChild(el);
+  }
+
+  function renderUsers(rows: AdminUser[]): void {
+    const tbody = document.getElementById('tbody-users');
+    const empty = document.getElementById('empty-users');
+    if (!tbody || !empty) return;
+    tbody.replaceChildren();
+    if (rows.length === 0) { empty.hidden = false; return; }
+    empty.hidden = true;
+    for (const u of rows) {
+      const tr = document.createElement('tr');
+      td(tr, u.email, { mono: true });
+      td(tr, u.fullName || '—');
+      tdBadge(tr, u.role);
+      td(tr, u.organizationName || '—', u.organizationCountry ? { title: u.organizationCountry } : {});
+      td(tr, fmtDate(u.lastLoginAt));
+      td(tr, fmtDate(u.createdAt));
+
+      // Actions cell — "Set password" opens the admin reset modal.
+      const actionsCell = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-sm';
+      btn.textContent = 'Set password';
+      btn.dataset.userId = u.id;
+      btn.dataset.email = u.email;
+      btn.addEventListener('click', () => openSetPwDialog(u.id, u.email));
+      actionsCell.appendChild(btn);
+      tr.appendChild(actionsCell);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ── Admin set-password dialog ─────────────────────────────────────────
+  let setPwTargetUserId: string | null = null;
+
+  function openSetPwDialog(userId: string, email: string): void {
+    const dlg = document.getElementById('set-pw-dialog') as HTMLDialogElement | null;
+    const target = document.getElementById('set-pw-target');
+    const input = document.getElementById('set-pw-input') as HTMLInputElement | null;
+    const confirm = document.getElementById('set-pw-confirm') as HTMLInputElement | null;
+    const err = document.getElementById('set-pw-error');
+    const ok = document.getElementById('set-pw-ok');
+    const submit = document.getElementById('set-pw-submit') as HTMLButtonElement | null;
+    if (!dlg) return;
+
+    setPwTargetUserId = userId;
+    if (target) target.textContent = email;
+    if (input) input.value = '';
+    if (confirm) confirm.value = '';
+    if (err) { err.hidden = true; err.textContent = ''; }
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = 'Set password';
+    }
+
+    if (typeof dlg.showModal === 'function') dlg.showModal();
+    else dlg.setAttribute('open', '');
+    input?.focus();
+  }
+
+  function closeSetPwDialog(): void {
+    const dlg = document.getElementById('set-pw-dialog') as HTMLDialogElement | null;
+    if (dlg?.open) dlg.close();
+    setPwTargetUserId = null;
+  }
+
+  document.querySelectorAll('[data-pw-close]').forEach((el) => {
+    el.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      closeSetPwDialog();
+    });
+  });
+
+  document.getElementById('set-pw-form')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const input = document.getElementById('set-pw-input') as HTMLInputElement | null;
+    const confirm = document.getElementById('set-pw-confirm') as HTMLInputElement | null;
+    const err = document.getElementById('set-pw-error');
+    const ok = document.getElementById('set-pw-ok');
+    const submit = document.getElementById('set-pw-submit') as HTMLButtonElement | null;
+    if (!input || !confirm || !setPwTargetUserId) return;
+
+    if (err) { err.hidden = true; err.textContent = ''; }
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+
+    const password = input.value;
+    if (password.length < 8) {
+      if (err) { err.textContent = 'Password must be at least 8 characters.'; err.hidden = false; }
+      return;
+    }
+    if (password !== confirm.value) {
+      if (err) { err.textContent = 'Passwords do not match.'; err.hidden = false; }
+      return;
+    }
+
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) { logoutAndRedirect('/login'); return; }
+
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = 'Setting…';
+    }
+    try {
+      const res = await fetch(`${apiBase}/v1/admin/users/${encodeURIComponent(setPwTargetUserId)}/password`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password }),
+      });
+      if (res.status === 401) { logoutAndRedirect('/login'); return; }
+      if (res.status === 403) { window.location.replace('/dashboard'); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Request failed (${res.status}).`);
+      }
+      if (ok) { ok.textContent = 'Password updated. Share the new password with the user out-of-band.'; ok.hidden = false; }
+      if (submit) {
+        submit.textContent = 'Done';
+        submit.disabled = true;
+      }
+      // Auto-close after a beat so the admin can see the confirmation.
+      setTimeout(closeSetPwDialog, 1500);
+    } catch (e) {
+      if (err) { err.textContent = (e as Error).message || 'Unexpected error.'; err.hidden = false; }
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = 'Set password';
+      }
+    }
+  });
+
+  function renderOrgs(rows: AdminOrg[]): void {
+    const tbody = document.getElementById('tbody-orgs');
+    const empty = document.getElementById('empty-orgs');
+    if (!tbody || !empty) return;
+    tbody.replaceChildren();
+    if (rows.length === 0) { empty.hidden = false; return; }
+    empty.hidden = true;
+    for (const o of rows) {
+      const tr = document.createElement('tr');
+      td(tr, o.legalName, { title: o.id });
+      td(tr, o.country || '—');
+      td(tr, o.billingEmail, { mono: true });
+      td(tr, String(o.userCount ?? 0));
+      td(tr, String(o.runCount ?? 0));
+      td(tr, fmtDate(o.createdAt));
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderRuns(rows: AdminRun[]): void {
+    const tbody = document.getElementById('tbody-runs');
+    const empty = document.getElementById('empty-runs');
+    if (!tbody || !empty) return;
+    tbody.replaceChildren();
+    if (rows.length === 0) { empty.hidden = false; return; }
+    empty.hidden = true;
+    for (const r of rows) {
+      const tr = document.createElement('tr');
+      tdBadge(tr, r.tier);
+      tdBadge(tr, r.status);
+      td(tr, r.compositeScore == null ? '—' : String(r.compositeScore));
+      if (r.riskBand) tdBadge(tr, r.riskBand, r.riskBand); else td(tr, '—');
+      td(tr, r.vendorDomain || r.vendorLegalName || '—', { mono: !!r.vendorDomain });
+      td(tr, r.organizationName || '—');
+      td(tr, fmtDate(r.createdAt));
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderLeads(rows: AdminLead[]): void {
+    const tbody = document.getElementById('tbody-leads');
+    const empty = document.getElementById('empty-leads');
+    if (!tbody || !empty) return;
+    tbody.replaceChildren();
+    if (rows.length === 0) { empty.hidden = false; return; }
+    empty.hidden = true;
+    for (const l of rows) {
+      const tr = document.createElement('tr');
+      td(tr, l.email, { mono: true });
+      td(tr, l.company || '—');
+      td(tr, l.vendorDomain, { mono: true });
+      td(tr, l.snapshotScore == null ? '—' : String(l.snapshotScore));
+      if (l.riskBand) tdBadge(tr, l.riskBand, l.riskBand); else td(tr, '—');
+      const utm = [l.utmSource, l.utmMedium, l.utmCampaign].filter(Boolean).join(' · ');
+      td(tr, utm || '—');
+      td(tr, fmtDate(l.createdAt));
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderStats(s: AdminStats): void {
+    const o = document.getElementById('stat-orgs');
+    const u = document.getElementById('stat-users');
+    const r = document.getElementById('stat-runs');
+    const l = document.getElementById('stat-leads');
+    if (o) o.textContent = String(s.organizations);
+    if (u) u.textContent = String(s.users);
+    if (r) r.textContent = String(s.runs);
+    if (l) l.textContent = String(s.demoLeads);
+  }
+
+  function wireTabs(): void {
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.tab');
+    const panels = document.querySelectorAll<HTMLElement>('.panel');
+    tabs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.tab;
+        tabs.forEach((t) => {
+          const active = t === btn;
+          t.classList.toggle('is-active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panels.forEach((p) => { p.hidden = p.dataset.panel !== name; });
+      });
+    });
+  }
+
+  async function fetchJson<T>(path: string, token: string): Promise<T> {
+    const res = await fetch(`${apiBase}${path}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (res.status === 401) { logoutAndRedirect('/login'); throw new Error('unauthorized'); }
+    if (res.status === 403) { window.location.replace('/dashboard'); throw new Error('forbidden'); }
+    if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
+    return (await res.json()) as T;
+  }
+
+  (async () => {
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) { logoutAndRedirect('/login'); return; }
+
+    // 1. Verify the user is logged in and is staff.
+    try {
+      const me = await fetchJson<{ user: { isStaff?: boolean } }>('/v1/auth/me', token);
+      try { localStorage.setItem('ps_user', JSON.stringify(me.user)); } catch {}
+      if (me.user.isStaff !== true) {
+        window.location.replace('/dashboard');
+        return;
+      }
+    } catch {
+      // fetchJson already redirected on 401/403.
+      return;
+    }
+
+    // 2. Fetch all admin payloads in parallel.
+    try {
+      const [stats, usersResp, orgsResp, runsResp, leadsResp] = await Promise.all([
+        fetchJson<AdminStats>('/v1/admin/stats', token),
+        fetchJson<{ users: AdminUser[] }>('/v1/admin/users', token),
+        fetchJson<{ organizations: AdminOrg[] }>('/v1/admin/organizations', token),
+        fetchJson<{ runs: AdminRun[] }>('/v1/admin/runs', token),
+        fetchJson<{ leads: AdminLead[] }>('/v1/admin/leads', token),
+      ]);
+      renderStats(stats);
+      renderUsers(usersResp.users);
+      renderOrgs(orgsResp.organizations);
+      renderRuns(runsResp.runs);
+      renderLeads(leadsResp.leads);
+    } catch (err) {
+      console.error('admin fetch failed', err);
+      return;
+    }
+
+    wireTabs();
+
+    const loading = document.getElementById('adm-loading');
+    const content = document.getElementById('adm-content');
+    if (loading) loading.hidden = true;
+    if (content) content.hidden = false;
+  })();
+</script>

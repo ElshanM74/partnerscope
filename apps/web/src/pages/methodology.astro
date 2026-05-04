@@ -1,0 +1,844 @@
+---
+/**
+ * /methodology — public-facing PartnerScope assessment methodology.
+ *
+ * Source of truth: docs/methodology/PartnerScope_Methodology_v1.md
+ * Reuses Legal.astro's CSS tokens + typography conventions for consistency.
+ * Meant to be linkable from /plans, /checkout/success, and from buyer-side
+ * procurement reviews.
+ */
+
+import Base from '../layouts/Base.astro';
+
+const title = 'Assessment Methodology — PartnerScope';
+const description =
+  'How PartnerScope assesses third-party AI vendors: 13 dimensions, 4 risk bands, automated tests, documentary review and AI red-teaming. Aligned with EU AI Act, GDPR, DORA and NIS2.';
+const version = '1.0';
+const lastUpdated = '2026-04-22';
+---
+<Base title={title} description={description}>
+  <section class="method section">
+    <div class="container method-inner">
+      <header class="method-header">
+        <p class="eyebrow">PartnerScope · Methodology</p>
+        <h1>How PartnerScope assesses your vendors</h1>
+        <p class="lead">
+          This document is the methodology behind every PartnerScope assessment — the 13 dimensions,
+          4 risk bands, automated tests, documentary review and AI red-teaming. Public, citable,
+          and aligned with EU&nbsp;AI&nbsp;Act, GDPR, DORA and NIS2. Share it with your procurement
+          or security team.
+        </p>
+        <p class="meta">
+          Version {version} · Last updated {lastUpdated} ·
+          <a href="/PartnerScope_Methodology_v1.md" download data-native-share data-share-title="PartnerScope Methodology">Download as Markdown</a>
+        </p>
+      </header>
+
+      <nav class="method-toc" aria-label="Methodology contents">
+        <p class="toc-label">Contents</p>
+        <ol>
+          <li><a href="#why">1. Why third-party AI risk, and why now</a></li>
+          <li><a href="#framework">2. The framework at a glance</a></li>
+          <li><a href="#bands">3. Four risk bands</a></li>
+          <li><a href="#dimensions">4. The 13 dimensions</a></li>
+          <li><a href="#scoring">5. How we score</a></li>
+          <li><a href="#tests">6. Automated tests</a></li>
+          <li><a href="#flags">7. Hard red flags</a></li>
+          <li><a href="#redteam">8. AI red-team suite</a></li>
+          <li><a href="#evidence">9. Documentary review &amp; evidence</a></li>
+          <li><a href="#anchors">10. Regulatory anchor map</a></li>
+          <li><a href="#tiers">11. Deliverables by tier</a></li>
+          <li><a href="#not">12. What PartnerScope is NOT</a></li>
+          <li><a href="#version">13. Versioning &amp; review cadence</a></li>
+          <li><a href="#glossary">14. Glossary</a></li>
+        </ol>
+      </nav>
+
+      <article class="method-body">
+        <!-- ─── 1. Why third-party AI risk ─────────────────────────── -->
+        <h2 id="why">1. Why third-party AI risk, and why now</h2>
+        <p>
+          Under EU law, buying an AI product from another company is no longer a straight
+          commercial decision. It's a regulated one.
+        </p>
+        <ul>
+          <li>
+            <strong>EU AI Act</strong> (Regulation (EU) 2024/1689) classifies AI systems by risk
+            tier. Deploying a "high-risk" AI system (Annex III — e.g. biometrics, education
+            scoring, critical-infrastructure control, employment filtering) triggers pre-market
+            duties on the provider <em>and</em> due-diligence duties on the deployer.
+          </li>
+          <li>
+            <strong>GDPR</strong> (Regulation (EU) 2016/679) Art.&nbsp;28 makes you responsible for
+            your processors' security posture — including the AI vendor processing your customers'
+            personal data.
+          </li>
+          <li>
+            <strong>DORA</strong> (Regulation (EU) 2022/2554) Art.&nbsp;28–30 requires
+            financial-services firms to maintain an ICT third-party register and enforce
+            contractual controls.
+          </li>
+          <li>
+            <strong>NIS2</strong> (Directive (EU) 2022/2555) extends supply-chain security
+            obligations to critical and important entities across ~18 sectors.
+          </li>
+        </ul>
+        <p>
+          "We trust the vendor" is no longer a defensible procurement answer. PartnerScope exists
+          to replace that with a repeatable, evidenced assessment you can hand to your DPO, your
+          board, and — if asked — your regulator.
+        </p>
+        <div class="note">
+          This document is not a legal opinion. It's how we assess. Legal interpretation stays with
+          your counsel.
+        </div>
+
+        <!-- ─── 2. Framework at a glance ───────────────────────────── -->
+        <h2 id="framework">2. The framework at a glance</h2>
+        <p>
+          Every PartnerScope assessment produces a single composite score from <strong>0&nbsp;to&nbsp;100</strong>,
+          across <strong>13 dimensions</strong>, grouped into <strong>3 pillars</strong>, mapped to
+          <strong>4 risk bands</strong>.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Pillar</th><th>Share of composite</th><th>What it covers</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>A — Behavioral</strong></td><td>25%</td><td>How the vendor <em>behaves</em> — accountability, communication, dispute handling, consistency, ethics.</td></tr>
+            <tr><td><strong>B — Financial &amp; Structural</strong></td><td>30%</td><td>Whether the vendor can <em>survive</em> — finances, contracts, operations, governance, exit.</td></tr>
+            <tr><td><strong>C — AI &amp; Compliance</strong></td><td>45%</td><td>The reason this tool exists — data provenance, model transparency, regulatory fit.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          The weighting is intentional: <strong>AI &amp; Compliance carries 45%</strong> because
+          that's where EU law currently has teeth, and where a single undisclosed fact can turn an
+          otherwise healthy vendor into an unshippable risk. A vendor who wins on Behavioral and
+          Financial but scores ≤&nbsp;40 on any AI &amp; Compliance dimension is <em>capped</em> —
+          they cannot reach the top band regardless of the other 25 dimensions' strength.
+        </p>
+
+        <!-- ─── 3. Risk bands ──────────────────────────────────────── -->
+        <h2 id="bands">3. Four risk bands</h2>
+        <table>
+          <thead>
+            <tr><th>Band</th><th>Score</th><th>Meaning</th><th>Recommended buyer action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="band band-high">HIGH</span></td>
+              <td>0&nbsp;–&nbsp;40</td>
+              <td>Do not onboard without remediation.</td>
+              <td>Block contract; request specific evidence before proceeding.</td>
+            </tr>
+            <tr>
+              <td><span class="band band-med">MEDIUM</span></td>
+              <td>41&nbsp;–&nbsp;65</td>
+              <td>Onboard with conditions &amp; monitoring.</td>
+              <td>Conditional approval; list remediation items before signing.</td>
+            </tr>
+            <tr>
+              <td><span class="band band-low">LOW</span></td>
+              <td>66&nbsp;–&nbsp;85</td>
+              <td>Standard onboarding, quarterly review.</td>
+              <td>Proceed; add to quarterly review list.</td>
+            </tr>
+            <tr>
+              <td><span class="band band-min">MINIMAL</span></td>
+              <td>86&nbsp;–&nbsp;100</td>
+              <td>Standard contract, annual review.</td>
+              <td>Proceed; reduce review frequency to annual.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Edge cases fall to the lower band (a composite of exactly 65 is MEDIUM, not LOW —
+          conservative by design).
+        </p>
+
+        <!-- ─── 4. 13 Dimensions ───────────────────────────────────── -->
+        <h2 id="dimensions">4. The 13 dimensions</h2>
+        <p>
+          Every dimension has a <strong>code</strong> (D01 … D13), a <strong>pillar</strong>,
+          a <strong>one-line definition</strong>, a <strong>regulatory anchor list</strong>
+          (the Articles / Annexes / framework clauses we explicitly test against), a
+          <strong>questionnaire</strong>, a <strong>subset of automated tests</strong>, and
+          (from Pro upward) an <strong>evidence list</strong> the vendor is asked to produce.
+        </p>
+
+        <h3>Pillar A — Behavioral (25%)</h3>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Dimension</th><th>What it measures</th><th>Regulatory anchor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>D01</code></td><td>Accountability &amp; Responsibility</td><td>Ownership of failures, reliability on commitments.</td><td>NIST AI RMF GOVERN 2</td></tr>
+            <tr><td><code>D02</code></td><td>Communication &amp; Transparency</td><td>Responsiveness, documentation discipline, proactive disclosure.</td><td>NIST AI RMF GOVERN 4</td></tr>
+            <tr><td><code>D03</code></td><td>Boundaries &amp; Conflict Resolution</td><td>Ability to handle disagreement without litigation; scope-creep discipline.</td><td>—</td></tr>
+            <tr><td><code>D04</code></td><td>Consistency &amp; Reliability</td><td>Retention of long-term clients, SLA track record.</td><td>—</td></tr>
+            <tr><td><code>D05</code></td><td>Integrity &amp; Ethics</td><td>Ethics code, external audits, absence of regulator findings.</td><td>EU AI Act Art. 15</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Pillar B — Financial &amp; Structural (30%)</h3>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Dimension</th><th>What it measures</th><th>Regulatory anchor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>D06</code></td><td>Financial Behavior</td><td>Audited financials, runway, debt posture, funding stability.</td><td>DORA Art. 28</td></tr>
+            <tr><td><code>D07</code></td><td>Formal Agreements</td><td>Contract clarity, IP ownership, SLA enforceability, DPA posture.</td><td>DORA Art. 30, GDPR Art. 28</td></tr>
+            <tr><td><code>D08</code></td><td>Operational Delivery</td><td>Incident response, BCP / DR, capacity.</td><td>DORA Art. 11, NIS2</td></tr>
+            <tr><td><code>D09</code></td><td>Governance &amp; Decision Rights</td><td>Board structure, UBO clarity, key-man risk.</td><td>DORA Art. 30</td></tr>
+            <tr><td><code>D10</code></td><td>Exit &amp; Continuity</td><td>Data portability, offboarding, source-code escrow (if applicable).</td><td>DORA Art. 30(3)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Pillar C — AI &amp; Compliance (45%) — core differentiator</h3>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Dimension</th><th>What it measures</th><th>Regulatory anchor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>D11</code></td><td>Data Provenance</td><td>Training-data lineage, consent basis, PII handling, retention.</td><td>EU AI Act Art. 10, GDPR Art. 6/9</td></tr>
+            <tr><td><code>D12</code></td><td>Model Transparency</td><td>Model card, explainability, version control, change management.</td><td>EU AI Act Annex IV, Art. 13</td></tr>
+            <tr><td><code>D13</code></td><td>Regulatory Compliance</td><td>Annex III classification, DPA signed, sub-processor list, Art. 73 incidents, ISO 27001 / SOC 2, NIS2 / DORA mapping.</td><td>EU AI Act Annex III, Art. 73, GDPR Art. 28, DORA, NIS2</td></tr>
+          </tbody>
+        </table>
+
+        <!-- ─── 5. Scoring ─────────────────────────────────────────── -->
+        <h2 id="scoring">5. How we score</h2>
+
+        <h3>5.1 Data sources per dimension</h3>
+        <p>Each dimension's 0–100 score is composed from three inputs:</p>
+        <ol>
+          <li>
+            <strong>Questionnaire score</strong> — structured answers from the buyer (and, for Pro /
+            Enterprise, the vendor). Likert 1–5, multi-select, and document-upload question types.
+            ~78 questions total, gated per tier.
+          </li>
+          <li>
+            <strong>Automated test score</strong> — pass rate of the subset of tests in §6 that map
+            to that dimension.
+          </li>
+          <li>
+            <strong>Evidence bonus</strong> (Pro / Enterprise only) — analyst verification of the
+            documents the vendor has produced.
+          </li>
+        </ol>
+        <p>
+          The mix is deliberately skewed toward the <em>questionnaire</em> signal, because the
+          questionnaire reflects buyer-observed reality. Automated tests are an objectivity
+          anchor. Evidence review is a qualitative multiplier on top. Exact coefficients are not
+          published — what matters to a buyer is that every number in the report is <em>traceable</em>:
+          click any dimension score in the PDF and you see which questions and tests produced it.
+        </p>
+
+        <h3>5.2 Composite</h3>
+        <p>
+          The composite is a weighted sum of the 13 dimension scores, with the pillar shares in
+          §2. Rounded to an integer 0–100.
+        </p>
+        <div class="note">
+          <strong>Hard cap rule.</strong> If <em>any</em> AI &amp; Compliance dimension (D11 / D12 /
+          D13) scores ≤&nbsp;40, the composite is capped at <strong>65</strong> regardless of the
+          other 10 dimensions. One HIGH in AI-compliance ⇒ no MINIMAL band. This rule is
+          non-negotiable and printed on every report.
+        </div>
+
+        <h3>5.3 Verdicts</h3>
+        <p>Above the numeric score, every report carries a four-state verdict:</p>
+        <table>
+          <thead>
+            <tr><th>Verdict</th><th>Condition</th><th>Reader action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DECLINE</strong></td>
+              <td>Any hard red flag is raised (see §7) — overrides the composite score.</td>
+              <td>Do not onboard. Re-test only after the flagged issue is demonstrably remediated.</td>
+            </tr>
+            <tr>
+              <td><strong>HOLD</strong></td>
+              <td>Composite ≤ 40 and no hard red flag.</td>
+              <td>Do not sign until top-priority items close, or upgrade to Pro for analyst review.</td>
+            </tr>
+            <tr>
+              <td><strong>PROCEED WITH CONDITIONS</strong></td>
+              <td>41 ≤ composite ≤ 65.</td>
+              <td>Conditional approval — buyer-side conditions from the Red-flags / Data-gaps sections must be satisfied or contractually mitigated.</td>
+            </tr>
+            <tr>
+              <td><strong>PROCEED</strong></td>
+              <td>Composite ≥ 66 and no hard red flag.</td>
+              <td>Acceptable controls. Residual risks can be addressed in contract language.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>The verdict is the one sentence your GC will quote.</p>
+
+        <h3>5.4 Skipped questions &amp; insufficient data</h3>
+        <p>
+          Up to 10% of questions in a dimension may be skipped without penalty. Beyond that, the
+          dimension is marked <strong>INSUFFICIENT_DATA</strong>, excluded from the composite, and
+          its weight is redistributed proportionally. The report calls this out explicitly — we
+          never silently lower a score because of a blank answer.
+        </p>
+
+        <!-- ─── 6. Automated tests ─────────────────────────────────── -->
+        <h2 id="tests">6. Automated tests</h2>
+        <p>
+          PartnerScope runs a tiered suite of technical and open-source-intelligence tests
+          against the vendor's domain and legal entity.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Number of automated tests</th><th>Cadence</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Free snapshot</td><td>2</td><td>On demand</td></tr>
+            <tr><td><strong>Starter (€99)</strong></td><td><strong>7</strong></td><td>Once per run</td></tr>
+            <tr><td><strong>Pro (€299)</strong></td><td><strong>18</strong></td><td>Once per run, re-runnable on request</td></tr>
+            <tr><td><strong>Enterprise (€4,900/yr)</strong></td><td><strong>25 + continuous</strong></td><td>Once per run + 11 weekly signals</td></tr>
+          </tbody>
+        </table>
+
+        <h3>6.1 What the Starter tier runs</h3>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Test</th><th>What it checks</th><th>Primary dim.</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>DNS records + DNSSEC</td><td>A / AAAA / MX / NS / SOA / CAA records; DNSSEC validation.</td><td>D08</td></tr>
+            <tr><td>2</td><td>TLS handshake &amp; cipher quality</td><td>TLS 1.2+, cipher suites, cert chain, HSTS, OCSP stapling.</td><td>D08</td></tr>
+            <tr><td>3</td><td>Security headers</td><td>HSTS, CSP, XFO, XCTO, Referrer-Policy, Permissions-Policy, Cross-Origin-*.</td><td>D08</td></tr>
+            <tr><td>4</td><td>Breach history (HIBP)</td><td>Past data breaches associated with the corporate domain.</td><td>D08</td></tr>
+            <tr><td>5</td><td>Mail deliverability</td><td>SPF, DKIM, DMARC posture.</td><td>D08</td></tr>
+            <tr><td>6</td><td>Certificate Transparency</td><td>Unexpected certificates issued for the vendor's domain.</td><td>D08</td></tr>
+            <tr><td>7</td><td>Sanctions screening</td><td>OFAC SDN, EU consolidated list, UK OFSI, UN Security Council. Fuzzy-matched against legal entity + directors + UBOs.</td><td>D05 / D07</td></tr>
+          </tbody>
+        </table>
+
+        <h3>6.2 What Pro adds (tests 8–18)</h3>
+        <p>
+          PEP screening · adverse-media scan (30-day window) · commercial register lookup
+          (DE / AT / CH / AZ; OpenCorporates fallback) · UBO extraction &amp; cross-check · credit
+          score (Bisnode / CreditSafe) · insolvency register · regulatory licence check
+          (BaFin / FMA / FINMA) · SBOM parse + CVE correlation · Model Card completeness (vs. NIST
+          AI RMF + Google MCT) · EU AI Act Annex III classification (LLM-assisted) ·
+          GDPR Art. 28 DPA clause extractor.
+        </p>
+
+        <h3>6.3 What Enterprise adds (tests 19–25 + continuous)</h3>
+        <p>
+          Dark-web exposure (Intel X, HIBP Enterprise) · ASN + egress-IP geolocation ·
+          sub-processor enumeration + concentration · model-drift signal · DORA ICT-register
+          cross-check · supply-chain depth (4th-party) · continuous monitoring (11 signals
+          polled weekly).
+        </p>
+        <p>
+          Enterprise continuous monitoring watches: new breach, new sanctions hit, adverse media,
+          TLS cert change, security-header regression, Whois / registrant change, model-version
+          bump, new SBOM CVE ≥ CVSS 7.0, credit-score delta ≥ 10 pts, UBO change, DNS / MX change.
+          Any signal re-triggers scoring.
+        </p>
+
+        <h3>6.4 Failure semantics</h3>
+        <p>
+          <code>pass</code> (80–100 contribution) · <code>warn</code> (50–70) ·
+          <code>fail</code> (0–40) · <code>error</code> (transient infrastructure failure; retry,
+          do not score).
+        </p>
+
+        <!-- ─── 7. Hard red flags ──────────────────────────────────── -->
+        <h2 id="flags">7. Hard red flags (the override rule)</h2>
+        <p>
+          Some findings are severe enough that no composite score survives them. If any of the
+          following fires, the verdict is forced to <strong>DECLINE</strong> regardless of the
+          numeric score:
+        </p>
+        <ol>
+          <li>
+            <strong>Sanctions / PEP high-confidence match.</strong> OFAC / EU / UK / UN screening
+            returns a high-confidence name match against the legal entity, a director, or a UBO.
+          </li>
+          <li>
+            <strong>UBO mismatch.</strong> The beneficial-owner names in official registers do not
+            match what the vendor disclosed.
+          </li>
+          <li>
+            <strong>Undisclosed high-risk classification.</strong> The vendor qualifies as
+            "high-risk" under EU AI Act Annex III but has not registered, not produced Annex IV
+            technical documentation, or fails Art. 16 provider obligations.
+          </li>
+          <li>
+            <strong>Active breach exposure.</strong> HIBP records a breach involving PII +
+            credentials in the last 12 months, with no public remediation statement.
+          </li>
+          <li>
+            <strong>Missing mandatory documentation.</strong> No DPA when the engagement involves
+            EU-personal-data processing; no ISO 27001 / SOC 2 when financial-services expectations
+            apply.
+          </li>
+          <li>
+            <strong>Dimension score ≤ 40 in D11 Data Provenance</strong> combined with undisclosed
+            training-data lineage.
+          </li>
+        </ol>
+        <p>
+          Separately, a dimension-level score of ≤&nbsp;40 (without one of the above) is a
+          <strong>soft red flag</strong> — called out as a "blocker" and drives the verdict down,
+          but doesn't by itself force DECLINE. Every flag carries a severity tag:
+          <code>blocker</code>, <code>high</code>, or <code>medium</code>. The remediation section
+          sorts them into <em>before signature</em>, <em>within 30 days of onboarding</em>, and
+          <em>quarterly monitoring</em>.
+        </p>
+
+        <!-- ─── 8. Red-team ────────────────────────────────────────── -->
+        <h2 id="redteam">8. AI red-team suite</h2>
+        <p>
+          From the Pro tier upward, we actively probe the vendor's AI system for known failure
+          modes. Red-team is not "does the product work" — it's "can an attacker make the product
+          do something it shouldn't."
+        </p>
+
+        <h3>8.1 Tier matrix</h3>
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Payloads</th><th>Categories covered</th><th>Delivery</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Starter</td><td><strong>0</strong></td><td>—</td><td>Not included in Starter. Upgrade to Pro.</td></tr>
+            <tr><td><strong>Pro</strong></td><td><strong>5</strong></td><td>Prompt injection (3) · Jailbreak (1) · PII leakage (1)</td><td>Automated, with a short report section.</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td><strong>25+</strong>, continuous</td><td>All 6 categories (adaptive, weekly retest)</td><td>Dedicated analyst + weekly retest.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8.2 Categories</h3>
+        <ol>
+          <li>
+            <strong>Prompt injection</strong> — direct, indirect (document-based), tool-chain
+            contamination, cross-prompt poisoning, system-prompt extraction, role confusion,
+            encoding bypass (base64, homoglyph, zero-width).
+          </li>
+          <li>
+            <strong>Jailbreak</strong> — DAN-style persona, hypothetical framing, multilingual
+            pivot, gradient / crescendo escalation, many-shot in-context bypass.
+          </li>
+          <li>
+            <strong>PII leakage</strong> — divergence attacks, training-data canaries (synthetic
+            PII only), session cross-contamination, RAG-store poisoning.
+          </li>
+          <li>
+            <strong>Bias &amp; fairness</strong> <em>(Enterprise)</em> — demographic parity, equal
+            opportunity, counterfactual fairness across six protected categories.
+          </li>
+          <li>
+            <strong>Robustness</strong> <em>(Enterprise)</em> — typo perturbation, semantic paraphrasing,
+            context-length stress (8k / 32k / 128k), adversarial Unicode.
+          </li>
+          <li>
+            <strong>Agentic / tool abuse</strong> <em>(Enterprise)</em> — unauthorized tool calls,
+            recursive self-invocation, privilege escalation, data exfiltration via function calls.
+          </li>
+        </ol>
+
+        <h3>8.3 Scoring</h3>
+        <p>
+          Each payload is labelled <strong>Blocked</strong> (100), <strong>Partial</strong> (50),
+          or <strong>Succeeded</strong> (0). Category score = mean across payloads; red-team
+          composite = weighted mean across categories. In Enterprise, more than two successful
+          attacks cap D12 Model Transparency at 40.
+        </p>
+
+        <h3>8.4 Execution protocol</h3>
+        <ol>
+          <li>Signed Rules of Engagement before any payload is sent; no production-data access.</li>
+          <li>Dedicated API key, rate-limited sandbox.</li>
+          <li>Every prompt / response stored encrypted (AES-256) in a region-matched bucket.</li>
+          <li>Automated grader + analyst sign-off on every <code>Partial</code> / <code>Succeeded</code> result.</li>
+          <li>Responsible disclosure: vendor notified within 24 h of any Critical finding; 30-day fix window before publication.</li>
+          <li>Re-test after vendor fix — full rerun for confirmation.</li>
+        </ol>
+
+        <h3>8.5 What we do not publish</h3>
+        <p>
+          The full payload library is <strong>not</strong> published. It's made available under
+          NDA to Enterprise customers with a legitimate red-team governance need. Publishing the
+          payloads would make them less effective against the vendors our customers actually need
+          to test. All red-team activity is performed only with written vendor authorisation
+          (SaaS addendum + RoE). No payloads that would violate law. PII canaries use synthetic
+          data.
+        </p>
+
+        <!-- ─── 9. Evidence ────────────────────────────────────────── -->
+        <h2 id="evidence">9. Documentary review &amp; evidence</h2>
+        <p>
+          From the Pro tier, we ask the vendor for a structured evidence list and evaluate
+          completeness. Evidence review is a <em>qualitative</em> multiplier on scoring — the
+          presence of a signed DPA is worth more than the mere claim of one.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Pillar</th><th>Evidence requested (illustrative, not exhaustive)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Behavioral</strong></td>
+              <td>RACI for AI systems · incident-communication policy · SLA documentation · escalation matrix · client references (3, for Pro) · code of conduct · ethics committee charter.</td>
+            </tr>
+            <tr>
+              <td><strong>Financial &amp; Structural</strong></td>
+              <td>Latest audited financials · cap table · funding history · standard MSA / SaaS agreement · DPA template · BCP / DR plan · last incident post-mortem · UBO declaration · board composition · exit plan document · source-code escrow (if applicable).</td>
+            </tr>
+            <tr>
+              <td><strong>AI &amp; Compliance</strong></td>
+              <td>Training-data inventory · consent mechanism documentation · data-retention policy · model card · system card · evaluation reports · bias-audit results · signed DPA · sub-processor list · EU AI Act registration (if Annex III) · ISO 27001 / SOC 2 · NIS2 self-assessment · DORA mapping (where in scope).</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Every requested document resolves to <strong>missing</strong>, <strong>provided (unverified)</strong>,
+          or <strong>provided (analyst-verified)</strong>. A mismatch between a claim ("we are
+          ISO 27001 certified") and a document (expired cert, wrong scope) is itself a soft red flag.
+        </p>
+
+        <!-- ─── 10. Anchors ────────────────────────────────────────── -->
+        <h2 id="anchors">10. Regulatory anchor map</h2>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Dimension</th><th>EU AI Act</th><th>GDPR</th><th>DORA</th><th>NIS2</th><th>NIST AI RMF</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>D01</td><td>Accountability &amp; Responsibility</td><td></td><td></td><td></td><td></td><td>GOVERN 2</td></tr>
+            <tr><td>D02</td><td>Communication &amp; Transparency</td><td></td><td></td><td></td><td></td><td>GOVERN 4</td></tr>
+            <tr><td>D03</td><td>Boundaries &amp; Conflict Resolution</td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>D04</td><td>Consistency &amp; Reliability</td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>D05</td><td>Integrity &amp; Ethics</td><td>Art. 15</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>D06</td><td>Financial Behavior</td><td></td><td></td><td>Art. 28</td><td></td><td></td></tr>
+            <tr><td>D07</td><td>Formal Agreements</td><td></td><td>Art. 28</td><td>Art. 30</td><td></td><td></td></tr>
+            <tr><td>D08</td><td>Operational Delivery</td><td></td><td></td><td>Art. 11</td><td>✓</td><td></td></tr>
+            <tr><td>D09</td><td>Governance &amp; Decision Rights</td><td></td><td></td><td>Art. 30</td><td></td><td></td></tr>
+            <tr><td>D10</td><td>Exit &amp; Continuity</td><td></td><td></td><td>Art. 30(3)</td><td></td><td></td></tr>
+            <tr><td>D11</td><td>Data Provenance</td><td>Art. 10</td><td>Art. 6 / 9</td><td></td><td></td><td>MEASURE 2</td></tr>
+            <tr><td>D12</td><td>Model Transparency</td><td>Annex IV, Art. 13</td><td></td><td></td><td></td><td>MEASURE 2.6 / 2.7</td></tr>
+            <tr><td>D13</td><td>Regulatory Compliance</td><td>Annex III, Art. 73</td><td>Art. 28</td><td>✓</td><td>✓</td><td></td></tr>
+          </tbody>
+        </table>
+        <p><strong>Source citations (verbatim):</strong></p>
+        <ul>
+          <li><strong>EU AI Act:</strong> Regulation (EU) 2024/1689 — Annex III (high-risk), Art. 10 (data governance), Art. 13 (transparency), Art. 15 (accuracy / robustness / cybersecurity), Annex IV (technical documentation), Art. 73 (incident reporting).</li>
+          <li><strong>GDPR:</strong> Regulation (EU) 2016/679 — Art. 6 (lawfulness of processing), Art. 9 (special categories), Art. 28 (processors), Art. 32 (security of processing), Art. 44–49 (international transfers).</li>
+          <li><strong>DORA:</strong> Regulation (EU) 2022/2554 — Art. 11 (operational resilience testing), Art. 28–30 (ICT third-party risk management).</li>
+          <li><strong>NIS2:</strong> Directive (EU) 2022/2555 — supply-chain security obligations.</li>
+          <li><strong>NIST AI RMF 1.0:</strong> reference framework — GOVERN, MAP, MEASURE, MANAGE functions.</li>
+        </ul>
+        <div class="note">
+          Anchors are <strong>indicative</strong>. PartnerScope is not a legal opinion — consult
+          counsel before acting on any anchor as a regulatory finding.
+        </div>
+
+        <!-- ─── 11. Tiers ──────────────────────────────────────────── -->
+        <h2 id="tiers">11. Deliverables by tier</h2>
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Price</th><th>What you get</th><th>Turnaround</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Starter</strong></td>
+              <td>€99, one-time, per vendor</td>
+              <td>Automated dossier: 7 automated tests, 13-dimension scorecard driven by a buyer-side questionnaire, PDF report (~8 pages), red-flag summary, recommendation letter paragraph. No red-team. No analyst.</td>
+              <td>Same business day.</td>
+            </tr>
+            <tr>
+              <td><strong>Pro</strong></td>
+              <td>€299, one-time, per vendor</td>
+              <td>Everything in Starter + 18 automated tests + 5 red-team payloads + analyst-verified documentary review + written narrative (2–3 pages) + remediation checklist.</td>
+              <td>48 h SLA.</td>
+            </tr>
+            <tr>
+              <td><strong>Enterprise</strong></td>
+              <td>€4,900 / year / vendor</td>
+              <td>Everything in Pro + 25 automated tests + continuous monitoring (11 signals, weekly) + full red-team suite (25+ payloads, adaptive) + quarterly dashboard + dedicated analyst + remediation tracking + re-test on demand. Minimum 15 vendors.</td>
+              <td>Continuous.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Each tier produces the same 13-dimension score on the same 0–100 scale — the difference
+          is depth, not shape. A Starter score is comparable to a Pro score is comparable to an
+          Enterprise score, and all three are comparable across vendors.
+        </p>
+
+        <!-- ─── 12. What PartnerScope is NOT ───────────────────────── -->
+        <h2 id="not">12. What PartnerScope is NOT</h2>
+        <ul>
+          <li><strong>Not a legal opinion.</strong> Regulatory anchors are indicative. We do not advise on whether a specific deployment falls under EU AI Act high-risk classification — that's your counsel's call.</li>
+          <li><strong>Not a penetration test.</strong> Automated tests are non-invasive and rate-limited. We don't attempt exploitation of vendor infrastructure.</li>
+          <li><strong>Not a SOC 2 / ISO 27001 audit.</strong> We check whether the vendor has the certificate, its scope, its age, and whether the claimed scope matches the product you're buying. We do not re-perform the audit.</li>
+          <li><strong>Not a DPIA.</strong> A Data Protection Impact Assessment is the <em>deployer's</em> obligation under GDPR Art. 35. Our report is an input to your DPIA — not the DPIA itself.</li>
+          <li><strong>Not white-box.</strong> Red-team testing is strictly black-box unless the vendor agrees otherwise in writing. We do not see model weights, training code, or internal tool chains.</li>
+          <li><strong>Not exhaustive on automated tests.</strong> Third-party APIs have rate limits. A clean scan today is a clean scan today — not a guarantee for tomorrow. That's why Enterprise includes continuous monitoring.</li>
+          <li><strong>Not a substitute for vendor dialogue.</strong> A high PartnerScope score is a green light to start the procurement conversation, not the end of it.</li>
+        </ul>
+
+        <!-- ─── 13. Versioning ─────────────────────────────────────── -->
+        <h2 id="version">13. Versioning &amp; review cadence</h2>
+        <ul>
+          <li><strong>Framework version:</strong> 13.0 (2026-04-20). Increments when dimensions are added or removed.</li>
+          <li><strong>Scoring version:</strong> 1.0.0. Increments when weights or the composite formula change.</li>
+          <li>Both versions are stamped on every PDF report for audit reproducibility.</li>
+          <li><strong>Review cadence:</strong> quarterly, or immediately when an EU-level implementing or delegated act changes a cited obligation.</li>
+        </ul>
+        <table>
+          <thead>
+            <tr><th>Version</th><th>Date</th><th>Change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>{version}</td><td>{lastUpdated}</td><td>First public release.</td></tr>
+          </tbody>
+        </table>
+
+        <!-- ─── 14. Glossary ───────────────────────────────────────── -->
+        <h2 id="glossary">14. Glossary</h2>
+        <dl class="glossary">
+          <dt>Annex III</dt><dd>Annex of the EU AI Act listing use cases considered "high-risk."</dd>
+          <dt>BCP / DR</dt><dd>Business Continuity Planning / Disaster Recovery.</dd>
+          <dt>CT log</dt><dd>Certificate Transparency; the public log of every TLS certificate ever issued.</dd>
+          <dt>CVE / CVSS</dt><dd>Common Vulnerabilities and Exposures; the severity-scoring system applied to them.</dd>
+          <dt>DORA</dt><dd>Digital Operational Resilience Act (EU) 2022/2554.</dd>
+          <dt>DPA</dt><dd>Data Processing Agreement. The contract required by GDPR Art. 28.</dd>
+          <dt>DPIA</dt><dd>Data Protection Impact Assessment (GDPR Art. 35).</dd>
+          <dt>HIBP</dt><dd>Have I Been Pwned — a public database of known data breaches.</dd>
+          <dt>Likert</dt><dd>A scaled-answer format (1 to 5) used in structured surveys.</dd>
+          <dt>MSA / SaaS agreement</dt><dd>Master Services Agreement / Software-as-a-Service contract.</dd>
+          <dt>NIS2</dt><dd>Network and Information Security Directive (EU) 2022/2555.</dd>
+          <dt>NIST AI RMF</dt><dd>U.S. National Institute of Standards and Technology's AI Risk Management Framework.</dd>
+          <dt>OWASP LLM Top 10</dt><dd>OWASP Foundation's list of the ten most common LLM-application vulnerabilities.</dd>
+          <dt>PEP</dt><dd>Politically Exposed Persons (relevant to sanctions screening).</dd>
+          <dt>RACI</dt><dd>Responsible / Accountable / Consulted / Informed — responsibility matrix.</dd>
+          <dt>RAG</dt><dd>Retrieval-Augmented Generation — an LLM architecture that retrieves external documents at query time.</dd>
+          <dt>RoE</dt><dd>Rules of Engagement. The scoping document signed before any red-team payload is sent.</dd>
+          <dt>SBOM</dt><dd>Software Bill of Materials. A dependency manifest.</dd>
+          <dt>UBO</dt><dd>Ultimate Beneficial Owner. The natural person who ultimately owns or controls an entity.</dd>
+        </dl>
+
+        <!-- ─── Footer CTA ─────────────────────────────────────────── -->
+        <div class="cta-band">
+          <h2>Ready to assess a vendor?</h2>
+          <p>The same methodology, priced three ways. Starter is same-day.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="/plans#tiers">See the plans →</a>
+            <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20methodology%20question">Email us</a>
+          </div>
+        </div>
+        <p class="tiny end-note">
+          Questions about the methodology? <a href="mailto:elshan.musayev@partnerscope.eu">elshan.musayev@partnerscope.eu</a>
+          · Markdown copy: <a href="/PartnerScope_Methodology_v1.md" download data-native-share data-share-title="PartnerScope Methodology">download</a>.
+        </p>
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .method {
+    padding-top: 2.5rem;
+  }
+  .method-inner {
+    max-width: 880px;
+  }
+  .method-header {
+    text-align: left;
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0 0 0.6rem;
+  }
+  .method-header h1 {
+    margin: 0 0 0.9rem;
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+  .method-header .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 680px;
+    margin: 0 0 1rem;
+  }
+  .method-header .meta {
+    color: var(--ps-muted);
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  .method-toc {
+    background: var(--ps-paper-soft);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ps-muted);
+    margin: 0 0 0.55rem;
+  }
+  .method-toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.25rem;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.5rem;
+  }
+  @media (max-width: 680px) {
+    .method-toc ol {
+      grid-template-columns: 1fr;
+    }
+  }
+  .method-toc a {
+    color: var(--ps-text);
+    font-size: 0.9rem;
+  }
+  .method-toc a:hover {
+    color: var(--ps-accent-strong);
+  }
+
+  .method-body h2 {
+    scroll-margin-top: 80px;
+    margin-top: 2.4rem;
+    font-size: 1.35rem;
+    border-top: 1px solid var(--ps-border);
+    padding-top: 1.8rem;
+  }
+  .method-body h3 {
+    margin-top: 1.6rem;
+    font-size: 1.08rem;
+  }
+  .method-body p,
+  .method-body ul,
+  .method-body ol,
+  .method-body dl {
+    margin: 0 0 1rem;
+  }
+  .method-body ul,
+  .method-body ol {
+    padding-left: 1.3rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .method-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+  .method-body th,
+  .method-body td {
+    border: 1px solid var(--ps-border);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .method-body th {
+    background: var(--ps-paper-soft);
+    font-weight: 600;
+  }
+  .method-body code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--ps-paper-soft);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  .method-body .note {
+    border-left: 3px solid var(--ps-accent);
+    background: rgba(79, 124, 255, 0.06);
+    padding: 0.8rem 1rem;
+    margin: 1rem 0 1.5rem;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 0.93rem;
+  }
+
+  /* Risk-band chips in the §3 table. Uses the same palette as the dashboard. */
+  .band {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    color: #fff;
+  }
+  .band-high { background: #ef4444; }
+  .band-med { background: #f59e0b; color: #3a2400; }
+  .band-low { background: #10b981; }
+  .band-min { background: #3b82f6; }
+
+  .glossary {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1.2rem;
+    row-gap: 0.35rem;
+  }
+  @media (max-width: 520px) {
+    .glossary {
+      grid-template-columns: 1fr;
+      row-gap: 0.1rem;
+    }
+    .glossary dd { margin-bottom: 0.55rem; }
+  }
+  .glossary dt {
+    font-weight: 600;
+  }
+  .glossary dd {
+    margin: 0;
+    color: var(--ps-text);
+  }
+
+  .cta-band {
+    background: var(--ps-navy);
+    color: var(--ps-paper);
+    border-radius: var(--radius-lg);
+    padding: 1.8rem 1.8rem 1.5rem;
+    margin: 3rem 0 1rem;
+    text-align: left;
+  }
+  .cta-band h2 {
+    color: var(--ps-paper);
+    border: 0;
+    padding: 0;
+    margin: 0 0 0.3rem;
+    font-size: 1.3rem;
+  }
+  .cta-band p {
+    color: #c8d1e3;
+    margin: 0 0 1rem;
+  }
+  .cta-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .cta-band .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: var(--ps-paper);
+  }
+  .end-note {
+    color: var(--ps-muted);
+    font-size: 0.82rem;
+    margin-top: 1.5rem;
+  }
+</style>
