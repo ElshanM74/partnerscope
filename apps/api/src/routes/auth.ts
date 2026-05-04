@@ -9,8 +9,10 @@
  * `req.user` before the handler runs.
  */
 
+import { createHash, randomBytes } from 'node:crypto';
+
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 import type { AuthUser } from '@partnerscope/core';
@@ -22,13 +24,43 @@ import {
   evidenceDocuments,
   monitoringSignals,
   organizations,
+  passwordResetTokens,
   redteamResults,
   runs,
   users,
 } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
+import { sendTx04PasswordReset } from '../services/email/index.js';
 import { cancelOrgSubscriptions } from '../services/stripe/index.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
+
+// Password-reset token lifetime. Short enough that a stale link in someone's
+// inbox isn't a useful credential; long enough that a real human can open
+// the mail and complete the flow.
+const RESET_TOKEN_TTL_MINUTES = 30;
+
+// In-memory rate limiter for /v1/auth/forgot-password. Keyed by lowercased
+// email; 3 requests per 15-min sliding window. Adequate for single-instance
+// Docker — revisit if we ever scale horizontally (move to Redis then).
+const FORGOT_RATE_WINDOW_MS = 15 * 60 * 1000;
+const FORGOT_RATE_MAX = 3;
+const forgotRateMap = new Map<string, { count: number; windowStart: number }>();
+
+function checkForgotRate(email: string): boolean {
+  const now = Date.now();
+  const entry = forgotRateMap.get(email);
+  if (!entry || now - entry.windowStart > FORGOT_RATE_WINDOW_MS) {
+    forgotRateMap.set(email, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= FORGOT_RATE_MAX) return false;
+  entry.count += 1;
+  return true;
+}
+
+function sha256Hex(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
 
 /** True when the given (case-insensitive) email is in the staff allowlist. */
 function isStaffEmail(email: string): boolean {
@@ -283,5 +315,184 @@ export async function authRoutes(fastify: FastifyInstance): Promise<void> {
     });
 
     reply.code(204).send();
+  });
+
+  // ── POST /v1/auth/forgot-password ──────────────────────────
+  //
+  // Public. Kicks off a password-reset email. Always returns 200 regardless
+  // of whether the email maps to a real account — we don't leak the user
+  // directory through this endpoint.
+  //
+  // Security notes:
+  //   - Raw token returned in the email URL only; we store sha256(raw).
+  //   - Outstanding unused tokens for the user are marked as used before the
+  //     new one is issued, so an attacker who grabs an old mail-server copy
+  //     can't race the legitimate reset.
+  //   - Rate limited to 3/email/15-min in-process (see forgotRateMap).
+  //   - If Resend isn't configured (dev), sendTx04PasswordReset logs the
+  //     url via the dry-run sender and returns delivered=false; we still
+  //     respond 200 so the flow is testable end-to-end.
+  const ForgotPasswordSchema = z.object({
+    email: z.string().email().max(254).transform((s) => s.toLowerCase()),
+  });
+  fastify.post('/v1/auth/forgot-password', { config: { public: true } }, async (req, reply) => {
+    const body = ForgotPasswordSchema.parse(req.body);
+
+    if (!checkForgotRate(body.email)) {
+      throw new ApiError(429, 'rate_limited', 'Too many reset requests. Please try again later.');
+    }
+
+    const rows = await db
+      .select({ id: users.id, email: users.email })
+      .from(users)
+      .where(eq(users.email, body.email))
+      .limit(1);
+    const user = rows[0];
+
+    if (user) {
+      // Invalidate any outstanding tokens so old links can't be raced.
+      await db
+        .update(passwordResetTokens)
+        .set({ usedAt: new Date() })
+        .where(and(eq(passwordResetTokens.userId, user.id), isNull(passwordResetTokens.usedAt)));
+
+      const rawToken = randomBytes(32).toString('base64url');
+      const tokenHash = sha256Hex(rawToken);
+      const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+      await db.insert(passwordResetTokens).values({
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      });
+
+      const resetUrl = `${env.APP_PUBLIC_URL.replace(/\/$/, '')}/reset-password?token=${rawToken}`;
+
+      // Fire-and-forget in the sense that a Resend failure shouldn't leak
+      // via the response (that would also be an enumeration signal). Log
+      // and swallow.
+      try {
+        await sendTx04PasswordReset({
+          to: user.email,
+          resetUrl,
+          expiresInMinutes: RESET_TOKEN_TTL_MINUTES,
+        });
+      } catch (err) {
+        req.log.error({ err }, 'forgot-password email dispatch failed');
+      }
+    }
+
+    reply.send({ ok: true });
+  });
+
+  // ── POST /v1/auth/reset-password ───────────────────────────
+  //
+  // Public. Consumes a reset token and sets a new password.
+  //
+  // All failure modes (bad token, expired token, already used, unknown user)
+  // return the same 400 invalid_token response — we don't tell the caller
+  // which axis they failed on.
+  const ResetPasswordSchema = z.object({
+    token: z.string().min(1).max(512),
+    password: z.string().min(8).max(128),
+  });
+  fastify.post('/v1/auth/reset-password', { config: { public: true } }, async (req, reply) => {
+    const body = ResetPasswordSchema.parse(req.body);
+    const tokenHash = sha256Hex(body.token);
+
+    const rows = await db
+      .select({
+        id: passwordResetTokens.id,
+        userId: passwordResetTokens.userId,
+        expiresAt: passwordResetTokens.expiresAt,
+        usedAt: passwordResetTokens.usedAt,
+      })
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.tokenHash, tokenHash),
+          isNull(passwordResetTokens.usedAt),
+          gt(passwordResetTokens.expiresAt, sql`now()`),
+        ),
+      )
+      .limit(1);
+    const row = rows[0];
+    if (!row) {
+      throw new ApiError(400, 'invalid_token', 'This reset link is invalid or has expired.');
+    }
+
+    const newHash = await hashPassword(body.password);
+
+    await db.transaction(async (tx) => {
+      await tx.update(users).set({ passwordHash: newHash }).where(eq(users.id, row.userId));
+      // Single-use: mark consumed. Clause guards against double-spend races.
+      await tx
+        .update(passwordResetTokens)
+        .set({ usedAt: new Date() })
+        .where(and(eq(passwordResetTokens.id, row.id), isNull(passwordResetTokens.usedAt)));
+      await tx.insert(auditLog).values({
+        actorUserId: row.userId,
+        actorIp: req.ip,
+        action: 'user.password_reset_via_email',
+        resourceType: 'user',
+        resourceId: row.userId,
+        payload: { at: new Date().toISOString() },
+      });
+    });
+
+    reply.send({ ok: true });
+  });
+
+  // ── POST /v1/auth/change-password ──────────────────────────
+  //
+  // Authenticated self-service. Requires the current password so that a
+  // stolen JWT alone can't rotate the credential (which would lock out the
+  // real user from any non-JWT recovery path).
+  const ChangePasswordSchema = z.object({
+    currentPassword: z.string().min(1).max(128),
+    newPassword: z.string().min(8).max(128),
+  });
+  fastify.post('/v1/auth/change-password', async (req, reply) => {
+    if (!req.user || typeof req.user === 'string' || req.user instanceof Buffer) {
+      throw new ApiError(401, 'unauthorized', 'Not authenticated.');
+    }
+    const body = ChangePasswordSchema.parse(req.body);
+    const userId = req.user.sub;
+
+    const rows = await db
+      .select({ id: users.id, passwordHash: users.passwordHash })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    const user = rows[0];
+    if (!user || !user.passwordHash) {
+      throw new ApiError(401, 'unauthorized', 'Not authenticated.');
+    }
+
+    const ok = await verifyPassword(body.currentPassword, user.passwordHash);
+    if (!ok) {
+      throw new ApiError(401, 'invalid_credentials', 'Current password is incorrect.');
+    }
+
+    const newHash = await hashPassword(body.newPassword);
+    await db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId));
+
+    // Invalidate any outstanding reset tokens — the user has control of the
+    // account, there's no reason to leave a forgot-password link live.
+    await db
+      .update(passwordResetTokens)
+      .set({ usedAt: new Date() })
+      .where(and(eq(passwordResetTokens.userId, userId), isNull(passwordResetTokens.usedAt)));
+
+    await db.insert(auditLog).values({
+      actorUserId: userId,
+      actorIp: req.ip,
+      action: 'user.password_changed_self',
+      resourceType: 'user',
+      resourceId: userId,
+      payload: { at: new Date().toISOString() },
+    });
+
+    reply.send({ ok: true });
   });
 }

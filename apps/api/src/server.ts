@@ -4,6 +4,7 @@
 
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import fastifyJwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import sensible from '@fastify/sensible';
 import Fastify from 'fastify';
@@ -12,14 +13,18 @@ import { env } from './config/env.js';
 import { pool } from './db/client.js';
 import authPlugin from './plugins/auth.js';
 import errorHandlerPlugin from './plugins/error-handler.js';
+import { adminRoutes } from './routes/admin.js';
+import { authRoutes } from './routes/auth.js';
 import { checkoutRoutes } from './routes/checkout.js';
 import { demoRoutes } from './routes/demo.js';
 import { healthRoutes } from './routes/health.js';
 import { intakeRoutes } from './routes/intake.js';
+import { pushRoutes } from './routes/push.js';
 import { runRoutes } from './routes/runs.js';
 import { vendorRoutes } from './routes/vendors.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { closePdfBrowser } from './services/pdf/index.js';
+import { closePushProvider } from './services/push.js';
 
 export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   const app = Fastify({
@@ -43,21 +48,31 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
     timeWindow: '1 minute',
   });
   await app.register(sensible);
+  // @fastify/jwt must be registered BEFORE authPlugin — authPlugin calls
+  // req.jwtVerify() on Bearer tokens that look like JWTs.
+  await app.register(fastifyJwt, {
+    secret: env.JWT_SECRET,
+    sign: { expiresIn: '7d' },
+  });
   await app.register(errorHandlerPlugin);
   await app.register(authPlugin);
 
   await app.register(healthRoutes);
+  await app.register(authRoutes);
+  await app.register(adminRoutes);
   await app.register(demoRoutes);
   await app.register(intakeRoutes);
   await app.register(vendorRoutes);
   await app.register(runRoutes);
   await app.register(checkoutRoutes);
+  await app.register(pushRoutes);
   // Webhook routes are encapsulated so the raw-body JSON parser they
   // install doesn't leak to the rest of the API.
   await app.register(webhookRoutes);
 
   app.addHook('onClose', async () => {
     await closePdfBrowser();
+    await closePushProvider();
     await pool.end().catch(() => {});
   });
 

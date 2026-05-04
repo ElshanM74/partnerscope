@@ -48,6 +48,12 @@ export interface Tx03FreeSnapshot {
   upgradeUrl: string;
 }
 
+export interface Tx04PasswordReset {
+  to: string;
+  resetUrl: string;
+  expiresInMinutes: number;
+}
+
 export interface InternalIntakeNotice {
   to: string; // internal inbox (hello@partnerscope.eu)
   replyTo: string; // buyer's email — so a reply goes back to them
@@ -163,6 +169,23 @@ export async function sendTx03FreeSnapshot(input: Tx03FreeSnapshot): Promise<Sen
     html,
     text,
     tag: 'tx03_free_snapshot',
+  });
+}
+
+export async function sendTx04PasswordReset(input: Tx04PasswordReset): Promise<SendResult> {
+  // `email` is just for the greeting copy; the raw token is already baked
+  // into `resetUrl` by the caller.
+  const vars = { ...input, email: input.to };
+  const [html, text] = await Promise.all([
+    loadTemplate('tx04_password_reset.hbs').then((t) => t(vars)),
+    loadTemplate('tx04_password_reset.txt.hbs').then((t) => t(vars)),
+  ]);
+  return sendRaw({
+    to: input.to,
+    subject: 'Reset your PartnerScope password',
+    html,
+    text,
+    tag: 'tx04_password_reset',
   });
 }
 

@@ -33,6 +33,7 @@ import { responses, runs, vendors } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
 import { sendTx02ReportReady } from '../services/email/index.js';
 import { buildReportId, renderStarterReportPdf } from '../services/pdf/index.js';
+import { sendPushToUser } from '../services/push.js';
 import { StorageKeys, getStorage } from '../services/storage.js';
 
 // ────────────────────────────────────────────────────────────────
@@ -364,6 +365,21 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
         })
         .where(eq(runs.id, id))
         .returning();
+
+      // Fire-and-forget push notification to the user who requested the run.
+      // Never await or fail the request on push errors — the report is already
+      // delivered via email + dashboard. Push is a nice-to-have native surface
+      // (4.2 signal for iOS App Review).
+      if (updated?.requestedBy) {
+        void sendPushToUser(updated.requestedBy, {
+          title: 'Assessment ready',
+          body: `${vendor.legalName} scored ${delivery.scoring.compositeScore} (${delivery.scoring.riskBand})`,
+          data: { runId: id },
+        }).catch((err) => {
+          req.log.warn({ err, runId: id }, 'push notification failed');
+        });
+      }
+
       return {
         ...updated,
         emailDelivered: delivery.emailDelivered,
