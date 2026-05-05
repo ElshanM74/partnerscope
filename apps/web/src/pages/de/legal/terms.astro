@@ -1,0 +1,179 @@
+---
+/**
+ * Allgemeine Geschäftsbedingungen — ausschließlich B2B, deutsches Recht,
+ * Gerichtsstand Baden-Baden.
+ *
+ * Regelt Geltungsbereich, Leistungen je Tarifstufe, Service Level Agreement (SLA),
+ * geistiges Eigentum, Haftungsbeschränkung, Gewährleistungsausschluss bei
+ * Risikobewertungen, Schriftform-/Textform-Klauseln.
+ */
+
+import Legal from '../../../layouts/Legal.astro';
+---
+<Legal
+  title="Allgemeine Geschäftsbedingungen (AGB)"
+  description="Allgemeine Geschäftsbedingungen für die Nutzung des PartnerScope-Dienstes zur KI-Risikobewertung von Drittanbietern."
+  lastUpdated="2026-04-21"
+>
+  <h2>1. Geltungsbereich</h2>
+  <p>
+    Diese Allgemeinen Geschäftsbedingungen („AGB") regeln den Vertrag zwischen
+    EM Consulting, Inhaber Elshan Musayev („PartnerScope", „wir") und jedem
+    Geschäftskunden („Kunde"), der PartnerScope-Leistungen bestellt. PartnerScope ist
+    ein B2B-Dienst: Wir schließen Verträge ausschließlich mit Unternehmern im Sinne von
+    § 14 BGB. Diese AGB gelten nicht für Verbraucher (§ 13 BGB). Die Geltung
+    abweichender Allgemeiner Geschäftsbedingungen des Kunden ist ausgeschlossen, sofern
+    nicht ausdrücklich schriftlich etwas anderes vereinbart wird.
+  </p>
+
+  <h2>2. Leistungen</h2>
+  <p>
+    PartnerScope erbringt Drittanbieter-Risikobewertungen entlang von 13 Dimensionen
+    (Datenmanagement, KI-Reife, Sicherheit, regulatorische Eignung, Betrieb, finanzielle
+    Stabilität, Vertragsbedingungen, Reputation, Konzentration, Nachhaltigkeit). Die
+    Leistungen richten sich nach der vom Kunden gebuchten Tarifstufe:
+  </p>
+  <ul>
+    <li><strong>Starter</strong> — automatisierte Prüfungen, 39-Fragen-Fragebogen, PDF-Bericht mit 5–8 Seiten, Gültigkeit 90 Tage.</li>
+    <li><strong>Pro</strong> — vollständige Analyse mit 78 Fragen, Dokumentenprüfung, Sanktions-, Adverse-Media-, PEP- und UBO-Verifikation, KI-Red-Team (5 Payloads), Bericht mit 20–30 Seiten, namentliche Nennung von Analyst und QA, Gültigkeit 180 Tage.</li>
+    <li><strong>Enterprise</strong> — Pro-Leistungsumfang zuzüglich kontinuierlicher Überwachung, 25-Payload-Red-Team-Suite, Single Sign-On (SSO), GRC- und SIEM-Integrationen sowie ein dedizierter Analyst.</li>
+  </ul>
+  <p>
+    Maßgeblich sind der zum Bestellzeitpunkt angebotene Leistungsumfang, die jeweilige
+    Lieferleistung und der genannte Preis. Wir behalten uns vor, Bestellungen abzulehnen,
+    deren Erbringung uns rechtlich nicht möglich ist (z. B. Bewertungen in sanktionierten
+    Jurisdiktionen oder Bewertungen, die anderweitig nach der EU-Dual-Use-Verordnung
+    2021/821 und dem Außenwirtschaftsgesetz (AWG) eingeschränkt sind).
+  </p>
+
+  <h2>3. Service Level</h2>
+  <ul>
+    <li>Lieferzusage Starter: 24 Stunden ab Zahlungseingang, Mo–Fr, Zeitzone Europe/Berlin.</li>
+    <li>Lieferzusage Pro: 48 Stunden ab Zahlungseingang, Mo–Fr, Zeitzone Europe/Berlin.</li>
+    <li>Verfügbarkeit des Enterprise-Portals: 99,5 % monatliche Verfügbarkeit (ohne geplante Wartungsfenster).</li>
+  </ul>
+
+  <h2>4. Mitwirkungspflichten des Kunden</h2>
+  <p>
+    Der Kunde stellt zutreffende Anbieterinformationen bereit und liefert, soweit eine
+    Dokumentenprüfung Bestandteil der gewählten Tarifstufe ist, die angeforderten
+    Unterlagen (Auftragsverarbeitungsvertrag, ISO 27001, SOC 2, Model Card, SBOM, BCP,
+    Incident-Response-Plan etc.) oder gewährt angemessenen Zugang dazu. Der Kunde
+    versichert, dass er zur Übermittlung der bereitgestellten Informationen berechtigt ist
+    und dass die Übermittlung weder Vertraulichkeitspflichten, datenschutzrechtliche
+    Bestimmungen noch Rechte Dritter verletzt.
+  </p>
+
+  <h2>5. Preise und Zahlung</h2>
+  <ul>
+    <li>Alle Preise verstehen sich netto (ohne Umsatzsteuer); die gesetzliche Umsatzsteuer wird, soweit anwendbar, gesondert ausgewiesen.</li>
+    <li>Für Kunden mit Sitz in der EU außerhalb Deutschlands und gültiger Umsatzsteuer-Identifikationsnummer (USt-IdNr.) erfolgt die Rechnungsstellung im Reverse-Charge-Verfahren (Art. 196 MwSt-Richtlinie / § 13b UStG).</li>
+    <li>Die Zahlung erfolgt im Voraus über Stripe (Karte oder SEPA-Lastschrift), sofern nicht schriftlich etwas anderes vereinbart wird.</li>
+    <li>Enterprise-Abonnements werden quartalsweise im Voraus abgerechnet.</li>
+    <li>Im Falle eines Zahlungsverzugs werden Verzugszinsen in gesetzlicher Höhe berechnet (§ 288 Abs. 2 BGB).</li>
+  </ul>
+
+  <h2>6. Charakter der Bewertung — Hinweise und Haftungsausschlüsse</h2>
+  <p>
+    PartnerScope-Berichte sind ein <strong>Entscheidungs-unterstützendes Werkzeug
+    (decision-support tool)</strong>. Sie stellen keine Rechts-, Wirtschaftsprüfungs-,
+    Anlage- oder Versicherungsberatung dar. Die Verantwortung für Anbieterauswahl,
+    Vertragsabschluss und regulatorische Entscheidungen verbleibt allein beim Kunden.
+    PartnerScope übernimmt keine Garantie dafür, dass ein günstig bewerteter Anbieter
+    keinen Sicherheitsvorfall erleidet, ausfällt oder gegen regulatorische Vorgaben
+    verstößt — Risikobewertung prognostiziert ihrer Natur nach Wahrscheinlichkeiten,
+    keine Ergebnisse.
+  </p>
+  <p>
+    Automatisierte Signale (DNS, TLS, Datenbanken zu Sicherheitsvorfällen, CT-Logs,
+    offene Sanktionsdaten) können sich zwischen Scan und Berichtsauslieferung ändern.
+    Die Bewertungen spiegeln den zum Zeitpunkt des Scans verfügbaren Datenstand wider.
+  </p>
+
+  <h2>7. Geistiges Eigentum</h2>
+  <p>
+    Die PartnerScope-Methodik, das Bewertungssystem (Scoring-Framework), der Fragenkatalog
+    sowie die Berichtsvorlagen sind geistiges Eigentum von EM Consulting. Der Kunde erhält
+    ein einfaches, nicht ausschließliches und nicht übertragbares Nutzungsrecht
+    (einfaches Nutzungsrecht), die gelieferten Berichte intern für eigene
+    Risikoentscheidungen zu nutzen sowie sie in geschwärzter Form mit seinen Aufsichts-
+    und Prüfungsbehörden, Wirtschaftsprüfern und Rechtsberatern zu teilen. Eine
+    Wiederveröffentlichung, ein Weiterverkauf oder eine Nutzung für konkurrierende
+    Dienste ist untersagt.
+  </p>
+
+  <h2>8. Vertraulichkeit</h2>
+  <p>
+    Jede Partei behandelt nicht-öffentliche Informationen der anderen Partei vertraulich
+    und nutzt sie ausschließlich für die Zwecke des Auftrags. Unsere
+    Vertraulichkeitspflichten in Bezug auf vom Anbieter eingereichte Dokumente sind
+    gesondert in unserem Auftragsverarbeitungsvertrag (AVV) geregelt
+    (<a href="/de/legal/dpa">/de/legal/dpa</a>). Die Vertraulichkeitsverpflichtung gilt für
+    drei Jahre nach Beendigung des Auftrags fort.
+  </p>
+
+  <h2>9. Gewährleistung und Haftungsbeschränkung</h2>
+  <p>
+    Die Gewährleistung für entgeltliche Leistungen richtet sich nach den gesetzlichen
+    Vorschriften der §§ 611 ff. BGB (Dienstvertrag) bzw. §§ 631 ff. BGB, soweit eine
+    Teilleistung als Werkvertrag zu qualifizieren ist, jeweils nach Maßgabe der
+    nachfolgenden Modifikationen.
+  </p>
+  <p>
+    PartnerScope haftet unbeschränkt für Schäden aus (a) Vorsatz oder grober
+    Fahrlässigkeit, (b) Verletzungen des Lebens, des Körpers oder der Gesundheit,
+    (c) der Haftung nach dem Produkthaftungsgesetz sowie (d) der Verletzung einer von
+    uns ausdrücklich übernommenen Garantie. Bei Verletzung einer wesentlichen
+    Vertragspflicht (Kardinalpflicht) durch einfache Fahrlässigkeit ist unsere Haftung
+    auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Eine Haftung für einfache
+    Fahrlässigkeit bei Verletzung nicht wesentlicher Pflichten ist ausgeschlossen.
+  </p>
+  <p>
+    Soweit nach den vorstehenden Regelungen zulässig, ist unsere Gesamthaftung gegenüber
+    dem Kunden auf die unter dem Vertrag, der Anlass für den Anspruch ist, in den
+    12 Monaten vor dem schadensauslösenden Ereignis gezahlten Vergütungen begrenzt.
+  </p>
+
+  <h2>10. Laufzeit und Kündigung</h2>
+  <p>
+    Starter und Pro sind Einmalleistungen; der Vertrag endet mit der Lieferung des
+    Berichts. Enterprise-Abonnements verlängern sich quartalsweise, sofern sie nicht
+    spätestens 30 Tage vor Ablauf des laufenden Abrechnungszeitraums in Textform
+    (§ 126b BGB) gekündigt werden. Beide Parteien können den Vertrag aus wichtigem Grund
+    (Kündigung aus wichtigem Grund, § 314 BGB) kündigen, wenn eine wesentliche
+    Vertragsverletzung trotz schriftlicher Mahnung nicht innerhalb von 14 Tagen geheilt
+    wird.
+  </p>
+
+  <h2>11. Änderungen dieser AGB</h2>
+  <p>
+    Wir können diese AGB für neue Kunden jederzeit anpassen. Für bestehende Abonnements
+    werden Änderungen 30 Tage nach schriftlicher Mitteilung wirksam; bei wesentlich
+    nachteiligen Änderungen kann der Kunde ohne Sanktion kündigen.
+  </p>
+
+  <h2>12. Anwendbares Recht und Gerichtsstand</h2>
+  <p>
+    Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss seiner
+    kollisionsrechtlichen Vorschriften und unter Ausschluss des UN-Kaufrechts (CISG).
+    Ausschließlicher Gerichtsstand für sämtliche Streitigkeiten aus oder im Zusammenhang
+    mit diesem Vertrag ist Baden-Baden, Deutschland, sofern der Kunde Kaufmann, eine
+    juristische Person des öffentlichen Rechts oder ein öffentlich-rechtliches
+    Sondervermögen ist (§ 38 Abs. 1 ZPO). PartnerScope ist nach eigener Wahl auch
+    berechtigt, den Kunden an dessen allgemeinem Gerichtsstand zu verklagen.
+  </p>
+
+  <h2>13. Salvatorische Klausel</h2>
+  <p>
+    Sollten einzelne Bestimmungen dieser AGB ganz oder teilweise unwirksam oder
+    undurchführbar sein oder werden, so wird die Wirksamkeit der übrigen Bestimmungen
+    hiervon nicht berührt. Anstelle der unwirksamen Bestimmung tritt eine Regelung, die
+    dem wirtschaftlich Gewollten der unwirksamen Bestimmung am nächsten kommt.
+  </p>
+
+  <div class="legal-note">
+    Dies ist ein erster Entwurf nach bestem Wissen. Lassen Sie ihn durch qualifizierte
+    deutsche Rechtsanwältinnen und Rechtsanwälte prüfen, bevor Sie ihn in
+    kundengerichteten Verträgen verwenden.
+  </div>
+</Legal>

@@ -1,0 +1,378 @@
+---
+/**
+ * /get-started?tier=starter|pro — intake form.
+ *
+ * The ?tier= query param is parsed client-side (we stay static). We capture
+ * buyer email + company + vendor domain + (optional) notes and POST to
+ * ${PUBLIC_API_BASE_URL}/v1/intake. The API emails elshan.musayev@partnerscope.eu so
+ * a human can confirm scope and issue the Stripe link. This keeps the
+ * conversion funnel unblocked while Stripe Price IDs are still being wired.
+ */
+
+import Base from '../../layouts/Base.astro';
+
+// Default to same-origin /api in production (nginx proxies /api/* to Fastify).
+// Override via PUBLIC_API_BASE_URL=http://localhost:4000 in apps/web/.env for dev.
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base title="Erste Schritte — PartnerScope" description="Starten Sie eine PartnerScope-Bewertung — wir bestätigen den Umfang innerhalb eines Werktages und stellen Ihnen einen sicheren Zahlungslink zur Verfügung.">
+  <section class="intake section">
+    <div class="container intake-inner">
+      <header class="intake-head">
+        <p class="eyebrow" id="intake-eyebrow">Starter · €99</p>
+        <h1 id="intake-title">Bewertung starten</h1>
+        <p class="intake-sub" id="intake-sub">
+          Teilen Sie uns mit, welchen Anbieter wir bewerten sollen. Wir bestätigen den Umfang
+          innerhalb eines Werktages und senden Ihnen einen sicheren Stripe-Zahlungslink — keine
+          Kreditkartendaten werden hier eingegeben.
+        </p>
+      </header>
+
+      <form id="intake-form" class="intake-form" novalidate data-api-base={apiBase}>
+        <input type="hidden" name="tier" id="intake-tier" value="starter" />
+
+        <div class="row">
+          <label>
+            <span>Ihre geschäftliche E-Mail-Adresse <em>*</em></span>
+            <input type="email" name="email" required autocomplete="email" placeholder="sie@unternehmen.com" />
+          </label>
+          <label>
+            <span>Ihr Name <em>*</em></span>
+            <input type="text" name="buyerName" required autocomplete="name" placeholder="Max Mustermann" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            <span>Ihr Unternehmen <em>*</em></span>
+            <input type="text" name="buyerCompany" required autocomplete="organization" placeholder="ACME GmbH" />
+          </label>
+          <label>
+            <span>Domain des zu bewertenden Anbieters <em>*</em></span>
+            <input type="text" name="vendorDomain" required autocomplete="off" placeholder="anbieter.com" />
+          </label>
+        </div>
+
+        <label class="full">
+          <span>Rechtlicher Name des Anbieters (falls bekannt)</span>
+          <input type="text" name="vendorLegalName" autocomplete="off" placeholder="Anbieter GmbH" />
+        </label>
+
+        <label class="full">
+          <span>Kontext / Hinweise zum Umfang (optional)</span>
+          <textarea
+            name="notes"
+            rows="4"
+            placeholder="Neuer Vertrag, Verlängerung, Audit-Antwort, spezifische Verordnung (DORA, EU AI Act, NIS2) usw."
+          ></textarea>
+        </label>
+
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            Ich stimme den <a href="/de/legal/terms">AGB</a> und der
+            <a href="/de/legal/privacy">Datenschutzerklärung</a> von PartnerScope zu. Mir ist bewusst,
+            dass es sich hierbei um eine Umfangsanfrage handelt, noch nicht um eine kostenpflichtige
+            Bestellung.
+          </span>
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="intake-submit">Zahlungslink anfragen →</button>
+          <a class="btn btn-ghost" href="/de/plans#tiers">Zurück zur Preisübersicht</a>
+        </div>
+
+        <p class="tiny">
+          Möchten Sie zuerst sprechen?
+          <a href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20scope%20call">Buchen Sie ein 15-minütiges Gespräch</a>.
+        </p>
+      </form>
+
+      <div id="intake-success" class="intake-success" hidden>
+        <div class="success-card">
+          <div class="success-check" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h2>Anfrage eingegangen.</h2>
+          <p>
+            Wir haben Ihre Angaben erhalten. Ein Mensch — kein Bot — wird den Umfang bestätigen und
+            Ihnen innerhalb eines Werktages (Europe/Berlin, Mo–Fr) einen sicheren Stripe-Zahlungslink
+            per E-Mail senden. Bitte beachten Sie eingehende Nachrichten von
+            <strong>elshan.musayev@partnerscope.eu</strong>; sollte die E-Mail im Spam-Ordner
+            landen, bitten wir dies vorab zu entschuldigen.
+          </p>
+          <div class="success-actions">
+            <a class="btn btn-dark" href="/de/plans">Zurück zur Preisübersicht</a>
+            <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu">Direkt per E-Mail kontaktieren</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="intake-error" class="intake-error" hidden>
+        <div class="error-card">
+          <h3>Anfrage konnte nicht übermittelt werden.</h3>
+          <p id="intake-error-msg">Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut oder schreiben Sie an elshan.musayev@partnerscope.eu.</p>
+          <button type="button" class="btn btn-ghost" id="intake-retry">Erneut versuchen</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intake-inner {
+    max-width: 720px;
+  }
+  .intake-head {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .intake-sub {
+    color: var(--ps-muted);
+    max-width: 540px;
+    margin: 0.5rem auto 0;
+  }
+
+  .intake-form {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ps-text);
+  }
+  label.full {
+    margin-bottom: 1rem;
+  }
+  label > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  label em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  input[type='email'],
+  input[type='text'],
+  textarea {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+  .consent {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--ps-text);
+  }
+  .consent input {
+    margin-top: 0.2rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .tiny {
+    color: var(--ps-muted);
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
+  .intake-success,
+  .intake-error {
+    margin-top: 1rem;
+  }
+  .success-card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .success-check {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: rgba(27, 143, 79, 0.12);
+    color: var(--band-minimal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.25rem;
+  }
+  .error-card {
+    background: #fff5f1;
+    border: 1px solid rgba(211, 90, 29, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .error-card h3 {
+    margin-top: 0;
+    color: var(--band-high);
+  }
+</style>
+
+<script>
+  type TierCode = 'starter' | 'pro' | 'enterprise';
+  const TIER_COPY: Record<TierCode, { eyebrow: string; title: string; sub: string; cta: string }> = {
+    starter: {
+      eyebrow: 'Starter · €99',
+      title: 'Starter-Bewertung beginnen',
+      sub: 'Ein Anbieter · 24h SLA · 5–8-seitiger PDF-Report. Teilen Sie uns mit, welchen Anbieter wir bewerten sollen; wir bestätigen den Umfang innerhalb eines Werktages und senden Ihnen einen sicheren Stripe-Zahlungslink.',
+      cta: 'Starter-Zahlungslink anfragen →',
+    },
+    pro: {
+      eyebrow: 'Pro · €299 (Launch-Preis)',
+      title: 'Pro-Bewertung beginnen',
+      sub: 'Vollständige 78-Fragen-Analyse, Dokumentenprüfung, Sanktions-Screening + KI-Red-Team. 48h SLA. Teilen Sie uns mit, welchen Anbieter wir bewerten sollen; ein namentlich genannter Analyst bestätigt den Umfang innerhalb eines Werktages.',
+      cta: 'Pro-Zahlungslink anfragen →',
+    },
+    enterprise: {
+      eyebrow: 'Enterprise · €4 900 / Quartal',
+      title: 'Enterprise — sprechen wir',
+      sub: 'Kontinuierliches Monitoring, 25-Payload-Red-Team-Suite, SSO, dedizierter Analyst. Schildern Sie uns Ihr Portfolio; wir antworten mit einem Scoping-Gespräch.',
+      cta: 'Enterprise-Gespräch anfragen →',
+    },
+  };
+
+  function parseTier(raw: string | null): TierCode {
+    const v = (raw ?? 'starter').toLowerCase();
+    if (v === 'pro' || v === 'enterprise' || v === 'starter') return v;
+    return 'starter';
+  }
+
+  const url = new URL(window.location.href);
+  const tier = parseTier(url.searchParams.get('tier'));
+  const copy = TIER_COPY[tier];
+
+  const eyebrowEl = document.getElementById('intake-eyebrow');
+  const titleEl = document.getElementById('intake-title');
+  const subEl = document.getElementById('intake-sub');
+  const tierInput = document.getElementById('intake-tier') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('intake-submit') as HTMLButtonElement | null;
+
+  if (eyebrowEl) eyebrowEl.textContent = copy.eyebrow;
+  if (titleEl) titleEl.textContent = copy.title;
+  if (subEl) subEl.textContent = copy.sub;
+  if (tierInput) tierInput.value = tier;
+  if (submitBtn) submitBtn.textContent = copy.cta;
+
+  const form = document.getElementById('intake-form') as HTMLFormElement | null;
+  const success = document.getElementById('intake-success') as HTMLDivElement | null;
+  const errorBox = document.getElementById('intake-error') as HTMLDivElement | null;
+  const errorMsg = document.getElementById('intake-error-msg');
+  const retry = document.getElementById('intake-retry') as HTMLButtonElement | null;
+
+  retry?.addEventListener('click', () => {
+    if (errorBox) errorBox.hidden = true;
+    if (form) form.hidden = false;
+  });
+
+  if (form && success) {
+    const apiBase = form.dataset.apiBase || 'http://localhost:4000';
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+      const payload = {
+        tier,
+        email: String(fd.get('email') ?? '').trim(),
+        buyerName: String(fd.get('buyerName') ?? '').trim(),
+        buyerCompany: String(fd.get('buyerCompany') ?? '').trim(),
+        vendorDomain: String(fd.get('vendorDomain') ?? '').trim(),
+        vendorLegalName: String(fd.get('vendorLegalName') ?? '').trim() || undefined,
+        notes: String(fd.get('notes') ?? '').trim() || undefined,
+        utm: {
+          source: url.searchParams.get('utm_source') ?? undefined,
+          medium: url.searchParams.get('utm_medium') ?? undefined,
+          campaign: url.searchParams.get('utm_campaign') ?? undefined,
+        },
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Wird übermittelt…';
+      }
+
+      try {
+        const res = await fetch(`${apiBase}/v1/intake`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API ${res.status}: ${text.slice(0, 200)}`);
+        }
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        if (errorBox) errorBox.hidden = false;
+        if (errorMsg) {
+          errorMsg.textContent = `Die API konnte nicht erreicht werden. ${(err as Error).message}. Bitte schreiben Sie an elshan.musayev@partnerscope.eu, wir kümmern uns dann manuell darum.`;
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = copy.cta;
+        }
+      }
+    });
+  }
+</script>

@@ -10,38 +10,126 @@ interface Props {
 
 const {
   title,
-  description = 'Third-party AI risk assessment for EU buyers. Automated tests, documentary review and AI red-teaming across 13 dimensions. EU AI Act, GDPR, DORA, NIS2.',
+  description,
   canonical,
   ogImage = '/og-image.svg',
 } = Astro.props;
+
+// Locale detection: paths under /de/* render the German layout shell.
+// Default fallback meta description differs per locale.
+const path = Astro.url.pathname;
+const isDe = path === '/de' || path === '/de/' || path.startsWith('/de/');
+const locale = isDe ? 'de' : 'en';
+const htmlLang = isDe ? 'de' : 'en';
+const ogLocale = isDe ? 'de_DE' : 'en_US';
+
+const defaultDescriptionEn =
+  'Third-party AI risk assessment for EU buyers. Automated tests, documentary review and AI red-teaming across 13 dimensions. EU AI Act, GDPR, DORA, NIS2.';
+const defaultDescriptionDe =
+  'Drittparteien-Risikobewertung mit KI für europäische Einkäufer. Automatisierte Tests, Dokumentenprüfung und KI-Red-Teaming über 13 Dimensionen. EU AI Act, DSGVO, DORA, NIS2.';
+const resolvedDescription = description ?? (isDe ? defaultDescriptionDe : defaultDescriptionEn);
+
+// Map a current path to its EN / DE counterpart for the language switcher
+// and hreflang alternates. Strips a leading /de when present, then re-prefixes
+// for the German href.
+const pathWithoutDe = isDe ? path.replace(/^\/de(?=\/|$)/, '') || '/' : path;
+const enHref = pathWithoutDe;
+const deHref = pathWithoutDe === '/' ? '/de' : '/de' + pathWithoutDe;
+const switchLocaleHref = isDe ? enHref : deHref;
+const switchLocaleLabel = isDe ? 'EN' : 'DE';
+const switchLocaleAria = isDe ? 'Switch to English' : 'Auf Deutsch wechseln';
+
+// Localized nav + footer strings
+const t = isDe
+  ? {
+      navPricing: 'Preise',
+      navSnapshot: 'Kostenloser Snapshot',
+      navFaq: 'FAQ',
+      navLogin: 'Anmelden',
+      navSignup: 'Registrieren',
+      navAccount: 'Konto',
+      navDashboard: 'Dashboard',
+      navAdmin: 'Admin',
+      footerLegal: 'EM Consulting, Inhaber Elshan Musayev · Baden-Baden, DE · Siehe',
+      footerImprint: 'Impressum',
+      footerCopyright: 'PartnerScope. Alle Rechte vorbehalten.',
+      appsLabel: 'Holen Sie sich die PartnerScope-App',
+      appsAppStoreLine1: 'Laden im',
+      appsAppStoreLine2: 'App Store',
+      appsAppStoreAria: 'PartnerScope im App Store laden',
+      appsPlayLine1: 'JETZT BEI',
+      appsPlayLine2: 'Google Play',
+      appsPlayAria: 'PartnerScope bei Google Play holen',
+      footerNavTerms: 'AGB',
+      footerNavPrivacy: 'Datenschutz',
+      footerNavDpa: 'AVV',
+      footerNavSubprocessors: 'Unterauftragsverarbeiter',
+      footerNavImprint: 'Impressum',
+      footerNavContact: 'Kontakt',
+    }
+  : {
+      navPricing: 'Pricing',
+      navSnapshot: 'Free snapshot',
+      navFaq: 'FAQ',
+      navLogin: 'Log in',
+      navSignup: 'Sign up',
+      navAccount: 'Account',
+      navDashboard: 'Dashboard',
+      navAdmin: 'Admin',
+      footerLegal: 'EM Consulting, Inhaber Elshan Musayev · Baden-Baden, DE · See',
+      footerImprint: 'Impressum',
+      footerCopyright: 'PartnerScope. All rights reserved.',
+      appsLabel: 'Get the PartnerScope app',
+      appsAppStoreLine1: 'Download on the',
+      appsAppStoreLine2: 'App Store',
+      appsAppStoreAria: 'Download PartnerScope on the App Store',
+      appsPlayLine1: 'GET IT ON',
+      appsPlayLine2: 'Google Play',
+      appsPlayAria: 'Get PartnerScope on Google Play',
+      footerNavTerms: 'Terms',
+      footerNavPrivacy: 'Privacy',
+      footerNavDpa: 'DPA',
+      footerNavSubprocessors: 'Sub-processors',
+      footerNavImprint: 'Impressum',
+      footerNavContact: 'Contact',
+    };
+
+// Locale-prefixed paths for nav + footer
+const p = (route: string) => (isDe ? '/de' + route : route);
 
 const year = new Date().getFullYear();
 const site = Astro.site ?? new URL('https://partnerscope.eu');
 const canonicalHref = canonical ?? new URL(Astro.url.pathname, site).toString();
 const ogImageHref = new URL(ogImage, site).toString();
+const enAlternateHref = new URL(enHref, site).toString();
+const deAlternateHref = new URL(deHref, site).toString();
 ---
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={resolvedDescription} />
     <link rel="canonical" href={canonicalHref} />
+
+    <link rel="alternate" hreflang="en" href={enAlternateHref} />
+    <link rel="alternate" hreflang="de" href={deAlternateHref} />
+    <link rel="alternate" hreflang="x-default" href={enAlternateHref} />
 
     <meta property="og:site_name" content="PartnerScope" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={resolvedDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalHref} />
     <meta property="og:image" content={ogImageHref} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={ogLocale} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={resolvedDescription} />
     <meta name="twitter:image" content={ogImageHref} />
 
     <meta name="theme-color" content="#0f1a2b" />
@@ -52,17 +140,24 @@ const ogImageHref = new URL(ogImage, site).toString();
   <body>
     <header class="site-header">
       <div class="container site-header-inner">
-        <a class="brand" href="/plans">
+        <a class="brand" href={p('/plans')}>
           <span class="brand-mark">◆</span>
           <span class="brand-name">PartnerScope</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
-          <a href="/plans">Pricing</a>
-          <a href="/plans#snapshot">Free snapshot</a>
-          <a href="/plans#faq">FAQ</a>
-          <span id="nav-auth-slot" class="nav-auth">
-            <a href="/login" class="nav-login">Log in</a>
-            <a class="btn btn-dark nav-cta" href="/signup">Sign up</a>
+          <a href={p('/plans')}>{t.navPricing}</a>
+          <a href={p('/plans') + '#snapshot'}>{t.navSnapshot}</a>
+          <a href={p('/plans') + '#faq'}>{t.navFaq}</a>
+          <a class="lang-switch" href={switchLocaleHref} aria-label={switchLocaleAria}>{switchLocaleLabel}</a>
+          <span
+            id="nav-auth-slot"
+            class="nav-auth"
+            data-locale={locale}
+            data-loc-dashboard={t.navDashboard}
+            data-loc-admin={t.navAdmin}
+          >
+            <a href={p('/login')} class="nav-login">{t.navLogin}</a>
+            <a class="btn btn-dark nav-cta" href={p('/signup')}>{t.navSignup}</a>
           </span>
         </nav>
       </div>
@@ -80,17 +175,17 @@ const ogImageHref = new URL(ogImage, site).toString();
             <span class="brand-name">PartnerScope</span>
           </div>
           <p class="footer-legal">
-            EM Consulting, Inhaber Elshan Musayev · Baden-Baden, DE · See <a class="footer-inline" href="/legal/imprint">Impressum</a><br />
-            © {year} PartnerScope. All rights reserved.
+            {t.footerLegal} <a class="footer-inline" href={p('/legal/imprint')}>{t.footerImprint}</a><br />
+            © {year} {t.footerCopyright}
           </p>
         </div>
         <div class="footer-apps">
-          <p class="footer-apps-label">Get the PartnerScope app</p>
+          <p class="footer-apps-label">{t.appsLabel}</p>
           <div class="footer-apps-row">
             <a
               class="app-badge"
               href="https://apps.apple.com/app/partnerscope/id6762094242"
-              aria-label="Download PartnerScope on the App Store"
+              aria-label={t.appsAppStoreAria}
               target="_blank"
               rel="noopener"
             >
@@ -98,14 +193,14 @@ const ogImageHref = new URL(ogImage, site).toString();
                 <path fill="currentColor" d="M17.5 12.5c-.03-2.66 2.17-3.94 2.27-4-1.24-1.81-3.17-2.06-3.85-2.09-1.64-.17-3.2 .96-4.03 .96-.84 0-2.12-.94-3.49-.91-1.79 .03-3.45 1.04-4.37 2.64-1.86 3.23-.48 8.02 1.34 10.65 .89 1.29 1.94 2.74 3.31 2.69 1.33-.05 1.83-.86 3.44-.86 1.6 0 2.06 .86 3.46 .83 1.43-.03 2.34-1.31 3.21-2.61 1.01-1.49 1.43-2.93 1.45-3-.03-.01-2.78-1.07-2.81-4.3zM14.85 4.84c.74-.89 1.23-2.13 1.1-3.36-1.06 .04-2.34 .7-3.1 1.59-.68 .79-1.27 2.05-1.11 3.26 1.18 .09 2.38-.6 3.11-1.49z" />
               </svg>
               <span class="app-badge-text">
-                <span class="app-badge-line1">Download on the</span>
-                <span class="app-badge-line2">App Store</span>
+                <span class="app-badge-line1">{t.appsAppStoreLine1}</span>
+                <span class="app-badge-line2">{t.appsAppStoreLine2}</span>
               </span>
             </a>
             <a
               class="app-badge"
               href="https://play.google.com/store/apps/details?id=eu.partnerscope.app"
-              aria-label="Get PartnerScope on Google Play"
+              aria-label={t.appsPlayAria}
               target="_blank"
               rel="noopener"
             >
@@ -113,19 +208,19 @@ const ogImageHref = new URL(ogImage, site).toString();
                 <path fill="currentColor" d="M3.5 20.7V3.3c0-.66 .55-1.07 1.07-.84l13.21 8.7c.5 .27 .5 .97 0 1.24l-13.21 8.7c-.52 .23-1.07-.18-1.07-.84z" />
               </svg>
               <span class="app-badge-text">
-                <span class="app-badge-line1">GET IT ON</span>
-                <span class="app-badge-line2">Google Play</span>
+                <span class="app-badge-line1">{t.appsPlayLine1}</span>
+                <span class="app-badge-line2">{t.appsPlayLine2}</span>
               </span>
             </a>
           </div>
         </div>
-        <nav class="footer-nav" aria-label="Legal">
-          <a href="/legal/terms">Terms</a>
-          <a href="/legal/privacy">Privacy</a>
-          <a href="/legal/dpa">DPA</a>
-          <a href="/legal/sub-processors">Sub-processors</a>
-          <a href="/legal/imprint">Impressum</a>
-          <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
+        <nav class="footer-nav" aria-label={isDe ? 'Rechtliches' : 'Legal'}>
+          <a href={p('/legal/terms')}>{t.footerNavTerms}</a>
+          <a href={p('/legal/privacy')}>{t.footerNavPrivacy}</a>
+          <a href={p('/legal/dpa')}>{t.footerNavDpa}</a>
+          <a href={p('/legal/sub-processors')}>{t.footerNavSubprocessors}</a>
+          <a href={p('/legal/imprint')}>{t.footerNavImprint}</a>
+          <a href="mailto:elshan.musayev@partnerscope.eu">{t.footerNavContact}</a>
         </nav>
       </div>
     </footer>
@@ -187,6 +282,21 @@ const ogImageHref = new URL(ogImage, site).toString();
       .nav-admin {
         color: var(--ps-accent-strong);
         font-weight: 600;
+      }
+      .lang-switch {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--ps-muted);
+        border: 1px solid var(--ps-border);
+        border-radius: 999px;
+        padding: 0.18rem 0.55rem;
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        transition: color 120ms ease, border-color 120ms ease;
+      }
+      .lang-switch:hover {
+        color: var(--ps-accent-strong);
+        border-color: var(--ps-accent-strong);
       }
       @media (max-width: 720px) {
         .site-nav a:not(.nav-cta),
@@ -318,12 +428,22 @@ const ogImageHref = new URL(ogImage, site).toString();
           const u = JSON.parse(raw);
           if (!u || typeof u !== 'object' || !u.email) return;
           const label = (u.fullName && String(u.fullName).trim()) || String(u.email).split('@')[0] || 'Account';
+
+          // Locale-aware routing — read locale + localized labels from the
+          // server-rendered nav slot. /dashboard, /admin, /account are
+          // gated routes that don't have /de/ counterparts yet (the auth
+          // shell stays in English internally), but we still respect the
+          // locale on links so EN users don't get bounced into /de/* shells.
+          const isDe = slot.dataset.locale === 'de';
+          const dashLabel = slot.dataset.locDashboard || 'Dashboard';
+          const adminLabel = slot.dataset.locAdmin || 'Admin';
+
           // textContent for the dynamic label — prevents reflected-XSS if anyone
           // ever puts a <script> in their fullName.
           const dash = document.createElement('a');
           dash.href = '/dashboard';
           dash.className = 'nav-login';
-          dash.textContent = 'Dashboard';
+          dash.textContent = dashLabel;
 
           const children = [dash];
 
@@ -333,7 +453,7 @@ const ogImageHref = new URL(ogImage, site).toString();
             const admin = document.createElement('a');
             admin.href = '/admin';
             admin.className = 'nav-login nav-admin';
-            admin.textContent = 'Admin';
+            admin.textContent = adminLabel;
             children.push(admin);
           }
 

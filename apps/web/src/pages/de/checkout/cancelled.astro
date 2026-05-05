@@ -1,0 +1,60 @@
+---
+/**
+ * /checkout/cancelled — optional landing for Stripe Cancel URL.
+ *
+ * Default STRIPE_CANCEL_URL already points to /plans, but we keep this
+ * page in case the checkout route ever opts to send users here explicitly
+ * (e.g. to preserve the original tier selection for retry).
+ */
+
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  title="Checkout abgebrochen — PartnerScope"
+  description="Es wurde keine Zahlung vorgenommen. Sie können Ihre Bewertung jederzeit erneut starten."
+>
+  <section class="section cancel">
+    <div class="container cancel-inner">
+      <p class="eyebrow">Checkout abgebrochen</p>
+      <h1>Es wurde keine Zahlung vorgenommen.</h1>
+      <p class="lead">
+        Sie haben den Stripe-Checkout vor Abschluss abgebrochen. Es wurde nichts berechnet und wir
+        haben keinen Zahlungseintrag gespeichert. Sie können dort weitermachen, wo Sie aufgehört
+        haben — oder uns kurz schreiben, falls etwas nicht funktioniert hat.
+      </p>
+      <div class="actions">
+        <a class="btn btn-dark" href="/de/plans#tiers">Zurück zur Preisübersicht</a>
+        <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20checkout%20issue">
+          Kontakt aufnehmen
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cancel-inner {
+    max-width: 560px;
+    text-align: center;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 480px;
+    margin: 0.5rem auto 2rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

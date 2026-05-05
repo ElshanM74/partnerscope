@@ -31,6 +31,11 @@ export default defineConfig({
       status: 301,
       destination: '/legal/privacy',
     },
+    // German marketing apex → /de/plans (matches /pricing → /plans for EN).
+    '/de': {
+      status: 301,
+      destination: '/de/plans',
+    },
   },
   integrations: [
     sitemap({

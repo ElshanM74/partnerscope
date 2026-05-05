@@ -1,0 +1,174 @@
+---
+/**
+ * /checkout/success — post-Stripe Checkout thank-you page.
+ *
+ * Stripe redirects here after a successful session (see STRIPE_SUCCESS_URL).
+ * The session_id query param is read client-side for display only — the
+ * authoritative record is the webhook (/v1/webhooks/stripe) which the API
+ * processes out-of-band. We never call Stripe from the browser.
+ */
+
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  title="Zahlung erhalten — PartnerScope"
+  description="Ihre PartnerScope-Bewertung ist nun in unserer Warteschlange. Den signierten PDF-Report senden wir innerhalb der SLA des jeweiligen Tarifs."
+>
+  <section class="success section">
+    <div class="container success-inner">
+      <div class="success-check" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+
+      <p class="eyebrow">Zahlung erhalten</p>
+      <h1>Vielen Dank — Ihre Bewertung ist nun in unserer Warteschlange.</h1>
+      <p class="lead">
+        Eine Bestätigung ist auf dem Weg in Ihr Postfach. Der signierte PDF-Report folgt innerhalb
+        der SLA des jeweiligen Tarifs (24h für Starter, 48h für Pro, Mo–Fr Europe/Berlin).
+      </p>
+
+      <div class="next">
+        <h2>Wie es weitergeht</h2>
+        <ol>
+          <li>Sie erhalten innerhalb weniger Minuten eine Zahlungsbestätigung per E-Mail.</li>
+          <li>
+            Unsere Plattform führt die automatisierten Prüfungen durch (DNS, TLS, Header, Breach-Historie,
+            CT-Log-Scan) und — bei Pro — die Dokumentenprüfung und das KI-Red-Team.
+          </li>
+          <li>
+            Sie erhalten den PDF-Report per E-Mail sowie einen Portal-Link für 90 Tage (Starter)
+            bzw. 180 Tage (Pro) zur Neubewertung.
+          </li>
+        </ol>
+        <p class="next-method">
+          Möchten Sie genau wissen, wie wir Ihren Anbieter bewerten?
+          <a href="/de/methodology">Bewertungsmethodik lesen →</a>
+        </p>
+      </div>
+
+      <div class="session">
+        <div class="session-label">Bestellreferenz</div>
+        <code id="session-id">—</code>
+        <p class="tiny">
+          Bewahren Sie diese ID auf — bitte fügen Sie sie jeder Antwort bei, falls Sie uns zu dieser
+          Bestellung kontaktieren möchten.
+        </p>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="/de/dashboard">Zum Dashboard →</a>
+        <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20order%20question">Kontakt aufnehmen</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .success-inner {
+    max-width: 640px;
+    text-align: center;
+  }
+  .success-check {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    background: rgba(27, 143, 79, 0.12);
+    color: var(--band-minimal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .eyebrow {
+    color: var(--band-minimal);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .lead {
+    color: var(--ps-text);
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin: 0.5rem auto 2rem;
+  }
+  .next {
+    background: var(--ps-paper-soft);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    text-align: left;
+    margin: 0 auto 1.5rem;
+  }
+  .next h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+  }
+  .next ol {
+    padding-left: 1.1rem;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .next-method {
+    margin: 1rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--ps-border);
+    font-size: 0.9rem;
+    color: var(--ps-muted);
+  }
+  .next-method a {
+    color: var(--ps-accent-strong);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .next-method a:hover {
+    text-decoration: underline;
+  }
+  .session {
+    background: var(--ps-paper);
+    border: 1px dashed var(--ps-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin: 0 auto 1.5rem;
+    max-width: 420px;
+  }
+  .session-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ps-muted);
+  }
+  .session code {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--ps-ink);
+    margin: 0.3rem 0 0.4rem;
+    word-break: break-all;
+  }
+  .tiny {
+    color: var(--ps-muted);
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  const url = new URL(window.location.href);
+  const sid = url.searchParams.get('session_id');
+  const el = document.getElementById('session-id');
+  if (el) {
+    el.textContent = sid && sid.length > 0 ? sid : '— (keine Session-ID in URL)';
+  }
+</script>

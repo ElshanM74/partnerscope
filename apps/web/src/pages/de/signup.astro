@@ -1,0 +1,162 @@
+---
+/**
+ * /signup — create a new PartnerScope organization + admin user.
+ *
+ * Minimal MVP: email + password + full name + organization name + country.
+ * Submits to POST /api/v1/auth/register → stores JWT in localStorage → redirects
+ * to /dashboard. No email verification yet (deferred).
+ */
+import Base from '../../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="PartnerScope-Konto erstellen"
+  description="Erstellen Sie ein PartnerScope-Konto, um Ihre KI-Risikobewertungen für Drittanbieter zu verwalten."
+>
+  <section class="auth section">
+    <div class="container auth-inner">
+      <header class="auth-head">
+        <h1>Konto erstellen</h1>
+        <p class="auth-sub">
+          Bereits ein Konto? <a href="/de/login">Anmelden</a>.
+        </p>
+      </header>
+
+      <form id="signup-form" class="auth-form" novalidate data-api-base={apiBase}>
+        <label class="full">
+          <span>Geschäftliche E-Mail-Adresse <em>*</em></span>
+          <input type="email" name="email" required autocomplete="email" placeholder="sie@unternehmen.com" />
+        </label>
+
+        <label class="full">
+          <span>Passwort <em>*</em></span>
+          <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Mindestens 8 Zeichen" />
+        </label>
+
+        <label class="full">
+          <span>Ihr Name</span>
+          <input type="text" name="fullName" autocomplete="name" placeholder="Max Mustermann" />
+        </label>
+
+        <div class="row">
+          <label>
+            <span>Name der Organisation <em>*</em></span>
+            <input type="text" name="organizationName" required autocomplete="organization" placeholder="ACME GmbH" />
+          </label>
+          <label>
+            <span>Land <em>*</em></span>
+            <input type="text" name="country" required value="DE" maxlength="2" minlength="2" pattern="[A-Za-z]{2}" placeholder="DE" />
+          </label>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            Ich akzeptiere die <a href="/de/legal/terms">AGB</a> und die
+            <a href="/de/legal/privacy">Datenschutzerklärung</a> von PartnerScope.
+          </span>
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="signup-submit">Konto erstellen →</button>
+          <a class="btn btn-ghost" href="/de/plans">Zurück zu den Preisen</a>
+        </div>
+
+        <p class="tiny" id="signup-error" hidden></p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .auth-inner { max-width: 520px; }
+  .auth-head { text-align: center; margin-bottom: 1.5rem; }
+  .auth-sub { color: var(--ps-muted); margin-top: 0.25rem; }
+  .auth-form {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 0.9rem; color: var(--ps-text); }
+  label.full { margin-bottom: 1rem; }
+  label > span { display: block; margin-bottom: 0.35rem; font-weight: 500; }
+  label em { color: var(--ps-accent-strong); font-style: normal; }
+  input[type='email'],
+  input[type='password'],
+  input[type='text'] {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus { outline: none; border-color: var(--ps-accent); box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18); }
+  .consent { display: flex; gap: 0.6rem; align-items: flex-start; margin: 1.25rem 0 0; font-size: 0.85rem; color: var(--ps-text); }
+  .consent input { margin-top: 0.2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+  .tiny { color: var(--band-high); font-size: 0.85rem; margin-top: 1rem; margin-bottom: 0; }
+</style>
+
+<script>
+  const form = document.getElementById('signup-form') as HTMLFormElement | null;
+  const submit = document.getElementById('signup-submit') as HTMLButtonElement | null;
+  const errEl = document.getElementById('signup-error') as HTMLParagraphElement | null;
+  if (form && submit && errEl) {
+    const apiBase = form.dataset.apiBase || '/api';
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      errEl.hidden = true;
+      errEl.textContent = '';
+      const data = new FormData(form);
+      const payload = {
+        email: String(data.get('email') || '').trim(),
+        password: String(data.get('password') || ''),
+        fullName: String(data.get('fullName') || '').trim() || undefined,
+        organizationName: String(data.get('organizationName') || '').trim(),
+        country: String(data.get('country') || '').trim().toUpperCase(),
+      };
+      submit.disabled = true;
+      submit.textContent = 'Wird erstellt…';
+      try {
+        const res = await fetch(`${apiBase}/v1/auth/register`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = body?.message || `Registrierung fehlgeschlagen (${res.status}).`;
+          throw new Error(msg);
+        }
+        if (body.token && body.user) {
+          try {
+            localStorage.setItem('ps_token', body.token);
+            localStorage.setItem('ps_user', JSON.stringify(body.user));
+          } catch {}
+        }
+        // Honour ?next=… for return-to-flow redirects (e.g. /plans#tiers
+        // after a logged-out Buy-Starter click). Whitelist: same-origin
+        // only — a single leading `/`, not `//` (which would be a protocol-
+        // relative URL and can redirect off-origin). Fragments are kept.
+        const nextParam = new URL(window.location.href).searchParams.get('next');
+        const nextSafe = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+          ? nextParam
+          : '/de/dashboard';
+        window.location.href = nextSafe;
+      } catch (err: any) {
+        errEl.textContent = err?.message || 'Unerwarteter Fehler.';
+        errEl.hidden = false;
+        submit.disabled = false;
+        submit.textContent = 'Konto erstellen →';
+      }
+    });
+  }
+</script>

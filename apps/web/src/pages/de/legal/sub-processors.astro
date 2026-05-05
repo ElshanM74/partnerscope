@@ -1,0 +1,85 @@
+---
+/**
+ * Liste der Unterauftragsverarbeiter — gemäß Anlage 2 des AVV verpflichtend
+ * und im B2B-SaaS-Bereich üblich. Kunden können sich für Aktualisierungen
+ * registrieren; es gilt eine Vorankündigungsfrist von 30 Tagen.
+ */
+
+import Legal from '../../../layouts/Legal.astro';
+---
+<Legal
+  title="Unterauftragsverarbeiter"
+  description="Aktuelle Liste der Unterauftragsverarbeiter von PartnerScope, wie in unserem AVV referenziert."
+  lastUpdated="2026-04-21"
+>
+  <p>
+    Auf dieser Seite sind die Dritten („Unterauftragsverarbeiter") aufgeführt, die im
+    Auftrag von PartnerScope personenbezogene Daten zur Erbringung des Dienstes
+    verarbeiten. Sie bildet Anlage 2 unseres Auftragsverarbeitungsvertrags (AVV)
+    (<a href="/de/legal/dpa">/de/legal/dpa</a>) und wird fortlaufend aktualisiert.
+  </p>
+
+  <h2>Aktuelle Unterauftragsverarbeiter</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Unterauftragsverarbeiter</th>
+        <th>Zweck</th>
+        <th>Datenkategorien</th>
+        <th>Standort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Stripe Payments Europe, Ltd.</td>
+        <td>Zahlungsabwicklung für Starter-, Pro- und Enterprise-Bestellungen</td>
+        <td>Name, E-Mail, Rechnungsadresse, USt-IdNr., Zahlungstoken</td>
+        <td>Irland (EU); Kartennetzwerkpartner weltweit</td>
+      </tr>
+      <tr>
+        <td>Resend Inc.</td>
+        <td>Versand transaktionaler E-Mails (Bestellbestätigungen, Berichte, interne Verarbeitung)</td>
+        <td>Name, E-Mail-Adresse, Nachrichtentext</td>
+        <td>USA (Standardvertragsklauseln + ergänzende Maßnahmen)</td>
+      </tr>
+      <tr>
+        <td>Hetzner Online GmbH</td>
+        <td>Anwendungs-, Datenbank- und Datei-Hosting</td>
+        <td>Alle von der PartnerScope-Plattform verarbeiteten Datenkategorien</td>
+        <td>Deutschland (Rechenzentren Nürnberg / Falkenstein)</td>
+      </tr>
+      <tr>
+        <td>Cloudflare, Inc.</td>
+        <td>DNS, Edge-Caching, Web Application Firewall (WAF) und DDoS-Schutz für partnerscope.eu</td>
+        <td>IP-Adresse, Anfrage-Metadaten; keine Bewertungsinhalte</td>
+        <td>Globales Edge-Netzwerk (Standardvertragsklauseln + Konfiguration EU Data Boundary)</td>
+      </tr>
+      <tr>
+        <td>Sentry (Functional Software, Inc.)</td>
+        <td>Fehler- und Performance-Monitoring der Anwendung</td>
+        <td>Stack-Traces, Anfrage-Metadaten; PII werden im Datenstrom entfernt</td>
+        <td>USA (Standardvertragsklauseln)</td>
+      </tr>
+      <tr>
+        <td>sevDesk GmbH</td>
+        <td>Rechnungsstellung und Buchhaltung</td>
+        <td>Name, Firma, Rechnungsadresse, USt-IdNr., Rechnungspositionen</td>
+        <td>Deutschland (Offenburg)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Aktualisierungen</h2>
+  <p>
+    Kunden in den Tarifstufen Pro und Enterprise erhalten 30 Tage vor geplanten
+    Hinzufügungen oder Ersetzungen eine Vorabbenachrichtigung an die hinterlegte
+    E-Mail-Adresse. Um sich tarifübergreifend in den Benachrichtigungsverteiler
+    aufnehmen zu lassen, wenden Sie sich bitte per E-Mail an
+    <a href="mailto:privacy@partnerscope.eu">privacy@partnerscope.eu</a>.
+  </p>
+
+  <div class="legal-note">
+    Diese Seite unterliegt einem Change-Control-Prozess — eine veraltete Liste der
+    Unterauftragsverarbeiter kann im Audit selbst eine DSGVO-Verletzung darstellen.
+  </div>
+</Legal>
