@@ -129,10 +129,16 @@ const orgSchema = {
   foundingDate: '2024',
   founder: {
     '@type': 'Person',
+    '@id': 'https://www.linkedin.com/in/elshan-musayev/#person',
     name: 'Elshan Musayev',
-    url: 'https://www.linkedin.com/in/elshanmusayev/',
+    url: 'https://www.linkedin.com/in/elshan-musayev/',
     jobTitle: 'Founder',
     email: 'elshan.musayev@partnerscope.eu',
+    sameAs: [
+      'https://www.linkedin.com/in/elshan-musayev/',
+      'https://www.linkedin.com/in/elshanmusayev/',
+      'https://elshanmusayev.com',
+    ],
   },
   parentOrganization: {
     '@type': 'Organization',
@@ -142,6 +148,8 @@ const orgSchema = {
     foundingDate: '2013-01',
     sameAs: [
       'https://www.linkedin.com/company/ekm-global-consulting-gmbh/',
+      'https://www.linkedin.com/showcase/121553912/',
+      'https://www.linkedin.com/showcase/121603994/',
       'https://www.crunchbase.com/organization/ekm-global-consulting',
     ],
     address: {
