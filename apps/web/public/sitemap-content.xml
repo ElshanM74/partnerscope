@@ -51,45 +51,45 @@
 
   <!-- Pillar guide -->
   <url>
-    <loc>https://partnerscope.eu/eu-ai-act-third-party-risk/</loc>
+    <loc>https://partnerscope.eu/eu-ai-act-third-party-risk</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.95</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/eu-ai-act-third-party-risk/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/eu-ai-act-third-party-risk"/>
   </url>
 
   <!-- Comparison pages EN -->
   <url>
-    <loc>https://partnerscope.eu/compare/onetrust/</loc>
+    <loc>https://partnerscope.eu/compare/onetrust</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust/"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/compare/vanta/</loc>
+    <loc>https://partnerscope.eu/compare/vanta</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta/"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/compare/safebase/</loc>
+    <loc>https://partnerscope.eu/compare/safebase</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase/"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/compare/drata/</loc>
+    <loc>https://partnerscope.eu/compare/drata</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata/"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata"/>
   </url>
 
   <!-- DE root landing (Variant B — when deployed) -->
@@ -115,37 +115,37 @@
   <!-- =============================================== -->
 
   <url>
-    <loc>https://partnerscope.eu/annex-iii-procurement/</loc>
+    <loc>https://partnerscope.eu/annex-iii-procurement</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://partnerscope.eu/gpai-deployer/</loc>
+    <loc>https://partnerscope.eu/gpai-deployer</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://partnerscope.eu/dora-ai-act/</loc>
+    <loc>https://partnerscope.eu/dora-ai-act</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://partnerscope.eu/soc2-ai-vendors/</loc>
+    <loc>https://partnerscope.eu/soc2-ai-vendors</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://partnerscope.eu/bsi-c5-vs-soc2/</loc>
+    <loc>https://partnerscope.eu/bsi-c5-vs-soc2</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://partnerscope.eu/30-60-90-plan/</loc>
+    <loc>https://partnerscope.eu/30-60-90-plan</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
@@ -156,36 +156,36 @@
   <!-- =============================================== -->
 
   <url>
-    <loc>https://partnerscope.eu/ru/compare/onetrust/</loc>
+    <loc>https://partnerscope.eu/ru/compare/onetrust</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/ru/compare/vanta/</loc>
+    <loc>https://partnerscope.eu/ru/compare/vanta</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/ru/compare/safebase/</loc>
+    <loc>https://partnerscope.eu/ru/compare/safebase</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase"/>
   </url>
   <url>
-    <loc>https://partnerscope.eu/ru/compare/drata/</loc>
+    <loc>https://partnerscope.eu/ru/compare/drata</loc>
     <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata"/>
   </url>
 
   <!-- =============================================== -->
