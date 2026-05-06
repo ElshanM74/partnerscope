@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DORA + EU AI Act Vendor Assessment for Banks (2026)</title>
+  <meta name="description" content="How DORA Articles 28-30 and EU AI Act deployer obligations intersect for AI vendors used by EU financial entities. BaFin MaRisk AT 9 connection.">
+
+  <link rel="canonical" href="https://partnerscope.eu/dora-ai-act">
+  <link rel="alternate" hreflang="en" href="https://partnerscope.eu/dora-ai-act">
+  <!-- TBD: hreflang DE alternate when /de/ equivalent ships -->
+  <link rel="alternate" hreflang="x-default" href="https://partnerscope.eu/dora-ai-act">
+
+  <meta property="og:site_name" content="PartnerScope">
+  <meta property="og:title" content="DORA + EU AI Act Vendor Assessment for Banks (2026)">
+  <meta property="og:description" content="How DORA Articles 28-30 and EU AI Act deployer obligations intersect for AI vendors used by EU financial entities. BaFin MaRisk AT 9 connection.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://partnerscope.eu/dora-ai-act">
+  <meta property="og:image" content="https://partnerscope.eu/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="de_DE">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DORA + EU AI Act Vendor Assessment for Banks (2026)">
+  <meta name="twitter:description" content="How DORA Articles 28-30 and EU AI Act deployer obligations intersect for AI vendors used by EU financial entities. BaFin MaRisk AT 9 connection.">
+  <meta name="twitter:image" content="https://partnerscope.eu/og-image.svg">
+
+  <meta name="theme-color" content="#0f1a2b">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate" type="text/plain" title="LLM Manifest" href="/llms.txt">
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://partnerscope.eu/#organization",
+    "name": "PartnerScope",
+    "url": "https://partnerscope.eu",
+    "logo": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png",
+        "width": 1024,
+        "height": 1024
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png"
+    },
+    "description": "Third-party AI risk assessment platform for DACH-regulated organizations. EU AI Act classification, AI red-teaming, and 13-dimension risk scoring — without the 40-page questionnaire.",
+    "inLanguage": "en-GB",
+    "foundingDate": "2024",
+    "founder": {
+        "@type": "Person",
+        "name": "Elshan Musayev",
+        "jobTitle": "Founder",
+        "email": "elshan.musayev@partnerscope.eu"
+    },
+    "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://ekmgc.de/#organization",
+        "name": "EKM Global Consulting GmbH",
+        "url": "https://ekmgc.de",
+        "foundingDate": "2013-01",
+        "sameAs": [
+            "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+            "https://www.crunchbase.com/organization/ekm-global-consulting"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Baden-Baden",
+            "addressCountry": "DE"
+        }
+    },
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Baden-Baden",
+        "addressRegion": "Baden-Württemberg",
+        "addressCountry": "DE"
+    },
+    "areaServed": [
+        {
+            "@type": "Country",
+            "name": "Germany"
+        },
+        {
+            "@type": "Country",
+            "name": "Austria"
+        },
+        {
+            "@type": "Country",
+            "name": "Switzerland"
+        },
+        {
+            "@type": "Place",
+            "name": "European Union"
+        }
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "elshan.musayev@partnerscope.eu",
+        "contactType": "Sales",
+        "availableLanguage": [
+            "en",
+            "de"
+        ]
+    },
+    "sameAs": [
+        "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+        "https://www.linkedin.com/showcase/121553912/",
+        "https://www.crunchbase.com/organization/ekm-global-consulting"
+    ]
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://partnerscope.eu/dora-ai-act#article",
+    "headline": "DORA + EU AI Act: Dual-Regime Vendor Assessment for Financial Entities",
+    "description": "How DORA Articles 28-30 and EU AI Act deployer obligations intersect for AI vendors used by EU financial entities. BaFin MaRisk AT 9 connection.",
+    "image": "https://partnerscope.eu/og-image.svg",
+    "datePublished": "2026-05-05",
+    "dateModified": "2026-05-05",
+    "inLanguage": "en-GB",
+    "author": {
+        "@type": "Organization",
+        "name": "PartnerScope",
+        "url": "https://partnerscope.eu"
+    },
+    "publisher": {
+        "@id": "https://partnerscope.eu/#organization"
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://partnerscope.eu/dora-ai-act"
+    }
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://partnerscope.eu/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Guides",
+            "item": "https://partnerscope.eu/guides/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "DORA + EU AI Act: Dual-Regime Vendor Assessment for Financial Entities",
+            "item": "https://partnerscope.eu/dora-ai-act"
+        }
+    ]
+}
+  </script>
+
+  <style>
+:root {
+  --bg: #0f1a2b;
+  --bg-elev: #15233a;
+  --bg-card: #1a2c47;
+  --border: #2a3f5f;
+  --text: #e8eef7;
+  --text-dim: #9fb0c9;
+  --accent: #5a9eff;
+  --accent-glow: rgba(90, 158, 255, 0.15);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --max-width: 1200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+.site-header { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15, 26, 43, 0.95); backdrop-filter: blur(8px); z-index: 50; }
+.site-header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; font-size: 18px; }
+.brand-mark { color: var(--accent); }
+.site-nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.site-nav a { color: var(--text-dim); font-size: 14px; }
+.site-nav a:hover { color: var(--text); text-decoration: none; }
+.lang-switch { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; }
+.btn { display: inline-block; padding: 10px 18px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: all 0.15s; cursor: pointer; border: 1px solid transparent; }
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: #7ab2ff; }
+.btn-dark { background: var(--bg-elev); color: var(--text); border-color: var(--border); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--accent); }
+article { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+article > header { padding: 48px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+article > header .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px; }
+article > header h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+article > header .lead { color: var(--text-dim); font-size: 18px; line-height: 1.55; margin: 0; }
+article h2 { font-size: clamp(22px, 2.6vw, 30px); margin: 40px 0 16px; font-weight: 700; letter-spacing: -0.01em; }
+article h3 { font-size: 19px; margin: 28px 0 12px; font-weight: 600; }
+article h4 { font-size: 16px; margin: 20px 0 10px; font-weight: 600; color: var(--text-dim); }
+article p { margin: 0 0 16px; }
+article ul, article ol { margin: 0 0 16px; padding-left: 24px; }
+article li { margin-bottom: 6px; }
+article blockquote { background: var(--bg-card); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; margin: 16px 0; color: var(--text-dim); }
+article blockquote p:last-child { margin-bottom: 0; }
+article table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+article th, article td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+article th { color: var(--text-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg-elev); }
+article tr:hover { background: var(--bg-elev); }
+article code { background: var(--bg-elev); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+article pre { background: var(--bg-elev); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 16px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.final-cta { text-align: center; padding: 64px 24px; background: linear-gradient(180deg, transparent, var(--accent-glow)); margin-top: 48px; }
+.final-cta h2 { margin-bottom: 12px; }
+.final-cta p { color: var(--text-dim); font-size: 17px; max-width: 560px; margin: 0 auto 20px; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.site-footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-dim); font-size: 14px; margin-top: 48px; }
+.site-footer-inner { display: flex; flex-direction: column; gap: 20px; }
+.footer-tagline { max-width: 600px; }
+.footer-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-nav a { color: var(--text-dim); }
+.footer-nav a:hover { color: var(--text); }
+@media (max-width: 720px) {
+  .site-header-inner { flex-wrap: wrap; }
+  .site-nav { width: 100%; justify-content: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">PartnerScope</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/methodology">Methodology</a>
+        <a href="/plans">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="lang-switch" href="/de/" aria-label="Switch to German">DE</a>
+        <a href="/login" class="nav-login">Login</a>
+        <a class="btn btn-dark" href="/signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <article>
+      <header>
+        <p class="eyebrow">Guide</p>
+        <h1>DORA + EU AI Act: Dual-Regime Vendor Assessment for Financial Entities</h1>
+        <p class="lead"># DORA + EU AI Act: Dual-Regime Vendor Assessment for Financial Entities</p>
+      </header>
+
+      <h1>DORA + EU AI Act: Dual-Regime Vendor Assessment for Financial Entities</h1>
+<blockquote>
+<p><strong>TL;DR.</strong> Regulation (EU) 2022/2554 (DORA) entered application on 17 January 2025; Regulation (EU) 2024/1689 (EU AI Act) deployer obligations bite from 2 August 2026. Banks, insurers, payment institutions and other DORA-scoped financial entities must run a single vendor assessment that satisfies both regimes — plus BaFin MaRisk AT 9 in Germany and equivalent national rules. This guide maps the overlap, the gaps, and the structure that lets one assessment serve both audits.</p>
+</blockquote>
+<hr />
+<h2>1. Why financial entities cannot run these regimes in parallel silos</h2>
+<p>DORA and the EU AI Act are written for different supervisors and different harms. DORA treats ICT risk as an operational-resilience problem under EBA/ESMA/EIOPA oversight. The AI Act treats AI as a fundamental-rights and product-safety problem under the EU AI Office and national market-surveillance authorities.</p>
+<p>For a vendor assessment they converge sharply. An AI vendor providing fraud-detection or claims-handling AI to a regulated financial entity is simultaneously:</p>
+<ul>
+<li>An ICT third-party service provider under DORA Art. 3(19), and</li>
+<li>A provider of an AI system under EU AI Act Art. 3(3),</li>
+</ul>
+<p>…and the financial entity is simultaneously:</p>
+<ul>
+<li>A financial entity in scope of DORA (Art. 2),</li>
+<li>A deployer under EU AI Act Art. 3(4), and</li>
+<li>A regulated institution under sectoral law (CRR/CRD, Solvency II, IDD, PSD2/3) with its national framework (in Germany: KWG, VAG, ZAG, MaRisk).</li>
+</ul>
+<p>Running one TPRM workflow per regime triples the artefact volume and produces inconsistent risk decisions. The defensible approach is one vendor assessment with multi-regime mapping, plus regime-specific reporting.</p>
+<p>For background, see the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">EU AI Act Third-Party Risk pillar</a>.</p>
+<hr />
+<h2>2. DORA Articles 28-30 — the third-party risk core</h2>
+<p>DORA's third-party regime sits in Chapter V, Articles 28 to 44. The three load-bearing articles for vendor assessment are:</p>
+<table>
+<thead>
+<tr>
+<th>Article</th>
+<th>Subject</th>
+<th>Vendor-assessment trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28</td>
+<td>General principles of ICT third-party risk management</td>
+<td>All ICT third-party providers</td>
+</tr>
+<tr>
+<td>29</td>
+<td>Preliminary assessment of ICT concentration risk</td>
+<td>All material arrangements</td>
+</tr>
+<tr>
+<td>30</td>
+<td>Key contractual provisions</td>
+<td>All ICT contracts</td>
+</tr>
+</tbody>
+</table>
+<p>Article 28(2) requires an integrated, complete, and updated ICT third-party risk strategy adopted by the management body. Article 28(3) requires a register of all third-party arrangements covering ICT services. Article 28(4) requires risk assessment before entering each arrangement, and re-assessment regularly thereafter.</p>
+<p>Article 30(2) lists mandatory contract clauses (functions/services description; data-processing locations; SLAs and revisions; notice periods; cooperation rights with authorities; termination rights; training participation; sub-outsourcing conditions). For ICT services supporting critical or important functions, Article 30(3) adds full quantitative/qualitative SLAs, data-availability/integrity/security measures, processing regions, access/recovery rights on insolvency or termination, security-incident assistance, and audit/inspection rights for the financial entity, third parties, and competent authorities.</p>
+<p>Each Article 30 obligation has an AI Act echo: the Art. 30(3) right of audit corresponds to Art. 26(11) cooperation; the data-region obligation overlaps Art. 26(4) input-data oversight. Mapping these to a single contract addendum is the operational-efficiency target for 2026 procurement teams.</p>
+<hr />
+<h2>3. Critical ICT Third-Party Providers (CTPP) — the supervisory layer</h2>
+<p>DORA Articles 31-44 introduce a Union-level oversight regime for ICT providers designated as critical (CTPP). Designation criteria (Art. 31(2)) include:</p>
+<ul>
+<li>Systemic impact on financial services in case of operational failure</li>
+<li>Importance of financial entities relying on the provider, including counts and concentration</li>
+<li>Reliance on multiple critical/important functions</li>
+<li>Substitutability of the provider</li>
+</ul>
+<p>The European Supervisory Authorities (Joint Committee) designate CTPPs and exercise direct oversight via a Lead Overseer. Recommendations to a CTPP carry direct effect on financial-entity decisions.</p>
+<p>For AI vendors: a foundation-model provider that becomes embedded in the AI layer of the EU financial system is a plausible future CTPP candidate. The current CTPP candidate pool is dominated by hyperscale cloud and core-banking providers, but the AI layer is rising fast.</p>
+<p>Procurement implication: when assessing an AI vendor that depends on hyperscale cloud (OpenAI on Azure, Anthropic on AWS, Google models on GCP), the underlying cloud is plausibly a CTPP. Concentration risk must be assessed at the cloud layer, not just the AI vendor layer.</p>
+<hr />
+<h2>4. The dual-regime vendor scorecard</h2>
+<p>A single 13-dimension assessment can serve both DORA and AI Act with regime-specific tagging. The mapping:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>DORA touchpoint</th>
+<th>AI Act touchpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Legal entity &amp; beneficial ownership</td>
+<td>Art. 30(2)(a) description</td>
+<td>Art. 16 provider identity</td>
+</tr>
+<tr>
+<td>2. Data processing scope</td>
+<td>Art. 30(2) data-processing locations</td>
+<td>Art. 26(4) input data</td>
+</tr>
+<tr>
+<td>3. Security certifications</td>
+<td>Art. 28(4) risk assessment input</td>
+<td>Art. 15 cybersecurity for high-risk</td>
+</tr>
+<tr>
+<td>4. Sub-processor chain</td>
+<td>Art. 30(3)(a) sub-outsourcing</td>
+<td>Art. 25 supply chain</td>
+</tr>
+<tr>
+<td>5. Data residency</td>
+<td>Art. 30(3) data-region</td>
+<td>Art. 26(4); GDPR overlap</td>
+</tr>
+<tr>
+<td>6. Incident &amp; breach history</td>
+<td>Art. 19 incident reporting framework</td>
+<td>Art. 73 serious incident reporting</td>
+</tr>
+<tr>
+<td>7. Sanctions / PEP / adverse media</td>
+<td>Art. 28 risk assessment input</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8. Business continuity</td>
+<td>Art. 11-14 ICT BCM obligations</td>
+<td>Art. 15 robustness</td>
+</tr>
+<tr>
+<td>9. Technical attack surface</td>
+<td>Art. 9-10 ICT risk management</td>
+<td>Art. 15 cybersecurity</td>
+</tr>
+<tr>
+<td>10. AI use disclosure</td>
+<td>New under DORA RTS — increasingly explicit</td>
+<td>Art. 13 instructions</td>
+</tr>
+<tr>
+<td>11. EU AI Act risk tier</td>
+<td>—</td>
+<td>Core obligation</td>
+</tr>
+<tr>
+<td>12. Documentation completeness</td>
+<td>Art. 28(3) register inputs</td>
+<td>Annex IV technical file</td>
+</tr>
+<tr>
+<td>13. Cross-regime applicability</td>
+<td>DORA + NIS2 + CSDDD mapping</td>
+<td>AI Act + sectoral overlay</td>
+</tr>
+</tbody>
+</table>
+<p>Each dimension produces a finding that can be exported into both the DORA register (Art. 28(3)) and the AI Act vendor file simultaneously.</p>
+<hr />
+<h2>5. BaFin MaRisk AT 9 — where DORA inherits German specificity</h2>
+<p>Germany's MaRisk (Mindestanforderungen an das Risikomanagement) AT 9 module governs outsourcing for credit institutions and securities firms under KWG. The 7th amendment in 2023 aligned MaRisk AT 9 toward DORA's structure ahead of DORA's January 2025 application.</p>
+<p>MaRisk AT 9 layers German specificity onto DORA in three areas relevant to AI vendor assessment:</p>
+<ul>
+<li><strong>Risk-bearing capacity assessment.</strong> MaRisk AT 9 requires institution-specific concentration analysis tied to the bank's risk-bearing capacity (Risikotragfähigkeit), not just sector-level concentration as DORA Art. 29 contemplates.</li>
+<li><strong>Significant outsourcing classification.</strong> MaRisk AT 9.1 establishes "wesentliche Auslagerungen" with stricter governance and information rights. AI vendors integrated into core banking processes (credit decisioning, fraud, AML) almost always cross the materiality line.</li>
+<li><strong>Notification obligations.</strong> Section 24 KWG and MaRisk AT 9 require BaFin notification for significant outsourcing arrangements; the requirements stack on top of DORA Art. 28(3) register obligations.</li>
+</ul>
+<p>For an insurer, the parallel German overlay is BaFin's VAG-VAIT and the Solvency II outsourcing rules under §32 VAG. For payment institutions, BAIT under ZAG. The structural pattern is identical: DORA is the floor, German sectoral guidance is the institution-specific overlay.</p>
+<p>For comparison of how generic TPRM tools handle MaRisk AT 9 specificity, see the <a href="https://partnerscope.eu/compare/vanta">PartnerScope vs Vanta comparison</a>.</p>
+<hr />
+<h2>6. Incident reporting under both regimes</h2>
+<p>A serious incident at an AI vendor can trigger reporting under three different regimes simultaneously:</p>
+<table>
+<thead>
+<tr>
+<th>Regime</th>
+<th>Trigger</th>
+<th>Recipient</th>
+<th>Window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DORA Art. 19</td>
+<td>Major ICT-related incident at financial entity</td>
+<td>Competent authority (BaFin in DE)</td>
+<td>Initial within 4 hours, intermediate within 72 hours, final within 1 month (Commission Delegated Regulation under Art. 20)</td>
+</tr>
+<tr>
+<td>EU AI Act Art. 73</td>
+<td>Serious incident from high-risk AI system</td>
+<td>National market surveillance authority</td>
+<td>Without undue delay; Art. 73(3) windows: 15 days, 2 days, 10 days based on severity</td>
+</tr>
+<tr>
+<td>GDPR Art. 33</td>
+<td>Personal-data breach</td>
+<td>Supervisory authority (BfDI / Landesbehörde)</td>
+<td>Within 72 hours</td>
+</tr>
+</tbody>
+</table>
+<p>A single incident — say, a fraud-detection model that misclassifies and exposes customer data — can require all three reports in different formats, in different windows, to different authorities. The vendor contract under DORA Art. 30 must contain the cooperation clauses that make this possible. The AI Act side requires Art. 26(5) coordination from the deployer back through the provider chain.</p>
+<p>Procurement teams should pre-negotiate the incident-relay clause with explicit timelines aligned to the strictest of the three windows.</p>
+<hr />
+<h2>7. Concentration risk — the cross-regime sharpest edge</h2>
+<p>DORA Art. 29 requires preliminary assessment of ICT concentration risk before entering arrangements. The factors:</p>
+<ul>
+<li>Existence of substitutable providers</li>
+<li>Migration costs and complexity</li>
+<li>Sub-outsourcing chains</li>
+<li>Dependencies on a single provider for multiple critical functions</li>
+<li>Geographic concentration of operations and data</li>
+</ul>
+<p>For AI vendors in 2026, concentration risk has three layers that a single-regime assessment misses:</p>
+<ol>
+<li><strong>Vendor concentration.</strong> How many of your AI workflows depend on this vendor?</li>
+<li><strong>GPAI concentration.</strong> How many of your AI vendors depend on the same underlying foundation model? See the <a href="https://partnerscope.eu/cluster-gpai-deployer">GPAI deployer cluster</a>.</li>
+<li><strong>Cloud concentration.</strong> How many of your AI vendors and GPAI providers run on the same hyperscale cloud?</li>
+</ol>
+<p>The third layer is often invisible to a single TPRM workflow because each AI vendor declares its own cloud as a sub-processor without revealing the cumulative concentration across the financial entity's full vendor population. Aggregating across the DORA Art. 28(3) register surfaces this; running per-vendor questionnaires does not.</p>
+<hr />
+<h2>8. Frequently asked questions</h2>
+<p><strong>My bank is in scope of DORA. Does the EU AI Act add anything?</strong>
+Yes. DORA covers ICT operational resilience; the AI Act covers AI-specific risks (classification, GPAI, FRIA, prohibited practices). Article 26 deployer obligations apply to your bank's AI vendors regardless of DORA. The two regimes overlap heavily on contract clauses and incident reporting but do not substitute.</p>
+<p><strong>Are AI vendors automatically critical ICT third-party providers (CTPP)?</strong>
+No. CTPP designation is at Union level by the Joint Committee under DORA Art. 31. Most AI vendors are below the threshold; some hyperscale cloud and a small number of foundation-model providers are plausible candidates. The designation list is published and updated by the ESAs.</p>
+<p><strong>How does Article 27 FRIA relate to DORA risk assessments?</strong>
+The Article 27 fundamental rights impact assessment under the AI Act is mandatory for Annex III(5)(a) public-benefits eligibility deployment, certain Annex III(6) law-enforcement deployments, and deployments by private parties providing public services. For financial entities providing essential services (Annex III(5)(b) credit, Annex III(5)(c) insurance pricing), FRIA is not formally mandatory but is best-practice. DORA does not require FRIA but does not preclude it.</p>
+<p><strong>Where does the BaFin MaRisk AT 9 register sit relative to DORA Art. 28(3)?</strong>
+The DORA Art. 28(3) register is the floor. MaRisk AT 9 layers German-specific data points (notification status, significant-outsourcing classification, risk-bearing capacity allocation). One internal register can serve both, with MaRisk-specific fields appended. A vendor assessment should populate both simultaneously.</p>
+<p><strong>Can one PartnerScope assessment satisfy both DORA and AI Act inputs?</strong>
+Yes. The 13-dimension scorecard maps every dimension to both regimes (and to NIS2 / CSDDD where applicable). Every Pro and Enterprise assessment delivers a regime-tagged findings export that can be filed into both the DORA Art. 28(3) register and the AI Act vendor file with no rework. Pricing remains €299 (Pro) or €4,900/quarter (Enterprise for 15 vendors).</p>
+<hr />
+<h2>CTA</h2>
+<p>Run a free 60-second EU AI Act Snapshot at <a href="https://partnerscope.eu/">partnerscope.eu</a> — designed to plug into DORA Art. 28(3) registers and BaFin MaRisk AT 9 documentation. Or read the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">complete pillar guide</a>.</p>
+
+      <section class="final-cta">
+        <h2>Try PartnerScope</h2>
+        <p>Run a free 60-second EU AI Act Snapshot — classifies your vendor's AI under the Act and produces a starter scorecard before any commitment.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://partnerscope.eu/">Start free Snapshot</a>
+          <a class="btn btn-ghost" href="/eu-ai-act-third-party-risk/">Read the complete EU AI Act guide →</a>
+        </div>
+      </section>
+
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-tagline">PartnerScope is operated by EKM Global Consulting GmbH in Baden-Baden, Germany. The EU AI Act third-party risk assessment platform for risk officers, DPOs, and CISOs at DACH-regulated organizations.</p>
+      <nav class="footer-nav" aria-label="Legal">
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/dpa">DPA</a>
+        <a href="/legal/sub-processors">Sub-processors</a>
+        <a href="/legal/imprint">Impressum</a>
+        <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
+        <a href="/de/">Deutsch</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>

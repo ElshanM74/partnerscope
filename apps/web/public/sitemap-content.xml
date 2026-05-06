@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PartnerScope sitemap.xml
+  Built 2026-05-05. Reflects all pack content + existing live pages.
+
+  DEPLOYMENT NOTES:
+  - This sitemap covers PartnerScope (product brand) URLs at partnerscope.eu only.
+  - For ekmgc.de (EKMGC corporate site), produce a separate sitemap if there is dedicated content there.
+  - Pages marked TBD are present in this pack but not yet deployed — uncomment after deploy.
+  - Submit to Google Search Console + Bing Webmaster Tools after each deploy wave.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- =============================================== -->
+  <!-- LIVE: existing pages already deployed            -->
+  <!-- =============================================== -->
+
+  <!-- English homepage -->
+  <url>
+    <loc>https://partnerscope.eu/</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://partnerscope.eu/de/plans.html"/>
+  </url>
+
+  <!-- English pricing page (existing) -->
+  <url>
+    <loc>https://partnerscope.eu/plans.html</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- German pricing-led landing (live) -->
+  <url>
+    <loc>https://partnerscope.eu/de/plans.html</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="de" href="https://partnerscope.eu/de/plans.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/plans.html"/>
+  </url>
+
+  <!-- Trust subdomain -->
+  <url>
+    <loc>https://trust.partnerscope.eu/</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- =============================================== -->
+  <!-- TO DEPLOY (Wave 1 — foundation content)          -->
+  <!-- =============================================== -->
+
+  <!-- Pillar guide -->
+  <url>
+    <loc>https://partnerscope.eu/eu-ai-act-third-party-risk</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/eu-ai-act-third-party-risk"/>
+  </url>
+
+  <!-- Comparison pages EN -->
+  <url>
+    <loc>https://partnerscope.eu/compare/onetrust</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/compare/vanta</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/compare/safebase</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/compare/drata</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata"/>
+  </url>
+
+  <!-- DE root landing (Variant B — when deployed) -->
+  <url>
+    <loc>https://partnerscope.eu/de/</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="de" href="https://partnerscope.eu/de/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/"/>
+  </url>
+
+  <!-- Demo page -->
+  <url>
+    <loc>https://partnerscope.eu/demo.html</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>quarterly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- =============================================== -->
+  <!-- TO DEPLOY (Wave 2 — cluster articles)            -->
+  <!-- =============================================== -->
+
+  <url>
+    <loc>https://partnerscope.eu/annex-iii-procurement</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/gpai-deployer</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/dora-ai-act</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/soc2-ai-vendors</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/bsi-c5-vs-soc2</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/30-60-90-plan</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- =============================================== -->
+  <!-- TO DEPLOY (Wave 3 — Russian content)             -->
+  <!-- =============================================== -->
+
+  <url>
+    <loc>https://partnerscope.eu/ru/compare/onetrust</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/onetrust"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/onetrust"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/ru/compare/vanta</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/vanta"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/vanta"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/ru/compare/safebase</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/safebase"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/safebase"/>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/ru/compare/drata</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://partnerscope.eu/ru/compare/drata"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://partnerscope.eu/compare/drata"/>
+  </url>
+
+  <!-- =============================================== -->
+  <!-- LEGAL pages (low priority but required)          -->
+  <!-- =============================================== -->
+
+  <url>
+    <loc>https://partnerscope.eu/legal/terms/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/legal/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/legal/dpa/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/legal/sub-processors/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/legal/imprint/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://partnerscope.eu/de/legal/terms/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/de/legal/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/de/legal/dpa/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/de/legal/sub-processors/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://partnerscope.eu/de/legal/imprint/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

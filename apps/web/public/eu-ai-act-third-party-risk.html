@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EU AI Act Third-Party Risk: Complete Guide for Deployers (2026)</title>
+  <meta name="description" content="How DACH-regulated organizations classify, assess, and remediate third-party AI risk under the EU AI Act. Article-by-article obligations for deployers, GPAI exposure, and the gap that questionnaires miss.">
+
+  <link rel="canonical" href="https://partnerscope.eu/eu-ai-act-third-party-risk">
+  <link rel="alternate" hreflang="en" href="https://partnerscope.eu/eu-ai-act-third-party-risk">
+  <!-- TBD: hreflang DE alternate when /de/ equivalent ships -->
+  <link rel="alternate" hreflang="x-default" href="https://partnerscope.eu/eu-ai-act-third-party-risk">
+
+  <meta property="og:site_name" content="PartnerScope">
+  <meta property="og:title" content="EU AI Act Third-Party Risk: Complete Guide for Deployers (2026)">
+  <meta property="og:description" content="How DACH-regulated organizations classify, assess, and remediate third-party AI risk under the EU AI Act. Article-by-article obligations for deployers, GPAI exposure, and the gap that questionnaires miss.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://partnerscope.eu/eu-ai-act-third-party-risk">
+  <meta property="og:image" content="https://partnerscope.eu/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="de_DE">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EU AI Act Third-Party Risk: Complete Guide for Deployers (2026)">
+  <meta name="twitter:description" content="How DACH-regulated organizations classify, assess, and remediate third-party AI risk under the EU AI Act. Article-by-article obligations for deployers, GPAI exposure, and the gap that questionnaires miss.">
+  <meta name="twitter:image" content="https://partnerscope.eu/og-image.svg">
+
+  <meta name="theme-color" content="#0f1a2b">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate" type="text/plain" title="LLM Manifest" href="/llms.txt">
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://partnerscope.eu/#organization",
+    "name": "PartnerScope",
+    "url": "https://partnerscope.eu",
+    "logo": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png",
+        "width": 1024,
+        "height": 1024
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png"
+    },
+    "description": "Third-party AI risk assessment platform for DACH-regulated organizations. EU AI Act classification, AI red-teaming, and 13-dimension risk scoring — without the 40-page questionnaire.",
+    "inLanguage": "en-GB",
+    "foundingDate": "2024",
+    "founder": {
+        "@type": "Person",
+        "name": "Elshan Musayev",
+        "jobTitle": "Founder",
+        "email": "elshan.musayev@partnerscope.eu"
+    },
+    "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://ekmgc.de/#organization",
+        "name": "EKM Global Consulting GmbH",
+        "url": "https://ekmgc.de",
+        "foundingDate": "2013-01",
+        "sameAs": [
+            "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+            "https://www.crunchbase.com/organization/ekm-global-consulting"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Baden-Baden",
+            "addressCountry": "DE"
+        }
+    },
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Baden-Baden",
+        "addressRegion": "Baden-Württemberg",
+        "addressCountry": "DE"
+    },
+    "areaServed": [
+        {
+            "@type": "Country",
+            "name": "Germany"
+        },
+        {
+            "@type": "Country",
+            "name": "Austria"
+        },
+        {
+            "@type": "Country",
+            "name": "Switzerland"
+        },
+        {
+            "@type": "Place",
+            "name": "European Union"
+        }
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "elshan.musayev@partnerscope.eu",
+        "contactType": "Sales",
+        "availableLanguage": [
+            "en",
+            "de"
+        ]
+    },
+    "sameAs": [
+        "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+        "https://www.linkedin.com/showcase/121553912/",
+        "https://www.crunchbase.com/organization/ekm-global-consulting"
+    ]
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://partnerscope.eu/eu-ai-act-third-party-risk#article",
+    "headline": "EU AI Act Third-Party Risk: A Complete Guide for DACH-Regulated Organizations",
+    "description": "How DACH-regulated organizations classify, assess, and remediate third-party AI risk under the EU AI Act. Article-by-article obligations for deployers, GPAI exposure, and the gap that questionnaires miss.",
+    "image": "https://partnerscope.eu/og-image.svg",
+    "datePublished": "2026-05-05",
+    "dateModified": "2026-05-05",
+    "inLanguage": "en-GB",
+    "author": {
+        "@type": "Organization",
+        "name": "PartnerScope",
+        "url": "https://partnerscope.eu"
+    },
+    "publisher": {
+        "@id": "https://partnerscope.eu/#organization"
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://partnerscope.eu/eu-ai-act-third-party-risk"
+    }
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://partnerscope.eu/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "EU AI Act Third-Party Risk: A Complete Guide for DACH-Regulated Organizations",
+            "item": "https://partnerscope.eu/eu-ai-act-third-party-risk"
+        }
+    ]
+}
+  </script>
+
+  <style>
+:root {
+  --bg: #0f1a2b;
+  --bg-elev: #15233a;
+  --bg-card: #1a2c47;
+  --border: #2a3f5f;
+  --text: #e8eef7;
+  --text-dim: #9fb0c9;
+  --accent: #5a9eff;
+  --accent-glow: rgba(90, 158, 255, 0.15);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --max-width: 1200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+.site-header { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15, 26, 43, 0.95); backdrop-filter: blur(8px); z-index: 50; }
+.site-header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; font-size: 18px; }
+.brand-mark { color: var(--accent); }
+.site-nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.site-nav a { color: var(--text-dim); font-size: 14px; }
+.site-nav a:hover { color: var(--text); text-decoration: none; }
+.lang-switch { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; }
+.btn { display: inline-block; padding: 10px 18px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: all 0.15s; cursor: pointer; border: 1px solid transparent; }
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: #7ab2ff; }
+.btn-dark { background: var(--bg-elev); color: var(--text); border-color: var(--border); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--accent); }
+article { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+article > header { padding: 48px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+article > header .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px; }
+article > header h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+article > header .lead { color: var(--text-dim); font-size: 18px; line-height: 1.55; margin: 0; }
+article h2 { font-size: clamp(22px, 2.6vw, 30px); margin: 40px 0 16px; font-weight: 700; letter-spacing: -0.01em; }
+article h3 { font-size: 19px; margin: 28px 0 12px; font-weight: 600; }
+article h4 { font-size: 16px; margin: 20px 0 10px; font-weight: 600; color: var(--text-dim); }
+article p { margin: 0 0 16px; }
+article ul, article ol { margin: 0 0 16px; padding-left: 24px; }
+article li { margin-bottom: 6px; }
+article blockquote { background: var(--bg-card); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; margin: 16px 0; color: var(--text-dim); }
+article blockquote p:last-child { margin-bottom: 0; }
+article table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+article th, article td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+article th { color: var(--text-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg-elev); }
+article tr:hover { background: var(--bg-elev); }
+article code { background: var(--bg-elev); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+article pre { background: var(--bg-elev); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 16px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.final-cta { text-align: center; padding: 64px 24px; background: linear-gradient(180deg, transparent, var(--accent-glow)); margin-top: 48px; }
+.final-cta h2 { margin-bottom: 12px; }
+.final-cta p { color: var(--text-dim); font-size: 17px; max-width: 560px; margin: 0 auto 20px; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.site-footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-dim); font-size: 14px; margin-top: 48px; }
+.site-footer-inner { display: flex; flex-direction: column; gap: 20px; }
+.footer-tagline { max-width: 600px; }
+.footer-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-nav a { color: var(--text-dim); }
+.footer-nav a:hover { color: var(--text); }
+@media (max-width: 720px) {
+  .site-header-inner { flex-wrap: wrap; }
+  .site-nav { width: 100%; justify-content: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">PartnerScope</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/methodology">Methodology</a>
+        <a href="/plans">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="lang-switch" href="/de/" aria-label="Switch to German">DE</a>
+        <a href="/login" class="nav-login">Login</a>
+        <a class="btn btn-dark" href="/signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <article>
+      <header>
+        <p class="eyebrow">Complete Guide</p>
+        <h1>EU AI Act Third-Party Risk: A Complete Guide for DACH-Regulated Organizations</h1>
+        <p class="lead"># EU AI Act Third-Party Risk: A Complete Guide for DACH-Regulated Organizations</p>
+      </header>
+
+      <h1>EU AI Act Third-Party Risk: A Complete Guide for DACH-Regulated Organizations</h1>
+<blockquote>
+<p><strong>TL;DR.</strong> The EU AI Act applies to deployers, not just providers. From August 2026 the prohibitions and governance rules go live. From August 2027, high-risk obligations under Annex III bite. Anything AI in your vendor stack inherits obligations to you. Standard TPRM tools, built before AI was a risk category, miss this exposure entirely. This guide explains how to classify vendor AI under the Act, what documents to actually verify, where GPAI obligations propagate downstream, and how a 13-dimension assessment framework maps the work to your existing risk-management process.</p>
+</blockquote>
+<hr />
+<h2>1. What the EU AI Act actually requires — providers vs. deployers</h2>
+<p>The EU AI Act (Regulation (EU) 2024/1689) entered into force on 1 August 2024 and phases in over four years. The Act distinguishes several roles, and the obligations attached to each are not symmetric:</p>
+<ul>
+<li><strong>Provider</strong> (Art. 3(3)) — develops or commissions an AI system or GPAI model and places it on the EU market under its own name</li>
+<li><strong>Deployer</strong> (Art. 3(4)) — uses an AI system under its authority in a professional capacity</li>
+<li><strong>Importer</strong> (Art. 3(6)) — places on the EU market an AI system originating from a non-EU provider</li>
+<li><strong>Distributor</strong> (Art. 3(7)) — makes an AI system available on the EU market without affecting its properties</li>
+<li><strong>Authorized representative</strong> (Art. 3(5)) — designated EU representative for non-EU providers</li>
+</ul>
+<p>A single organization frequently occupies multiple roles. A bank that licenses a fraud-detection model from a SaaS vendor, retrains it on its own data, and offers fraud-as-a-service to subsidiaries is simultaneously a deployer (of the original system), a provider (of its retrained variant — see Art. 25(1)(c)), and arguably an importer if the vendor is non-EU.</p>
+<p>What changes for deployers under the Act:</p>
+<table>
+<thead>
+<tr>
+<th>Obligation</th>
+<th>Article</th>
+<th>Triggers when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Use system per provider's instructions for use</td>
+<td>26(1)</td>
+<td>Always for high-risk AI</td>
+</tr>
+<tr>
+<td>Assign human oversight to competent persons</td>
+<td>26(2)</td>
+<td>High-risk</td>
+</tr>
+<tr>
+<td>Ensure input data is relevant and representative</td>
+<td>26(4)</td>
+<td>High-risk</td>
+</tr>
+<tr>
+<td>Monitor operation, retain logs ≥ 6 months</td>
+<td>26(5)–(6)</td>
+<td>High-risk</td>
+</tr>
+<tr>
+<td>Inform workers' representatives + workers</td>
+<td>26(7)</td>
+<td>Workplace high-risk</td>
+</tr>
+<tr>
+<td>Conduct fundamental rights impact assessment</td>
+<td>27</td>
+<td>Annex III public-sector + essential services</td>
+</tr>
+<tr>
+<td>Cooperate with competent authorities</td>
+<td>26(11)</td>
+<td>Always</td>
+</tr>
+<tr>
+<td>Transparency for limited-risk systems</td>
+<td>50</td>
+<td>Limited risk (chatbots, deepfakes, emotion recognition, biometric categorisation)</td>
+</tr>
+</tbody>
+</table>
+<p>The deployer obligations under Art. 26 are not optional. They apply regardless of how diligent the provider was, and they require the deployer to operate the high-risk AI in a way that complies with the Act — meaning the deployer needs to know what kind of system they actually have.</p>
+<h3>What providers owe their downstream deployers</h3>
+<p>Providers of high-risk AI must give deployers everything they need to comply (Art. 13–14, 26(3)). This includes:</p>
+<ul>
+<li>Detailed instructions for use (Art. 13(3))</li>
+<li>Information on accuracy, robustness, and cybersecurity (Art. 13(3)(b)(ii))</li>
+<li>Specifications for input data (Art. 13(3)(b)(vi))</li>
+<li>Description of human oversight measures the deployer must implement (Art. 14)</li>
+<li>Performance limits under specific conditions</li>
+</ul>
+<p>If a vendor cannot provide any of these on request, that vendor is not Act-compliant — and using their system as a deployer puts you out of compliance too.</p>
+<hr />
+<h2>2. The deployer's third-party AI problem</h2>
+<p>In a typical DACH-regulated organization (bank, insurer, healthcare network, energy utility), 60–80% of AI is not built in-house. It comes from:</p>
+<ul>
+<li>SaaS vendors who shipped AI features into existing products (fraud detection, document classification, chatbots, RAG-based knowledge tools)</li>
+<li>Cloud providers offering AI primitives (Bedrock, Azure OpenAI, Vertex AI) wrapped into customer-built workflows</li>
+<li>Specialist AI vendors (translation, summarization, code generation)</li>
+<li>General-purpose AI models accessed via API (GPT, Claude, Gemini, open-source models on Hugging Face)</li>
+<li>Embedded models inside non-AI vendors (CRM, HR, ERP)</li>
+</ul>
+<p>Each of these can trigger AI Act obligations. Each has a different role in the regulatory chain. Each has documentation that may or may not exist, may or may not be valid, may or may not cover what the vendor claims.</p>
+<p>The deployer's core problem is straightforward: <strong>before you can comply with Art. 26 obligations, you need to know what classification your vendor's AI falls under, and you need that classification to be defensible to your regulator and your auditor.</strong></p>
+<h3>The compounding effect of GPAI</h3>
+<p>The Act introduces a separate set of obligations for general-purpose AI models (Art. 51–55). A GPAI model is one that displays significant generality, can perform a wide range of distinct tasks, and can be integrated into a variety of downstream systems (Art. 3(63)).</p>
+<p>When your vendor's product uses a GPAI model underneath — and most modern AI vendors do — three things happen:</p>
+<ol>
+<li>The GPAI provider has obligations (technical documentation, copyright compliance, training data summary)</li>
+<li>The GPAI provider must make information available to your vendor</li>
+<li>Your vendor inherits responsibility for the system as integrated, with the GPAI as a sub-component</li>
+</ol>
+<p>If the GPAI is classified as systemic-risk GPAI (training compute &gt; 10²⁵ FLOPs as of writing — Art. 51(2)), additional obligations apply: model evaluation, adversarial testing, incident reporting, cybersecurity protections (Art. 55).</p>
+<p>This means your vendor risk now has three axes:
+- Risk tier of the system as deployed (Articles 5/6/50/minimal)
+- GPAI status of any models underneath
+- Systemic-risk GPAI status</p>
+<p>Standard TPRM frameworks track none of these.</p>
+<hr />
+<h2>3. Risk-tier classification for vendor AI</h2>
+<p>Every AI Act assessment of a vendor system answers two questions:</p>
+<ol>
+<li>What tier does this system fall into?</li>
+<li>What role(s) does the vendor have, and what role(s) do you have?</li>
+</ol>
+<h3>Tier 1: Prohibited (Art. 5) — fully active since February 2025</h3>
+<p>The Act prohibits specific AI practices outright. Practices banned under Art. 5 include:</p>
+<ul>
+<li>Subliminal techniques materially distorting behavior</li>
+<li>Exploitation of vulnerabilities of specific groups (age, disability, socio-economic situation)</li>
+<li>Social scoring by public authorities or on their behalf</li>
+<li>Biometric categorisation inferring race, political opinions, trade union membership, religion, sex life, sexual orientation</li>
+<li>Untargeted scraping of facial images for biometric databases</li>
+<li>Emotion recognition in workplace and educational institutions (with narrow exceptions)</li>
+<li>Predictive policing based solely on profiling</li>
+<li>Real-time remote biometric identification in publicly accessible spaces (with very narrow law-enforcement exceptions)</li>
+</ul>
+<p>If a vendor's system performs any of these, the relationship is closed. You cannot deploy a prohibited system, period.</p>
+<p>In assessing vendors, prohibitions matter even when the system's intended purpose is benign — because reasonably foreseeable misuse (Art. 9(2)(b)) extends the analysis. A vendor that ships a "workplace productivity insight" tool with emotion-inference features built in falls under Art. 5(1)(f) regardless of marketing language.</p>
+<h3>Tier 2: High-risk (Art. 6 + Annexes I, III) — bites August 2027</h3>
+<p>A system is high-risk when:</p>
+<ul>
+<li>It is a safety component of a product covered by Annex I Union harmonisation legislation (machinery, medical devices, toys, automotive, civil aviation, etc.), AND</li>
+<li>That product is subject to third-party conformity assessment</li>
+</ul>
+<p>OR</p>
+<ul>
+<li>It falls into one of eight Annex III categories:
+  1. Biometric ID + categorisation
+  2. Critical infrastructure (water, gas, electricity, traffic)
+  3. Education + vocational training (admission, evaluation, monitoring)
+  4. Employment (recruitment, performance evaluation, task allocation)
+  5. Essential private and public services (credit scoring, life/health insurance pricing, emergency dispatch, public benefits eligibility)
+  6. Law enforcement (risk assessment, polygraph, evidence reliability)
+  7. Migration, asylum, border control
+  8. Justice + democratic processes (case-law search, election-influencing systems)</li>
+</ul>
+<p>For Annex III systems, the deployer obligations under Art. 26 fully apply. The deployer must understand which category, must implement human oversight, retain logs, conduct FRIA where required (Art. 27).</p>
+<p>For Annex I systems, integration with sectoral conformity assessment (MDR for medical devices, Machinery Regulation, etc.) is required. The deployer's obligations may flow through sector-specific channels.</p>
+<h3>Tier 3: Limited risk — transparency obligations (Art. 50) — phased</h3>
+<p>Limited-risk systems require transparency disclosures:</p>
+<ul>
+<li><strong>Chatbots / conversational AI</strong> — users must be informed they are interacting with an AI, except where obvious (Art. 50(1))</li>
+<li><strong>Deepfakes / synthetic image, audio, video</strong> — must be labelled as artificially generated (Art. 50(4))</li>
+<li><strong>Emotion recognition + biometric categorisation</strong> outside workplace/education — subjects must be informed (Art. 50(3))</li>
+</ul>
+<p>Art. 50 obligations sit on both providers and deployers. A SaaS vendor providing a chatbot widget must enable disclosure; a deployer integrating that widget on their customer site must verify the disclosure is shown.</p>
+<h3>Tier 4: Minimal risk — voluntary</h3>
+<p>Everything outside the above is minimal risk. The Act encourages voluntary codes of conduct (Art. 95) but imposes no obligations.</p>
+<h3>GPAI — orthogonal axis (Art. 51–55) — provider obligations live August 2025</h3>
+<p>GPAI obligations apply to providers of general-purpose AI models. For deployers, the practical concern is:</p>
+<ol>
+<li>Verify your vendor identifies any GPAI underneath their system</li>
+<li>Verify the GPAI provider is in the EU AI Office GPAI register where applicable (Art. 71)</li>
+<li>Verify documentation flow from GPAI provider → your vendor → you covers the integration</li>
+</ol>
+<p>Deployers do not have direct GPAI obligations under Art. 51–55, but their vendor's compliance posture for the GPAI it uses materially affects whether the deployed system itself complies with Art. 6 high-risk requirements.</p>
+<hr />
+<h2>4. Why standard questionnaires miss EU AI Act exposure</h2>
+<p>Most TPRM workflows in 2026 still rely on questionnaire-based assessment: a document of 40–80 questions covering data handling, security controls, sub-processors, breach history. The vendor self-attests, the risk team scores, the contract proceeds.</p>
+<p>Three things questionnaires cannot do for AI Act assessment:</p>
+<h3>Questionnaires cannot classify</h3>
+<p>A question like "Does your AI system use personal data?" produces a yes/no answer that doesn't tell you whether the system is Annex III high-risk. Classification requires a structured analysis of:</p>
+<ul>
+<li>Intended purpose statement vs. actual capabilities</li>
+<li>Reasonably foreseeable misuse (which the vendor by definition won't volunteer)</li>
+<li>Annex III category mapping with edge-case judgment</li>
+<li>GPAI dependency disclosure with technical evidence</li>
+<li>Provider/deployer role allocation in your specific deployment</li>
+</ul>
+<p>A vendor under no commercial pressure to disclose exposure won't disclose it. A questionnaire is not a forensic instrument.</p>
+<h3>Questionnaires cannot verify documents</h3>
+<p>When a vendor uploads a SOC 2 Type II report, a typical TPRM workflow stops at "received". But the SOC 2's Trust Services Criteria scope might exclude Confidentiality. The reporting period might be 9 months old with no surveillance audit. The CUEC list might require your team to implement controls you've never been told about.</p>
+<p>The same applies to ISO 27001 (scope statement may carve out the AI subsystem), BSI C5 (Type 1 vs Type 2 distinction matters), DPAs (sub-processor consent mechanism may be silent or non-existent), SBOMs (may list components but not flag known vulnerabilities).</p>
+<p>Verification means reading the documents — not just receiving them.</p>
+<h3>Questionnaires cannot test the actual system</h3>
+<p>If the vendor's AI system is a chatbot, the only way to know whether its safety guardrails work is to test them. Adversarial probes — prompt injection, jailbreak, data leakage, PII handling, multilingual edge cases — produce reproducible evidence of failures that no self-attestation can match.</p>
+<p>This is why AI red-teaming has emerged as a third assessment layer alongside documentary review and security checks. It treats the vendor's AI like any other security control and tests whether it actually does what the marketing says.</p>
+<hr />
+<h2>5. A 13-dimension framework for AI vendor assessment</h2>
+<p>A complete TPRM assessment of an AI vendor under EU AI Act needs to cover thirteen risk dimensions:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>What gets verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Legal entity &amp; beneficial ownership</td>
+<td>Registry data, ownership chain, sanctions exposure of ultimate beneficial owners</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Data processing scope</td>
+<td>DPA coverage under GDPR Art. 28, sub-processor consent mechanism, retention policies</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Security certifications</td>
+<td>ISO 27001, SOC 2 (Type I vs II), BSI C5 (Type 1 vs 2), expiry, scope vs. claim</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Sub-processor chain</td>
+<td>Named 4th-parties, concentration risk, jurisdictional spread</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Data residency</td>
+<td>EU-only vs. cross-border, transfer mechanisms (SCCs), TIA where required</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Incident &amp; breach history</td>
+<td>Public disclosures, regulatory actions, settlement records, response times</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Sanctions / PEP / adverse media</td>
+<td>OFAC, EU, UK, UN lists; named individuals; recent press coverage</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Business continuity</td>
+<td>RTO/RPO commitments, DR test cadence, vendor substitutability</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Technical attack surface</td>
+<td>DNS, TLS configuration, exposed assets, certificate hygiene</td>
+</tr>
+<tr>
+<td>10</td>
+<td>AI use disclosure</td>
+<td>Model type, training data origin, inference path, GPAI dependency, system card</td>
+</tr>
+<tr>
+<td>11</td>
+<td>EU AI Act risk tier</td>
+<td>Annex I, Annex III, Art. 50, minimal — with reasoning citing Article numbers</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Documentation completeness</td>
+<td>DPA, AUP, sub-processor list, SBOM, DPIA where applicable, system card</td>
+</tr>
+<tr>
+<td>13</td>
+<td>DORA / NIS2 / CSDDD applicability</td>
+<td>Sector-specific obligation mapping</td>
+</tr>
+</tbody>
+</table>
+<p>Each dimension produces a status (complete / partial / missing / contradictory) with cited evidence. A finding without a quotation, document reference, or probe ID is not a finding — it is an opinion.</p>
+<hr />
+<h2>6. Documentary verification: what to actually check</h2>
+<p>The four documents that matter most for AI vendor TPRM:</p>
+<h3>Data Processing Agreement (DPA)</h3>
+<p>GDPR Art. 28 requires:</p>
+<ul>
+<li>Subject matter and duration of processing</li>
+<li>Nature and purpose of processing</li>
+<li>Type of personal data and categories of data subjects</li>
+<li>Obligations and rights of the controller</li>
+<li>Sub-processor authorization mechanism (Art. 28(2)) — this is where most DPAs are weakest</li>
+<li>Sub-processor list and notification of changes</li>
+<li>Data subject rights handling</li>
+<li>Audit rights of the controller</li>
+</ul>
+<p>Read for: whether the AI use case is named in the subject matter; whether the sub-processor mechanism actually allows you to object; whether the DPA contemplates GPAI sub-processors specifically (most do not).</p>
+<h3>ISO 27001 certificate + Statement of Applicability</h3>
+<p>ISO 27001 certs come in many shapes. The certificate alone is meaningless — what matters is the scope statement and the SoA.</p>
+<p>Read for:</p>
+<ul>
+<li>Does the scope explicitly include the AI system you are about to use?</li>
+<li>Is the certifying body recognized (UKAS, DAkkS for DACH, IAS)?</li>
+<li>Is the cert in surveillance audit cycle, or stale?</li>
+<li>Does the SoA include Annex A controls relevant to AI (A.5.30 on continuity, A.8.2 on access controls, A.8.16 on monitoring)?</li>
+</ul>
+<h3>SOC 2 Type II report</h3>
+<p>Read for:</p>
+<ul>
+<li>Period covered (older than 12 months → useless)</li>
+<li>Trust Services Criteria scope: Security only, or also Availability / Processing Integrity / Confidentiality / Privacy?</li>
+<li>Exceptions and qualifications</li>
+<li>CUECs — what controls does the customer (you) need to implement for the SOC 2 to hold?</li>
+<li>Subservice organizations and their attestations</li>
+</ul>
+<h3>BSI C5 attestation</h3>
+<p>For DACH-specific deployments. C5:2020 is the current version. Read for:</p>
+<ul>
+<li>Type 1 (design) vs. Type 2 (operating effectiveness) — Type 2 is what you want</li>
+<li>Scope: services covered, geographic regions</li>
+<li>Auditor and audit period</li>
+<li>Findings and responses</li>
+</ul>
+<h3>SBOM (Software Bill of Materials)</h3>
+<p>For AI vendors, the SBOM should include:</p>
+<ul>
+<li>Foundation model identity and version</li>
+<li>Training data lineage where claimed</li>
+<li>Open-source components with versions</li>
+<li>Known vulnerabilities flagged</li>
+</ul>
+<p>CycloneDX and SPDX are the dominant formats. A vendor unable to produce an SBOM in 2026 is a procurement red flag regardless of AI Act status.</p>
+<hr />
+<h2>7. AI red-teaming as procurement diligence</h2>
+<p>Red-teaming has migrated from research practice to standard procurement diligence. The work breaks down into eight categories:</p>
+<h3>Probe categories</h3>
+<ul>
+<li><strong>Prompt injection</strong> — direct, indirect (via RAG context), encoded (base64, unicode), multi-turn</li>
+<li><strong>Jailbreak</strong> — persona, hypothetical, roleplay chains, DAN-style</li>
+<li><strong>Data leakage</strong> — training-data extraction, system-prompt disclosure, RAG-document leak</li>
+<li><strong>PII handling</strong> — synthetic PII tests, redaction quality, downstream propagation</li>
+<li><strong>Toxicity and bias</strong> — protected-class probes (race, gender, age, disability, religion, nationality)</li>
+<li><strong>Hallucination</strong> — fabricated citation tests, confidence calibration, made-up legal/medical/financial claims</li>
+<li><strong>Tool / function abuse</strong> — when the vendor exposes tools, scope misuse</li>
+<li><strong>Multilingual edge cases</strong> — DE, RU, AR, TR adversarial inputs (matters for DACH and tourism use cases)</li>
+</ul>
+<h3>Probe count by tier</h3>
+<p>A reasonable working baseline:</p>
+<ul>
+<li>Starter: 5 probes (one per top category)</li>
+<li>Pro: 5–10 probes</li>
+<li>Enterprise: 25+ probes including multilingual, multi-turn, and tool-misuse</li>
+</ul>
+<p>Each probe produces a pass / partial / fail record with reproduction steps. A failure with severity (Critical / High / Medium / Low) and category becomes a finding in the assessment report.</p>
+<h3>Authorization and ethics</h3>
+<p>Red-teaming a vendor's production system requires written authorization. PartnerScope's standard contract clause grants authorization for the scope of the assessment. Without it, probing crosses into unauthorized testing.</p>
+<hr />
+<h2>8. Conformity assessment — what flows down to deployers</h2>
+<p>Conformity assessment under the Act applies to providers, not deployers, but the documentary outputs flow to deployers and form the basis of your own compliance.</p>
+<p>For Annex III high-risk systems, two routes exist:</p>
+<ul>
+<li><strong>Annex VI (internal control)</strong> — most Annex III systems; provider self-assesses</li>
+<li><strong>Annex VII (notified body involved)</strong> — biometric ID systems + Annex I products</li>
+</ul>
+<p>For your deployer assessment, the question is: does the vendor produce an Annex IV technical file?</p>
+<p>Required sections include:</p>
+<ol>
+<li>General description of the system</li>
+<li>Detailed description of elements and development process</li>
+<li>Information on monitoring, functioning, control</li>
+<li>Risk management system (Art. 9)</li>
+<li>Lifecycle changes</li>
+<li>Harmonised standards applied</li>
+<li>EU declaration of conformity</li>
+<li>Post-market monitoring plan</li>
+</ol>
+<p>A vendor that cannot produce or summarize this file for an Annex III high-risk system is not Act-compliant. Procurement should treat this as gating for high-risk deployments.</p>
+<hr />
+<h2>9. Timeline — when each obligation bites</h2>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>What kicks in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Aug 2024</td>
+<td>Act enters into force</td>
+</tr>
+<tr>
+<td>2 Feb 2025</td>
+<td>Prohibitions (Art. 5) and AI literacy (Art. 4)</td>
+</tr>
+<tr>
+<td>2 Aug 2025</td>
+<td>GPAI provider obligations, governance bodies, penalties (Art. 52, 99)</td>
+</tr>
+<tr>
+<td>2 Aug 2026</td>
+<td>Most other obligations, including Annex III high-risk for deployers (Art. 26, 27)</td>
+</tr>
+<tr>
+<td>2 Aug 2027</td>
+<td>Annex I high-risk integration</td>
+</tr>
+<tr>
+<td>2 Aug 2030</td>
+<td>Article 6(1) high-risk for systems already on market before Aug 2026</td>
+</tr>
+</tbody>
+</table>
+<p>The practical implication for deployers: high-risk Annex III obligations under Art. 26 are live 2 August 2026. If a high-risk vendor system is in your stack on that date and you cannot demonstrate Art. 26 compliance, you are non-compliant.</p>
+<hr />
+<h2>10. Intersections with DORA, NIS2, and CSDDD</h2>
+<p>EU AI Act third-party risk assessment does not operate in isolation. Three other regulations create overlapping vendor-risk obligations:</p>
+<h3>DORA (Regulation 2022/2554) — financial entities</h3>
+<p>DORA Article 28–30 requires financial entities to manage ICT third-party risk. A register of all third-party arrangements is mandated. For AI vendors that are critical ICT third-party providers (CTPP), oversight by the European Supervisory Authorities applies directly.</p>
+<p>The 13-dimension assessment maps directly to DORA Article 28 requirements: concentration risk (dimension 4), exit strategy (dimension 8), incident chain (dimensions 6 and 13), sub-outsourcing (dimensions 2 and 4).</p>
+<h3>NIS2 (Directive 2022/2555)</h3>
+<p>NIS2 Article 21 requires essential and important entities to implement measures including supply chain security (21(2)(d)). Vendor AI sits within supply chain risk where the AI provides a service to the entity.</p>
+<h3>CSDDD (Directive 2024/1760)</h3>
+<p>CSDDD applies to large companies and requires due diligence across business chains for human rights and environmental impact. AI vendors whose use could affect protected rights (employment AI, biometric AI in Annex III categories) fall within the CSDDD assessment when the deployer is in scope.</p>
+<hr />
+<h2>11. Implementation: a 30/60/90-day plan for risk teams</h2>
+<h3>First 30 days — inventory</h3>
+<ul>
+<li>Build an AI vendor inventory: every SaaS, cloud service, embedded model, API access in current use</li>
+<li>For each, identify role (provider / deployer / importer), risk tier (best estimate), GPAI dependency</li>
+<li>Flag the high-risk Annex III candidates and the Art. 50 limited-risk candidates</li>
+<li>Identify the top 10 vendors by risk × spend for prioritized assessment</li>
+</ul>
+<h3>Days 30–60 — assessment</h3>
+<ul>
+<li>Run full 13-dimension assessment on the top 10 vendors</li>
+<li>For each, produce an EU AI Act classification with cited reasoning</li>
+<li>Document Art. 13 / 14 / 26 information flow gaps</li>
+<li>Identify which vendors have not yet provided Annex IV-equivalent technical information</li>
+</ul>
+<h3>Days 60–90 — remediation + governance</h3>
+<ul>
+<li>Issue remediation requests with deadlines for documentation gaps</li>
+<li>For high-risk vendors with material gaps, decide: accept residual risk (with sign-off) / require change / replace</li>
+<li>Establish ongoing monitoring for the AI vendor portfolio</li>
+<li>Integrate findings into existing risk register and DORA / NIS2 reporting</li>
+</ul>
+<hr />
+<h2>12. Frequently asked questions</h2>
+<p><strong>Does the EU AI Act apply if my vendor is in the US?</strong></p>
+<p>Yes, in two ways. Under Art. 2(1)(c), the Act applies where output produced by the AI system is used in the EU. So a US vendor whose AI generates output consumed in the EU triggers Act obligations. Additionally, if the US vendor places the system on the EU market (sells or licenses it for use in the EU), Art. 2(1)(a) applies directly.</p>
+<p><strong>Can I rely on my vendor's self-assessment of AI Act compliance?</strong></p>
+<p>In principle yes; in practice no. Self-assessment is a starting point. As deployer, you carry obligations under Art. 26 that depend on the system's actual classification. If the vendor's self-assessment is wrong, your downstream obligations are misallocated, which puts you out of compliance even if you acted in good faith. Independent assessment and documentary verification are the standard of care.</p>
+<p><strong>What if my vendor uses ChatGPT, Claude, or Gemini under the hood?</strong></p>
+<p>Then the underlying model is a GPAI, and you need to know which one. The provider of the GPAI (OpenAI, Anthropic, Google) has obligations to your vendor under Art. 53, including technical documentation and copyright training-data summary. Your vendor must pass through the relevant information to you. If the GPAI is systemic-risk (currently anything trained with &gt; 10²⁵ FLOPs), Art. 55 imposes additional obligations including model evaluation and incident reporting.</p>
+<p><strong>Does my SOC 2 already cover AI Act?</strong></p>
+<p>No. SOC 2 is an information security and trust criteria attestation. It does not classify systems under EU AI Act, does not evaluate Annex III applicability, and does not verify GPAI dependency or AI red-teaming. A SOC 2 Type II is a useful input to dimension 3 of your AI vendor assessment, but not a substitute.</p>
+<p><strong>How does PartnerScope's 13-dimension framework relate to ISO/IEC 42001?</strong></p>
+<p>ISO/IEC 42001 (AI Management System) is a management-system standard for organizations developing or using AI. It is complementary, not overlapping. ISO 42001 governs your internal AI governance posture; the 13-dimension assessment governs your view of vendor AI exposure. Many DACH organizations are pursuing ISO 42001 certification while running parallel AI vendor assessment.</p>
+<p><strong>What about AI red-teaming — is it required by the Act?</strong></p>
+<p>Not directly for deployers. Art. 55 requires systemic-risk GPAI providers to conduct adversarial testing. For deployers, red-teaming is best-practice diligence, not a regulatory requirement — but it produces evidence that your Art. 26(2) human oversight assignment is informed by actual system behavior, not vendor claims.</p>
+<p><strong>Where do I report a serious incident?</strong></p>
+<p>Providers report under Art. 73. Deployers must inform the provider, and where applicable the importer/distributor, immediately, and inform market surveillance authorities (Art. 73(1) for providers, Art. 26(5) for deployers' role in the chain).</p>
+<p><strong>Do I need to register my vendor's AI in the EU database?</strong></p>
+<p>Providers of high-risk AI register their systems in the EU database (Art. 71). Deployers do not register themselves, but the database is a verification tool: a high-risk Annex III system that your vendor cannot point to a database registration for is a flag.</p>
+<p><strong>What's the penalty exposure?</strong></p>
+<p>Up to €35M or 7% of global annual turnover for prohibited-system violations (Art. 99(3)). Up to €15M or 3% for most other obligations, including deployer obligations under Art. 26 (Art. 99(4)). Up to €7.5M or 1% for incorrect, incomplete, or misleading information to authorities (Art. 99(5)). Penalties scale with deployer size and conduct.</p>
+<p><strong>How does PartnerScope help with this?</strong></p>
+<p>PartnerScope is a third-party AI risk assessment platform built for the EU AI Act. Every assessment produces a 13-dimension scorecard with EU AI Act classification, GPAI scoping, AI red-teaming evidence, and remediation roadmap — mapped to your deployer obligations under Art. 26 and adjacent regulations (DORA, NIS2, CSDDD). Pricing is transparent: Starter at €99 per vendor, Pro at €299 with red-teaming, Enterprise at €4,900 per quarter for 15-vendor portfolios with continuous monitoring. Operated by EKM Global Consulting GmbH in Baden-Baden, Germany.</p>
+<hr />
+<h2>13. References</h2>
+<p>This guide draws on:</p>
+<ul>
+<li>Regulation (EU) 2024/1689 (the EU AI Act)</li>
+<li>Regulation (EU) 2016/679 (GDPR)</li>
+<li>Regulation (EU) 2022/2554 (DORA)</li>
+<li>Directive (EU) 2022/2555 (NIS2)</li>
+<li>Directive (EU) 2024/1760 (CSDDD)</li>
+<li>ISO/IEC 27001:2022 — Information Security Management Systems</li>
+<li>ISO/IEC 42001:2023 — AI Management System</li>
+<li>ISO/IEC 23894:2023 — AI Risk Management</li>
+<li>BSI C5:2020 — Cloud Computing Compliance Criteria Catalogue</li>
+<li>ENISA — AI Cybersecurity Threat Landscape</li>
+<li>EU AI Office — implementing acts, GPAI Code of Practice, FAQs</li>
+</ul>
+<hr />
+<h2>Internal links — cluster pages</h2>
+<p>This pillar will link out to (and be linked from) the following cluster articles, all addressing more specific queries:</p>
+<ul>
+<li>"EU AI Act Annex III explained for procurement teams"</li>
+<li>"GPAI provider obligations and what they mean for your vendor stack"</li>
+<li>"DORA + EU AI Act: dual-regime vendor assessment for financial entities"</li>
+<li>"How to read a SOC 2 report when assessing AI vendors"</li>
+<li>"BSI C5 vs SOC 2 vs ISO 27001: which matters for AI vendor risk"</li>
+<li>"PartnerScope vs OneTrust: which TPRM platform handles EU AI Act?"</li>
+<li>"PartnerScope vs Vanta: AI vendor classification, side-by-side"</li>
+<li>"Building a 30/60/90 plan for EU AI Act vendor compliance"</li>
+</ul>
+<hr />
+<h2>CTA</h2>
+<p>Run a free 60-second EU AI Act Snapshot at <a href="https://partnerscope.eu/">partnerscope.eu</a> — classifies your vendor's AI under Article 5, 6, Annex III, Art. 50, or minimal, plus GPAI status, before you finish reading this guide a second time.</p>
+
+      <section class="final-cta">
+        <h2>Try PartnerScope</h2>
+        <p>Run a free 60-second EU AI Act Snapshot — classifies your vendor's AI under the Act and produces a starter scorecard before any commitment.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://partnerscope.eu/">Start free Snapshot</a>
+          <a class="btn btn-ghost" href="/eu-ai-act-third-party-risk/">Read the complete EU AI Act guide →</a>
+        </div>
+      </section>
+
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-tagline">PartnerScope is operated by EKM Global Consulting GmbH in Baden-Baden, Germany. The EU AI Act third-party risk assessment platform for risk officers, DPOs, and CISOs at DACH-regulated organizations.</p>
+      <nav class="footer-nav" aria-label="Legal">
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/dpa">DPA</a>
+        <a href="/legal/sub-processors">Sub-processors</a>
+        <a href="/legal/imprint">Impressum</a>
+        <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
+        <a href="/de/">Deutsch</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>

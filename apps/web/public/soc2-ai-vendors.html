@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading SOC 2 Reports for AI Vendor Risk Assessment</title>
+  <meta name="description" content="Type I vs Type II, Trust Services Criteria scope, CUECs, and what a SOC 2 report does and does not tell you about an AI vendor's compliance posture.">
+
+  <link rel="canonical" href="https://partnerscope.eu/soc2-ai-vendors">
+  <link rel="alternate" hreflang="en" href="https://partnerscope.eu/soc2-ai-vendors">
+  <!-- TBD: hreflang DE alternate when /de/ equivalent ships -->
+  <link rel="alternate" hreflang="x-default" href="https://partnerscope.eu/soc2-ai-vendors">
+
+  <meta property="og:site_name" content="PartnerScope">
+  <meta property="og:title" content="Reading SOC 2 Reports for AI Vendor Risk Assessment">
+  <meta property="og:description" content="Type I vs Type II, Trust Services Criteria scope, CUECs, and what a SOC 2 report does and does not tell you about an AI vendor's compliance posture.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://partnerscope.eu/soc2-ai-vendors">
+  <meta property="og:image" content="https://partnerscope.eu/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="de_DE">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reading SOC 2 Reports for AI Vendor Risk Assessment">
+  <meta name="twitter:description" content="Type I vs Type II, Trust Services Criteria scope, CUECs, and what a SOC 2 report does and does not tell you about an AI vendor's compliance posture.">
+  <meta name="twitter:image" content="https://partnerscope.eu/og-image.svg">
+
+  <meta name="theme-color" content="#0f1a2b">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate" type="text/plain" title="LLM Manifest" href="/llms.txt">
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://partnerscope.eu/#organization",
+    "name": "PartnerScope",
+    "url": "https://partnerscope.eu",
+    "logo": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png",
+        "width": 1024,
+        "height": 1024
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png"
+    },
+    "description": "Third-party AI risk assessment platform for DACH-regulated organizations. EU AI Act classification, AI red-teaming, and 13-dimension risk scoring — without the 40-page questionnaire.",
+    "inLanguage": "en-GB",
+    "foundingDate": "2024",
+    "founder": {
+        "@type": "Person",
+        "name": "Elshan Musayev",
+        "jobTitle": "Founder",
+        "email": "elshan.musayev@partnerscope.eu"
+    },
+    "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://ekmgc.de/#organization",
+        "name": "EKM Global Consulting GmbH",
+        "url": "https://ekmgc.de",
+        "foundingDate": "2013-01",
+        "sameAs": [
+            "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+            "https://www.crunchbase.com/organization/ekm-global-consulting"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Baden-Baden",
+            "addressCountry": "DE"
+        }
+    },
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Baden-Baden",
+        "addressRegion": "Baden-Württemberg",
+        "addressCountry": "DE"
+    },
+    "areaServed": [
+        {
+            "@type": "Country",
+            "name": "Germany"
+        },
+        {
+            "@type": "Country",
+            "name": "Austria"
+        },
+        {
+            "@type": "Country",
+            "name": "Switzerland"
+        },
+        {
+            "@type": "Place",
+            "name": "European Union"
+        }
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "elshan.musayev@partnerscope.eu",
+        "contactType": "Sales",
+        "availableLanguage": [
+            "en",
+            "de"
+        ]
+    },
+    "sameAs": [
+        "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+        "https://www.linkedin.com/showcase/121553912/",
+        "https://www.crunchbase.com/organization/ekm-global-consulting"
+    ]
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://partnerscope.eu/soc2-ai-vendors#article",
+    "headline": "How to Read a SOC 2 Report When Assessing AI Vendors",
+    "description": "Type I vs Type II, Trust Services Criteria scope, CUECs, and what a SOC 2 report does and does not tell you about an AI vendor's compliance posture.",
+    "image": "https://partnerscope.eu/og-image.svg",
+    "datePublished": "2026-05-05",
+    "dateModified": "2026-05-05",
+    "inLanguage": "en-GB",
+    "author": {
+        "@type": "Organization",
+        "name": "PartnerScope",
+        "url": "https://partnerscope.eu"
+    },
+    "publisher": {
+        "@id": "https://partnerscope.eu/#organization"
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://partnerscope.eu/soc2-ai-vendors"
+    }
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://partnerscope.eu/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Guides",
+            "item": "https://partnerscope.eu/guides/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "How to Read a SOC 2 Report When Assessing AI Vendors",
+            "item": "https://partnerscope.eu/soc2-ai-vendors"
+        }
+    ]
+}
+  </script>
+
+  <style>
+:root {
+  --bg: #0f1a2b;
+  --bg-elev: #15233a;
+  --bg-card: #1a2c47;
+  --border: #2a3f5f;
+  --text: #e8eef7;
+  --text-dim: #9fb0c9;
+  --accent: #5a9eff;
+  --accent-glow: rgba(90, 158, 255, 0.15);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --max-width: 1200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+.site-header { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15, 26, 43, 0.95); backdrop-filter: blur(8px); z-index: 50; }
+.site-header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; font-size: 18px; }
+.brand-mark { color: var(--accent); }
+.site-nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.site-nav a { color: var(--text-dim); font-size: 14px; }
+.site-nav a:hover { color: var(--text); text-decoration: none; }
+.lang-switch { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; }
+.btn { display: inline-block; padding: 10px 18px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: all 0.15s; cursor: pointer; border: 1px solid transparent; }
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: #7ab2ff; }
+.btn-dark { background: var(--bg-elev); color: var(--text); border-color: var(--border); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--accent); }
+article { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+article > header { padding: 48px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+article > header .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px; }
+article > header h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+article > header .lead { color: var(--text-dim); font-size: 18px; line-height: 1.55; margin: 0; }
+article h2 { font-size: clamp(22px, 2.6vw, 30px); margin: 40px 0 16px; font-weight: 700; letter-spacing: -0.01em; }
+article h3 { font-size: 19px; margin: 28px 0 12px; font-weight: 600; }
+article h4 { font-size: 16px; margin: 20px 0 10px; font-weight: 600; color: var(--text-dim); }
+article p { margin: 0 0 16px; }
+article ul, article ol { margin: 0 0 16px; padding-left: 24px; }
+article li { margin-bottom: 6px; }
+article blockquote { background: var(--bg-card); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; margin: 16px 0; color: var(--text-dim); }
+article blockquote p:last-child { margin-bottom: 0; }
+article table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+article th, article td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+article th { color: var(--text-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg-elev); }
+article tr:hover { background: var(--bg-elev); }
+article code { background: var(--bg-elev); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+article pre { background: var(--bg-elev); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 16px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.final-cta { text-align: center; padding: 64px 24px; background: linear-gradient(180deg, transparent, var(--accent-glow)); margin-top: 48px; }
+.final-cta h2 { margin-bottom: 12px; }
+.final-cta p { color: var(--text-dim); font-size: 17px; max-width: 560px; margin: 0 auto 20px; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.site-footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-dim); font-size: 14px; margin-top: 48px; }
+.site-footer-inner { display: flex; flex-direction: column; gap: 20px; }
+.footer-tagline { max-width: 600px; }
+.footer-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-nav a { color: var(--text-dim); }
+.footer-nav a:hover { color: var(--text); }
+@media (max-width: 720px) {
+  .site-header-inner { flex-wrap: wrap; }
+  .site-nav { width: 100%; justify-content: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">PartnerScope</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/methodology">Methodology</a>
+        <a href="/plans">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="lang-switch" href="/de/" aria-label="Switch to German">DE</a>
+        <a href="/login" class="nav-login">Login</a>
+        <a class="btn btn-dark" href="/signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <article>
+      <header>
+        <p class="eyebrow">Guide</p>
+        <h1>How to Read a SOC 2 Report When Assessing AI Vendors</h1>
+        <p class="lead"># How to Read a SOC 2 Report When Assessing AI Vendors</p>
+      </header>
+
+      <h1>How to Read a SOC 2 Report When Assessing AI Vendors</h1>
+<blockquote>
+<p><strong>TL;DR.</strong> A SOC 2 report from an AI vendor is one input into a third-party risk assessment, not the assessment itself. Type I describes design at a point in time; Type II describes operating effectiveness over a period. The Trust Services Criteria scope, the period covered, the CUECs (Customer User Entity Controls), and any subservice organization carve-outs determine what the report actually proves. Receiving a SOC 2 is not the same as verifying it.</p>
+</blockquote>
+<hr />
+<h2>1. What SOC 2 is and is not</h2>
+<p>SOC 2 (Service Organization Control 2) is an attestation report under AICPA standard SSAE 18. It is not a certification. The auditor (a CPA firm) opines on whether the service organization's controls meet the Trust Services Criteria selected for the engagement.</p>
+<p>SOC 2 reports do not certify compliance with EU AI Act, GDPR, DORA, ISO 27001, or BSI C5. They do provide evidence that may be used as input to those assessments, with caveats.</p>
+<p>For the broader vendor-assessment framework, see the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">EU AI Act Third-Party Risk pillar</a>.</p>
+<p>What a SOC 2 report contains:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Content</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Section I</td>
+<td>Auditor's opinion</td>
+<td>Unqualified, qualified, adverse, or disclaimer — read this first</td>
+</tr>
+<tr>
+<td>Section II</td>
+<td>Management's assertion</td>
+<td>What management claims about controls</td>
+</tr>
+<tr>
+<td>Section III</td>
+<td>System description</td>
+<td>Scope of services, technologies, infrastructure, people, processes</td>
+</tr>
+<tr>
+<td>Section IV</td>
+<td>Trust Services Criteria + control activities</td>
+<td>The actual controls and their stated objectives</td>
+</tr>
+<tr>
+<td>Section V (Type II only)</td>
+<td>Tests of controls + results</td>
+<td>Auditor's procedures and any deviations found</td>
+</tr>
+<tr>
+<td>Other Information</td>
+<td>Optional sections</td>
+<td>Additional unaudited disclosures from management</td>
+</tr>
+</tbody>
+</table>
+<p>The deviations in Section V are where most assessors stop too soon. A SOC 2 with three exceptions in access-management testing is not necessarily disqualifying — but it must be read against the AI vendor's actual exposure.</p>
+<hr />
+<h2>2. Type I vs Type II — what each one proves</h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Type I</th>
+<th>Type II</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Object of opinion</td>
+<td>Suitability of design of controls</td>
+<td>Suitability of design AND operating effectiveness</td>
+</tr>
+<tr>
+<td>Time horizon</td>
+<td>Point in time (a single date)</td>
+<td>Period (typically 6 or 12 months)</td>
+</tr>
+<tr>
+<td>Auditor procedures</td>
+<td>Inspection, inquiry, observation</td>
+<td>All Type I procedures + tests of controls (sampling, re-performance, recalculation)</td>
+</tr>
+<tr>
+<td>What it tells you</td>
+<td>Controls exist and are designed appropriately</td>
+<td>Controls operated effectively over the period</td>
+</tr>
+<tr>
+<td>Sufficient for vendor diligence?</td>
+<td>Rarely</td>
+<td>Usually, with caveats</td>
+</tr>
+</tbody>
+</table>
+<p>A Type I is the equivalent of a vendor showing you their security policy: it says what they intend to do. A Type II is the equivalent of an auditor checking whether they actually did it.</p>
+<p>For an AI vendor at the start of its compliance journey, Type I may be the only available report. For an AI vendor sold into DACH-regulated buyers, Type II covering at least 6 months is the working minimum. A Type II covering only 3 months with a "transition period" caveat is a soft Type I with marketing.</p>
+<hr />
+<h2>3. The five Trust Services Criteria — and which apply to AI vendors</h2>
+<p>The Trust Services Criteria are organised into five categories. Security is mandatory in every SOC 2; the other four are optional and selected by the service organization.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>TSC abbreviation</th>
+<th>What it covers</th>
+<th>AI-vendor relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Security</td>
+<td>CC (Common Criteria)</td>
+<td>Logical and physical access, system operations, change management, risk mitigation</td>
+<td>Always relevant; the floor</td>
+</tr>
+<tr>
+<td>Availability</td>
+<td>A</td>
+<td>System availability for operation and use</td>
+<td>Critical for production-deployed AI</td>
+</tr>
+<tr>
+<td>Processing Integrity</td>
+<td>PI</td>
+<td>System processing is complete, valid, accurate, timely, and authorised</td>
+<td>Highly relevant for AI inference correctness</td>
+</tr>
+<tr>
+<td>Confidentiality</td>
+<td>C</td>
+<td>Information designated as confidential is protected</td>
+<td>Relevant when prompts/outputs contain confidential data</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>P</td>
+<td>Personal information is collected, used, retained, disclosed, and disposed in conformity with policies</td>
+<td>Relevant for AI vendors processing PII</td>
+</tr>
+</tbody>
+</table>
+<p>Most AI vendor SOC 2 reports cover only Security. Some cover Security + Availability. Confidentiality and Processing Integrity coverage is rarer and more interesting.</p>
+<p>The procurement question to ask: "Does your SOC 2 cover Confidentiality and Processing Integrity?" If only Security is covered, the report tells you nothing about whether the vendor's AI handles confidential customer data correctly or produces complete and accurate outputs.</p>
+<hr />
+<h2>4. CUECs — the controls you have to implement</h2>
+<p>Customer User Entity Controls (CUECs) are the controls that the SOC 2 report assumes the customer (you) will implement. The auditor's opinion on the service organization's controls depends on these complementary controls being in place at the customer side.</p>
+<p>CUECs typically appear in a dedicated subsection within Section III or IV. Common CUECs in AI-vendor SOC 2 reports include:</p>
+<ul>
+<li>Customer is responsible for managing user access provisioning/deprovisioning to the service</li>
+<li>Customer is responsible for configuring data classification appropriately</li>
+<li>Customer is responsible for maintaining the confidentiality of API keys and credentials</li>
+<li>Customer is responsible for ensuring that data submitted to the service does not exceed the data-classification scope of the engagement</li>
+<li>Customer is responsible for the lawful basis of processing under applicable privacy laws</li>
+<li>Customer is responsible for monitoring the service for unintended use or abuse</li>
+</ul>
+<p>For AI vendors specifically, the CUEC list often includes:</p>
+<ul>
+<li>Customer is responsible for evaluating outputs of the AI service before relying on them</li>
+<li>Customer is responsible for ensuring training/fine-tuning data does not contain prohibited categories</li>
+<li>Customer is responsible for end-user notification where required by law</li>
+</ul>
+<p>If the SOC 2 includes CUECs that you have not implemented, the auditor's opinion does not extend to the gap. Documenting which CUECs apply and which you have implemented (or compensated for) is part of the deployer's Article 26(2) human-oversight evidence under the EU AI Act.</p>
+<hr />
+<h2>5. Reporting period freshness — when SOC 2 expires in practice</h2>
+<p>A SOC 2 Type II covers a defined audit period. There is no formal expiry, but practical freshness norms are:</p>
+<table>
+<thead>
+<tr>
+<th>Time since report period end</th>
+<th>Practical status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt; 90 days</td>
+<td>Current</td>
+</tr>
+<tr>
+<td>90-180 days</td>
+<td>Acceptable with bridge letter from vendor</td>
+</tr>
+<tr>
+<td>180-365 days</td>
+<td>Bridge letter required; trending stale</td>
+</tr>
+<tr>
+<td>&gt; 365 days</td>
+<td>Stale; require new report or compensating evidence</td>
+</tr>
+<tr>
+<td>&gt; 18 months</td>
+<td>Effectively useless for diligence</td>
+</tr>
+</tbody>
+</table>
+<p>A bridge letter (also called a gap letter) is an attestation from the service organization that no material changes have occurred between the report period end and the current date. The bridge letter is signed by management, not by the auditor. It is not a substitute for a fresh SOC 2 — it is a stop-gap.</p>
+<p>For DACH financial-services procurement, the working norm is: SOC 2 Type II with period ending within the last 12 months, plus bridge letter if more than 90 days out. Anything weaker requires compensating diligence. See the <a href="https://partnerscope.eu/cluster-dora-ai-act">DORA + EU AI Act cluster</a> for how this fits a financial entity's TPRM register.</p>
+<hr />
+<h2>6. Subservice organizations — the carve-out trap</h2>
+<p>When the service organization relies on subservice organizations (e.g. cloud infrastructure, payment processors, GPAI model providers), the SOC 2 handles them via two methods:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>What it means</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inclusive</td>
+<td>Subservice organization controls are within the SOC 2 scope and tested</td>
+<td>Strongest assurance; rare in practice</td>
+</tr>
+<tr>
+<td>Carve-out</td>
+<td>Subservice organization is named but its controls are excluded from this SOC 2</td>
+<td>Customer must obtain separate assurance (subservice's own SOC 2 or equivalent)</td>
+</tr>
+</tbody>
+</table>
+<p>Almost every AI vendor SOC 2 in 2026 uses carve-outs for AWS, Azure, GCP, and the underlying GPAI provider. The carve-out section will list complementary subservice organization controls (CSOCs) that the vendor expects the subservice to perform.</p>
+<p>Procurement diligence on a carved-out vendor SOC 2 means:</p>
+<ol>
+<li>Identify each named subservice organization</li>
+<li>Obtain the subservice's own SOC 2 (or equivalent — ISO 27001, BSI C5, etc.)</li>
+<li>Verify the CSOCs listed in the vendor's SOC 2 are covered in the subservice's SOC 2</li>
+<li>Document the chain</li>
+</ol>
+<p>A vendor SOC 2 with three carve-outs and no obtained subservice reports is one report with three holes. This is where most SOC 2 reviews silently fall short.</p>
+<hr />
+<h2>7. What SOC 2 cannot tell you about an AI vendor</h2>
+<p>A SOC 2 report does not assess:</p>
+<ul>
+<li>EU AI Act classification of the vendor's AI system</li>
+<li>Annex III applicability</li>
+<li>GPAI dependency or systemic-risk GPAI flagging</li>
+<li>Adversarial robustness of the AI (no red-teaming in scope)</li>
+<li>Hallucination rate, bias on protected groups, multilingual edge cases</li>
+<li>Copyright posture of training data</li>
+<li>Article 13 instructions-for-use completeness</li>
+<li>DORA Article 30 contract-clause sufficiency</li>
+<li>BaFin MaRisk AT 9 significant-outsourcing classification</li>
+<li>BSI C5 specific controls</li>
+</ul>
+<p>A complete AI vendor assessment needs all of these on top of SOC 2. For comparison of how purely SOC 2-driven TPRM platforms handle this gap, see the <a href="https://partnerscope.eu/compare/vanta">PartnerScope vs Vanta comparison</a> and the <a href="https://partnerscope.eu/compare/drata">PartnerScope vs Drata comparison</a>.</p>
+<hr />
+<h2>8. The SOC 2 reading checklist</h2>
+<p>A defensible SOC 2 review for an AI vendor produces documented findings on: type and period covered; auditor name and opinion; Trust Services Criteria scope; subservice organizations and treatment (inclusive / carve-out); obtained subservice attestations for each carve-out; testing exceptions and severity; bridge-letter status; CUECs list and your implementation status; AI-specific controls (model deployment, training-data handling, change management for model updates); gap to EU AI Act / DORA / BSI C5 expectations; and freshness assessment.</p>
+<p>If any of these cannot be answered from the report on file, the report has been received but not verified.</p>
+<hr />
+<h2>9. Frequently asked questions</h2>
+<p><strong>Is SOC 2 Type II equivalent to ISO 27001 certification?</strong>
+No. SOC 2 is an attestation by a CPA firm; ISO 27001 is a certification by an accredited certification body. SOC 2 reports describe the controls and the auditor's testing; ISO 27001 certification confirms conformance to the standard plus a Statement of Applicability. They are complementary; many DACH buyers want both. See the <a href="https://partnerscope.eu/cluster-bsi-c5-vs-soc2">BSI C5 vs SOC 2 vs ISO 27001 cluster</a>.</p>
+<p><strong>Does a SOC 2 satisfy GDPR Art. 28 due-diligence requirements for processors?</strong>
+Not on its own. GDPR Art. 28(1) requires sufficient guarantees that the processor will implement appropriate technical and organisational measures. SOC 2 Type II covering Security and Privacy is a strong input, but the controller still needs to verify Art. 28-mandated DPA clauses, sub-processor consent mechanisms, and TIA where applicable.</p>
+<p><strong>My AI vendor's SOC 2 covers only Security. Should I reject the vendor?</strong>
+Not automatically. Security-only is the common starting posture for early-stage AI vendors. Decide based on the AI's exposure: if the system processes confidential customer data, push for Confidentiality coverage in the next audit cycle. If outputs feed regulated decisions, push for Processing Integrity. Document the gap as residual risk with a remediation deadline.</p>
+<p><strong>How does SOC 2 differ from the Annex IV technical file under EU AI Act?</strong>
+SOC 2 documents controls; Annex IV documents the AI system itself (architecture, training data, intended purpose, performance, risk management). They are non-overlapping. A vendor with a strong SOC 2 and no Annex IV technical file is non-compliant with EU AI Act Art. 11 if the system is high-risk.</p>
+<p><strong>Where does SOC 2 fit in the 13-dimension PartnerScope scorecard?</strong>
+Dimension 3 (Security certifications) captures SOC 2, ISO 27001, and BSI C5 with type, scope, period, exceptions, and carve-outs analyzed. Dimension 12 (Documentation completeness) captures the related artefacts (DPA, AUP, sub-processor list, SBOM). The two dimensions together form the documentary backbone of every PartnerScope assessment.</p>
+<hr />
+<h2>CTA</h2>
+<p>Run a free 60-second EU AI Act Snapshot at <a href="https://partnerscope.eu/">partnerscope.eu</a> and let our framework verify your AI vendor's SOC 2 against the gaps that matter for EU AI Act, DORA, and BSI C5. Or read the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">complete pillar guide</a>.</p>
+
+      <section class="final-cta">
+        <h2>Try PartnerScope</h2>
+        <p>Run a free 60-second EU AI Act Snapshot — classifies your vendor's AI under the Act and produces a starter scorecard before any commitment.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://partnerscope.eu/">Start free Snapshot</a>
+          <a class="btn btn-ghost" href="/eu-ai-act-third-party-risk/">Read the complete EU AI Act guide →</a>
+        </div>
+      </section>
+
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-tagline">PartnerScope is operated by EKM Global Consulting GmbH in Baden-Baden, Germany. The EU AI Act third-party risk assessment platform for risk officers, DPOs, and CISOs at DACH-regulated organizations.</p>
+      <nav class="footer-nav" aria-label="Legal">
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/dpa">DPA</a>
+        <a href="/legal/sub-processors">Sub-processors</a>
+        <a href="/legal/imprint">Impressum</a>
+        <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
+        <a href="/de/">Deutsch</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>

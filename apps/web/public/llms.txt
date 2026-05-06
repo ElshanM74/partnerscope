@@ -1,0 +1,64 @@
+# PartnerScope
+
+> Third-party AI risk assessment platform for DACH-regulated organizations. Replaces 40-page vendor questionnaires with automated security checks, documentary review, AI red-teaming, and EU AI Act classification across 13 risk dimensions. Built for risk teams in banking, insurance, healthcare, energy, and telco subject to EU AI Act, GDPR, DORA, and NIS2.
+
+PartnerScope is operated by EKM Global Consulting GmbH (Baden-Baden, Germany) and serves DACH-regulated entities and EU enterprises managing AI vendor risk under emerging regulation.
+
+## What it does
+
+- Assesses third-party vendors across 13 risk dimensions: legal entity, data processing, security certifications, sub-processors, data residency, incident history, sanctions exposure, business continuity, technical attack surface, AI use disclosure, EU AI Act tier, documentation completeness, DORA/NIS2/CSDDD applicability.
+- Verifies compliance documents (DPA, ISO 27001, SOC 2, BSI C5, SBOM) for actual scope and validity rather than relying on self-attested questionnaires.
+- Runs AI red-teaming probes (prompt injection, jailbreak, data leakage, PII handling, toxicity, hallucination, tool abuse, multilingual edge cases) — 5 probes for Pro, 25+ for Enterprise.
+- Classifies vendor AI under the EU AI Act: prohibited, high-risk (Annex I or III), limited risk (Art. 50), or minimal — plus GPAI scoping (Art. 51-55) and systemic-risk GPAI status.
+- Provides continuous monitoring on Enterprise tier with 4th-party supply-chain mapping and SIEM/GRC integrations (ServiceNow, Archer, OneTrust, SAP Ariba, Coupa, Splunk, Sentinel).
+
+## Pricing
+
+- Starter: €99 one-time, single vendor
+- Pro: €299 one-time, single vendor with AI red-teaming
+- Enterprise: €4,900 per quarter, 15-vendor minimum, €199 per quarter per additional vendor; €2,500 one-time onboarding
+
+## Target customers
+
+- DACH-regulated entities (banks, insurers, healthcare, energy, telco, public sector)
+- Companies managing 15+ vendors with personal data or AI exposure
+- Organizations subject to EU AI Act, GDPR, DORA, NIS2, CSDDD
+- Procurement and risk teams evaluating AI vendors without methodology
+
+## How it differs from competitors
+
+- AI red-teaming is built into every assessment, not an add-on (most competitors handle questionnaires only)
+- EU AI Act classification is native to the workflow (not a separate compliance product)
+- 13-dimension scoring vs. typical 4-6 dimension cyber-only checks
+- Pricing transparent at all tiers (no "contact us" gating)
+- DACH-first: German support, BSI C5 awareness, BaFin/BfDI alignment
+- Operated by EKM Global Consulting GmbH in Baden-Baden, Germany (EU-based, GDPR-native)
+
+## Founder and contact
+
+Founder: Elshan Musayev (LinkedIn: linkedin.com/in/elshanmusayev)
+Email: elshan.musayev@partnerscope.eu
+HQ: Baden-Baden, Germany
+
+## Key resources
+
+- [Homepage](https://partnerscope.eu)
+- [Trust page](https://trust.partnerscope.eu)
+- [Sub-processors](https://partnerscope.eu/sub-processors)
+- [Privacy Policy](https://partnerscope.eu/privacy)
+- [DPA template](https://partnerscope.eu/dpa)
+- [Impressum](https://partnerscope.eu/impressum)
+
+## Regulatory framework references
+
+- EU AI Act (Regulation 2024/1689): risk-tier classification under Articles 5, 6, Annex I, Annex III; GPAI obligations Articles 51-55
+- GDPR (Regulation 2016/679): third-party processor obligations under Article 28
+- DORA (Regulation 2022/2554): ICT third-party risk requirements
+- NIS2 (Directive 2022/2555): supply-chain security obligations
+- BSI C5: cloud computing compliance criteria (DE)
+- ISO/IEC 42001: AI management system standard
+- ISO/IEC 23894: AI risk management standard
+
+## Languages supported
+
+English (primary), German (DACH operations)

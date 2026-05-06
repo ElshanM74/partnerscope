@@ -50,7 +50,7 @@ const t = isDe
       navAccount: 'Konto',
       navDashboard: 'Dashboard',
       navAdmin: 'Admin',
-      footerLegal: 'EM Consulting, Inhaber Elshan Musayev · Baden-Baden, DE · Siehe',
+      footerLegal: 'EKM Global Consulting GmbH · Geschäftsführer Elshan Musayev · Baden-Baden, DE · Siehe',
       footerImprint: 'Impressum',
       footerCopyright: 'PartnerScope. Alle Rechte vorbehalten.',
       appsLabel: 'Holen Sie sich die PartnerScope-App',
@@ -76,7 +76,7 @@ const t = isDe
       navAccount: 'Account',
       navDashboard: 'Dashboard',
       navAdmin: 'Admin',
-      footerLegal: 'EM Consulting, Inhaber Elshan Musayev · Baden-Baden, DE · See',
+      footerLegal: 'EKM Global Consulting GmbH · Managing Director Elshan Musayev · Baden-Baden, DE · See',
       footerImprint: 'Impressum',
       footerCopyright: 'PartnerScope. All rights reserved.',
       appsLabel: 'Get the PartnerScope app',
@@ -103,6 +103,130 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, site).toString();
 const ogImageHref = new URL(ogImage, site).toString();
 const enAlternateHref = new URL(enHref, site).toString();
 const deAlternateHref = new URL(deHref, site).toString();
+
+// Schema.org JSON-LD — Organization (always) + SoftwareApplication (homepage/pricing only).
+// PartnerScope is a brand of EKM Global Consulting GmbH (Baden-Baden, founded Jan 2013).
+// LinkedIn: EKMGC main page + PartnerScope Showcase Page (id 121553912).
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://partnerscope.eu/#organization',
+  name: 'PartnerScope',
+  url: 'https://partnerscope.eu',
+  logo: {
+    '@type': 'ImageObject',
+    url: 'https://partnerscope.eu/logo.png',
+    width: 1024,
+    height: 1024,
+  },
+  image: {
+    '@type': 'ImageObject',
+    url: 'https://partnerscope.eu/logo.png',
+  },
+  description:
+    'Third-party AI risk assessment platform for DACH-regulated organizations. EU AI Act classification, AI red-teaming, and 13-dimension risk scoring — without the 40-page questionnaire.',
+  inLanguage: isDe ? 'de-DE' : 'en-GB',
+  foundingDate: '2024',
+  founder: {
+    '@type': 'Person',
+    name: 'Elshan Musayev',
+    url: 'https://www.linkedin.com/in/elshanmusayev/',
+    jobTitle: 'Founder',
+    email: 'elshan.musayev@partnerscope.eu',
+  },
+  parentOrganization: {
+    '@type': 'Organization',
+    '@id': 'https://ekmgc.de/#organization',
+    name: 'EKM Global Consulting GmbH',
+    url: 'https://ekmgc.de',
+    foundingDate: '2013-01',
+    sameAs: [
+      'https://www.linkedin.com/company/ekm-global-consulting-gmbh/',
+      'https://www.crunchbase.com/organization/ekm-global-consulting',
+    ],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Baden-Baden',
+      addressCountry: 'DE',
+    },
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Baden-Baden',
+    addressRegion: 'Baden-Württemberg',
+    addressCountry: 'DE',
+  },
+  areaServed: [
+    { '@type': 'Country', name: 'Germany' },
+    { '@type': 'Country', name: 'Austria' },
+    { '@type': 'Country', name: 'Switzerland' },
+    { '@type': 'Place', name: 'European Union' },
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'elshan.musayev@partnerscope.eu',
+    contactType: 'Sales',
+    availableLanguage: ['en', 'de'],
+  },
+  sameAs: [
+    'https://www.linkedin.com/company/ekm-global-consulting-gmbh/',
+    'https://www.linkedin.com/showcase/121553912/',
+    'https://www.crunchbase.com/organization/ekm-global-consulting',
+  ],
+};
+
+const isHomepageOrPricing =
+  path === '/' ||
+  path === '/plans' ||
+  path === '/plans.html' ||
+  path === '/de' ||
+  path === '/de/' ||
+  path === '/de/plans' ||
+  path === '/de/plans.html';
+
+const softwareSchema = isHomepageOrPricing
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      '@id': 'https://partnerscope.eu/#software',
+      name: 'PartnerScope',
+      applicationCategory: 'BusinessApplication',
+      applicationSubCategory: 'Third-Party Risk Management',
+      operatingSystem: 'Web (SaaS)',
+      url: 'https://partnerscope.eu',
+      inLanguage: isDe ? 'de-DE' : 'en-GB',
+      description:
+        'EU AI Act-aware third-party risk assessment platform. Replaces 40-page questionnaires with automated security checks, documentary review, AI red-teaming, and EU AI Act classification across 13 risk dimensions.',
+      softwareVersion: '2025',
+      publisher: { '@id': 'https://partnerscope.eu/#organization' },
+      offers: [
+        {
+          '@type': 'Offer',
+          name: 'Starter',
+          price: '99',
+          priceCurrency: 'EUR',
+          description: 'One-time, single vendor',
+          availability: 'https://schema.org/InStock',
+        },
+        {
+          '@type': 'Offer',
+          name: 'Pro',
+          price: '299',
+          priceCurrency: 'EUR',
+          description: 'One-time with AI red-teaming',
+          availability: 'https://schema.org/InStock',
+        },
+        {
+          '@type': 'Offer',
+          name: 'Enterprise',
+          price: '4900',
+          priceCurrency: 'EUR',
+          description: 'Quarterly, 15-vendor minimum, continuous monitoring',
+          availability: 'https://schema.org/InStock',
+        },
+      ],
+    }
+  : null;
 ---
 <!doctype html>
 <html lang={htmlLang}>
@@ -136,6 +260,10 @@ const deAlternateHref = new URL(deHref, site).toString();
     <meta name="robots" content="index, follow" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="text/plain" title="LLM Manifest" href="/llms.txt" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)}></script>
+    {softwareSchema && <script type="application/ld+json" set:html={JSON.stringify(softwareSchema)}></script>}
   </head>
   <body>
     <header class="site-header">

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EU AI Act 30/60/90 Plan for Risk Teams (2026)</title>
+  <meta name="description" content="An implementation playbook for risk teams: vendor inventory, top-10 assessment, remediation, and ongoing monitoring across 90 days under EU AI Act.">
+
+  <link rel="canonical" href="https://partnerscope.eu/30-60-90-plan">
+  <link rel="alternate" hreflang="en" href="https://partnerscope.eu/30-60-90-plan">
+  <!-- TBD: hreflang DE alternate when /de/ equivalent ships -->
+  <link rel="alternate" hreflang="x-default" href="https://partnerscope.eu/30-60-90-plan">
+
+  <meta property="og:site_name" content="PartnerScope">
+  <meta property="og:title" content="EU AI Act 30/60/90 Plan for Risk Teams (2026)">
+  <meta property="og:description" content="An implementation playbook for risk teams: vendor inventory, top-10 assessment, remediation, and ongoing monitoring across 90 days under EU AI Act.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://partnerscope.eu/30-60-90-plan">
+  <meta property="og:image" content="https://partnerscope.eu/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="de_DE">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EU AI Act 30/60/90 Plan for Risk Teams (2026)">
+  <meta name="twitter:description" content="An implementation playbook for risk teams: vendor inventory, top-10 assessment, remediation, and ongoing monitoring across 90 days under EU AI Act.">
+  <meta name="twitter:image" content="https://partnerscope.eu/og-image.svg">
+
+  <meta name="theme-color" content="#0f1a2b">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate" type="text/plain" title="LLM Manifest" href="/llms.txt">
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://partnerscope.eu/#organization",
+    "name": "PartnerScope",
+    "url": "https://partnerscope.eu",
+    "logo": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png",
+        "width": 1024,
+        "height": 1024
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://partnerscope.eu/logo.png"
+    },
+    "description": "Third-party AI risk assessment platform for DACH-regulated organizations. EU AI Act classification, AI red-teaming, and 13-dimension risk scoring — without the 40-page questionnaire.",
+    "inLanguage": "en-GB",
+    "foundingDate": "2024",
+    "founder": {
+        "@type": "Person",
+        "name": "Elshan Musayev",
+        "jobTitle": "Founder",
+        "email": "elshan.musayev@partnerscope.eu"
+    },
+    "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://ekmgc.de/#organization",
+        "name": "EKM Global Consulting GmbH",
+        "url": "https://ekmgc.de",
+        "foundingDate": "2013-01",
+        "sameAs": [
+            "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+            "https://www.crunchbase.com/organization/ekm-global-consulting"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Baden-Baden",
+            "addressCountry": "DE"
+        }
+    },
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Baden-Baden",
+        "addressRegion": "Baden-Württemberg",
+        "addressCountry": "DE"
+    },
+    "areaServed": [
+        {
+            "@type": "Country",
+            "name": "Germany"
+        },
+        {
+            "@type": "Country",
+            "name": "Austria"
+        },
+        {
+            "@type": "Country",
+            "name": "Switzerland"
+        },
+        {
+            "@type": "Place",
+            "name": "European Union"
+        }
+    ],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "elshan.musayev@partnerscope.eu",
+        "contactType": "Sales",
+        "availableLanguage": [
+            "en",
+            "de"
+        ]
+    },
+    "sameAs": [
+        "https://www.linkedin.com/company/ekm-global-consulting-gmbh/",
+        "https://www.linkedin.com/showcase/121553912/",
+        "https://www.crunchbase.com/organization/ekm-global-consulting"
+    ]
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://partnerscope.eu/30-60-90-plan#article",
+    "headline": "Building a 30/60/90 Plan for EU AI Act Vendor Compliance",
+    "description": "An implementation playbook for risk teams: vendor inventory, top-10 assessment, remediation, and ongoing monitoring across 90 days under EU AI Act.",
+    "image": "https://partnerscope.eu/og-image.svg",
+    "datePublished": "2026-05-05",
+    "dateModified": "2026-05-05",
+    "inLanguage": "en-GB",
+    "author": {
+        "@type": "Organization",
+        "name": "PartnerScope",
+        "url": "https://partnerscope.eu"
+    },
+    "publisher": {
+        "@id": "https://partnerscope.eu/#organization"
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://partnerscope.eu/30-60-90-plan"
+    }
+}
+  </script>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://partnerscope.eu/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Guides",
+            "item": "https://partnerscope.eu/guides/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Building a 30/60/90 Plan for EU AI Act Vendor Compliance",
+            "item": "https://partnerscope.eu/30-60-90-plan"
+        }
+    ]
+}
+  </script>
+
+  <style>
+:root {
+  --bg: #0f1a2b;
+  --bg-elev: #15233a;
+  --bg-card: #1a2c47;
+  --border: #2a3f5f;
+  --text: #e8eef7;
+  --text-dim: #9fb0c9;
+  --accent: #5a9eff;
+  --accent-glow: rgba(90, 158, 255, 0.15);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --max-width: 1200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+.site-header { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15, 26, 43, 0.95); backdrop-filter: blur(8px); z-index: 50; }
+.site-header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; font-size: 18px; }
+.brand-mark { color: var(--accent); }
+.site-nav { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.site-nav a { color: var(--text-dim); font-size: 14px; }
+.site-nav a:hover { color: var(--text); text-decoration: none; }
+.lang-switch { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; }
+.btn { display: inline-block; padding: 10px 18px; border-radius: 6px; font-weight: 500; font-size: 14px; transition: all 0.15s; cursor: pointer; border: 1px solid transparent; }
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: #7ab2ff; }
+.btn-dark { background: var(--bg-elev); color: var(--text); border-color: var(--border); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--accent); }
+article { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+article > header { padding: 48px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+article > header .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px; }
+article > header h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.18; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+article > header .lead { color: var(--text-dim); font-size: 18px; line-height: 1.55; margin: 0; }
+article h2 { font-size: clamp(22px, 2.6vw, 30px); margin: 40px 0 16px; font-weight: 700; letter-spacing: -0.01em; }
+article h3 { font-size: 19px; margin: 28px 0 12px; font-weight: 600; }
+article h4 { font-size: 16px; margin: 20px 0 10px; font-weight: 600; color: var(--text-dim); }
+article p { margin: 0 0 16px; }
+article ul, article ol { margin: 0 0 16px; padding-left: 24px; }
+article li { margin-bottom: 6px; }
+article blockquote { background: var(--bg-card); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 4px; margin: 16px 0; color: var(--text-dim); }
+article blockquote p:last-child { margin-bottom: 0; }
+article table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+article th, article td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+article th { color: var(--text-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg-elev); }
+article tr:hover { background: var(--bg-elev); }
+article code { background: var(--bg-elev); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+article pre { background: var(--bg-elev); padding: 14px; border-radius: 6px; overflow-x: auto; margin: 16px 0; }
+article hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.final-cta { text-align: center; padding: 64px 24px; background: linear-gradient(180deg, transparent, var(--accent-glow)); margin-top: 48px; }
+.final-cta h2 { margin-bottom: 12px; }
+.final-cta p { color: var(--text-dim); font-size: 17px; max-width: 560px; margin: 0 auto 20px; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.site-footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-dim); font-size: 14px; margin-top: 48px; }
+.site-footer-inner { display: flex; flex-direction: column; gap: 20px; }
+.footer-tagline { max-width: 600px; }
+.footer-nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-nav a { color: var(--text-dim); }
+.footer-nav a:hover { color: var(--text); }
+@media (max-width: 720px) {
+  .site-header-inner { flex-wrap: wrap; }
+  .site-nav { width: 100%; justify-content: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">◆</span>
+        <span class="brand-name">PartnerScope</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/methodology">Methodology</a>
+        <a href="/plans">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="lang-switch" href="/de/" aria-label="Switch to German">DE</a>
+        <a href="/login" class="nav-login">Login</a>
+        <a class="btn btn-dark" href="/signup">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <article>
+      <header>
+        <p class="eyebrow">Guide</p>
+        <h1>Building a 30/60/90 Plan for EU AI Act Vendor Compliance</h1>
+        <p class="lead"># Building a 30/60/90 Plan for EU AI Act Vendor Compliance</p>
+      </header>
+
+      <h1>Building a 30/60/90 Plan for EU AI Act Vendor Compliance</h1>
+<blockquote>
+<p><strong>TL;DR.</strong> A 30/60/90 plan converts the EU AI Act third-party risk obligation into a sequenced operational programme. Days 1-30 build the AI vendor inventory and scope. Days 30-60 run full assessments on the highest-exposure vendors. Days 60-90 remediate gaps, formalise governance, and stand up ongoing monitoring. This plan is calibrated for DACH-regulated risk teams running ahead of the 2 August 2026 deployer-obligation deadline.</p>
+</blockquote>
+<hr />
+<h2>1. Why 90 days, and why this sequence</h2>
+<p>The EU AI Act's deployer obligations under Article 26 apply from 2 August 2026 for Annex III high-risk systems. The systemic-risk GPAI provider obligations under Article 55 have already applied since 2 August 2025. National market-surveillance authorities are stood up in most Member States, and BSI/BaFin in Germany are signalling examination focus on AI vendor portfolios.</p>
+<p>A risk team starting today has roughly one quarter to convert from ad-hoc assessment to a defensible programme. 90 days is not arbitrary — it is the working horizon for management-board sign-off cycles, the typical refresh cadence for vendor risk reviews, and the practical limit of what a small risk team can sustain before the work calcifies.</p>
+<p>The sequence — inventory → assessment → remediation/governance — mirrors the way regulators read a compliance file. Asking "show me your AI vendor inventory" is the first question; "show me your assessment of top-exposure vendors" is the second; "show me your remediation log and ongoing monitoring" is the third. A risk team that produces these three artefacts in this order has a story.</p>
+<p>For the underlying framework, see the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">EU AI Act Third-Party Risk pillar</a>.</p>
+<hr />
+<h2>2. Days 1-30: Inventory and scoping</h2>
+<p>The first month produces three artefacts: the AI vendor inventory, the role/tier mapping, and the prioritised assessment list.</p>
+<h3>Week 1: Inventory data sources</h3>
+<p>Pull AI usage signals from across the organisation:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Signal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Procurement contract repository</td>
+<td>Vendors with "AI", "ML", "model", "neural", "GPT", "LLM" keywords</td>
+</tr>
+<tr>
+<td>Cloud-cost reporting</td>
+<td>OpenAI, Anthropic, Google AI, Bedrock, Azure OpenAI, Vertex AI, Hugging Face</td>
+</tr>
+<tr>
+<td>Engineering tooling</td>
+<td>API endpoint allowlists, package dependencies (transformers, langchain, openai SDK)</td>
+</tr>
+<tr>
+<td>Procurement spend data</td>
+<td>Vendors above materiality threshold with AI-feature roadmap</td>
+</tr>
+<tr>
+<td>Business-unit interviews</td>
+<td>Self-declared AI use by department heads</td>
+</tr>
+<tr>
+<td>DPIA / DPA register</td>
+<td>Processors flagged for AI/ML processing</td>
+</tr>
+<tr>
+<td>Help-desk tickets</td>
+<td>"AI" / "Copilot" / "ChatGPT" / "RAG" mentions</td>
+</tr>
+</tbody>
+</table>
+<p>Cross-reference. Each AI vendor should appear in at least two sources before being treated as confirmed. Single-source flags need verification.</p>
+<h3>Week 2: Role and tier provisional mapping</h3>
+<p>For each confirmed AI vendor, capture:</p>
+<ul>
+<li>Provider / deployer / importer / distributor role per Article 3(3)-(7)</li>
+<li>Provisional EU AI Act tier — Article 5 prohibited / Article 6 high-risk / Article 50 limited / minimal</li>
+<li>GPAI dependency (yes / unknown / no) and named GPAI where disclosed</li>
+<li>Annex I / Annex III category if high-risk</li>
+<li>Sector overlay: DORA, NIS2, CSDDD, MaRisk AT 9</li>
+</ul>
+<p>Provisional means "best estimate from documentation review pending full assessment". Document the reasoning and the open questions per vendor.</p>
+<h3>Week 3: Prioritisation matrix</h3>
+<p>Score each vendor on two axes:</p>
+<table>
+<thead>
+<tr>
+<th>Risk axis</th>
+<th>Spend / criticality axis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Act tier (high-risk → Art. 50 → minimal)</td>
+<td>Annual spend</td>
+</tr>
+<tr>
+<td>GPAI / systemic-risk GPAI</td>
+<td>Number of users / customers affected</td>
+</tr>
+<tr>
+<td>Annex III category sensitivity</td>
+<td>Substitutability (low → high concentration risk)</td>
+</tr>
+<tr>
+<td>Public-data / inference-only / training-data exposure</td>
+<td>Integration depth (gateway → embedded)</td>
+</tr>
+</tbody>
+</table>
+<p>Top-10 = top decile by combined score. This is the assessment cohort for Days 30-60.</p>
+<h3>Week 4: Assessment scoping and resource allocation</h3>
+<p>For each top-10 vendor:</p>
+<ul>
+<li>Allocate assessment owner from risk team</li>
+<li>Schedule vendor-side documentation request</li>
+<li>Reserve red-teaming capacity if Pro tier or above is selected</li>
+<li>Define handover to control / second line of defence</li>
+<li>Set deadline (target: completion within 30 days)</li>
+</ul>
+<p>Output of Days 1-30: AI vendor inventory (typically 30-150 vendors for a mid-sized DACH organization), role/tier provisional mapping, top-10 prioritised assessment list with owners and timelines.</p>
+<p>For procurement-side decisions during this phase, see the <a href="https://partnerscope.eu/cluster-annex-iii-procurement">Annex III procurement cluster</a>.</p>
+<hr />
+<h2>3. Days 30-60: Top-10 assessment</h2>
+<p>The second month converts the top-10 list into completed 13-dimension assessments. Each assessment produces a scorecard, an EU AI Act classification with citation, a documentation gap log, and a remediation list.</p>
+<h3>The 13-dimension assessment per vendor</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Legal entity &amp; beneficial ownership</td>
+<td>Registry data, ownership chain, sanctions screening result</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Data processing scope</td>
+<td>DPA scope, sub-processor consent mechanism, retention</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Security certifications</td>
+<td>SOC 2 type/scope/period; ISO 27001 scope/SoA; BSI C5 type — see <a href="https://partnerscope.eu/cluster-bsi-c5-vs-soc2">BSI C5 cluster</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Sub-processor chain</td>
+<td>Named 4th-parties, concentration</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Data residency</td>
+<td>EU-only / cross-border, transfer mechanism</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Incident &amp; breach history</td>
+<td>Public disclosures, regulator actions, response times</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Sanctions / PEP / adverse media</td>
+<td>OFAC / EU / UN / UK lists; named individuals</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Business continuity</td>
+<td>RTO/RPO, DR test cadence, substitutability</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Technical attack surface</td>
+<td>DNS, TLS, exposed assets, certificate hygiene</td>
+</tr>
+<tr>
+<td>10</td>
+<td>AI use disclosure</td>
+<td>Model type, training data, GPAI dependency, system card</td>
+</tr>
+<tr>
+<td>11</td>
+<td>EU AI Act risk tier</td>
+<td>Article-cited classification</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Documentation completeness</td>
+<td>DPA, AUP, sub-processor list, SBOM, DPIA, system card, Annex IV summary</td>
+</tr>
+<tr>
+<td>13</td>
+<td>DORA / NIS2 / CSDDD applicability</td>
+<td>Sector mapping</td>
+</tr>
+</tbody>
+</table>
+<p>Each dimension produces complete / partial / missing / contradictory + cited evidence. A finding without a quotation, document reference, or probe ID is not a finding.</p>
+<h3>Pacing and concentration analysis</h3>
+<p>A 4-week phase covering 10 vendors at 2-3 assessments per week, with the final week reserved for cross-vendor concentration analysis. PartnerScope Pro at €299/vendor completes the cohort at €2,990; Enterprise (€4,900/quarter for 15 vendors) absorbs the cohort with 5 vendors of headroom.</p>
+<h3>Cross-vendor concentration</h3>
+<p>After all 10 individual assessments, run two concentration analyses:</p>
+<ul>
+<li>GPAI concentration: how many of the 10 vendors depend on the same foundation model? Single-point-of-failure GPAI is a portfolio risk that no individual vendor assessment surfaces.</li>
+<li>Cloud concentration: how many vendors run on the same hyperscale cloud? This often reveals concentration that exceeds DORA Art. 29 tolerance.</li>
+</ul>
+<p>See the <a href="https://partnerscope.eu/cluster-gpai-deployer">GPAI deployer cluster</a> for the GPAI concentration analysis structure.</p>
+<h3>Output of Days 30-60</h3>
+<ul>
+<li>10 completed 13-dimension scorecards with EU AI Act classification per Article 6, Annex III, Article 50, etc.</li>
+<li>10 documentation gap logs with severity</li>
+<li>10 remediation lists with owner and deadline</li>
+<li>1 portfolio-level concentration analysis</li>
+<li>1 board-ready summary slide</li>
+</ul>
+<hr />
+<h2>4. Days 60-90: Remediation, governance, ongoing monitoring</h2>
+<p>The third month converts findings into actions and the actions into a sustained programme.</p>
+<h3>Remediation execution</h3>
+<p>For each vendor finding rated Critical or High:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Owner</th>
+<th>Deadline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Issue remediation request to vendor with cited gap</td>
+<td>Risk owner</td>
+<td>Day 60 + 5</td>
+</tr>
+<tr>
+<td>Vendor response (acceptance, push-back, alternative)</td>
+<td>Vendor</td>
+<td>Day 60 + 20</td>
+</tr>
+<tr>
+<td>Risk decision: accept / require change / replace</td>
+<td>Risk committee</td>
+<td>Day 60 + 25</td>
+</tr>
+<tr>
+<td>Contract amendment if required</td>
+<td>Procurement / legal</td>
+<td>Day 60 + 30 (target)</td>
+</tr>
+<tr>
+<td>Sign-off and documentation in risk register</td>
+<td>First / second line</td>
+<td>Day 90 - 5</td>
+</tr>
+</tbody>
+</table>
+<p>A Critical finding without a remediation deadline within 90 days is a residual risk that must be approved at the management-body level under DORA Art. 28 and equivalent governance. See the <a href="https://partnerscope.eu/cluster-dora-ai-act">DORA + EU AI Act cluster</a> for the governance touchpoints.</p>
+<h3>Governance formalisation</h3>
+<p>In parallel with remediation, formalise:</p>
+<ul>
+<li>AI vendor risk policy (board-approved): scope, roles, tiers, frequency, escalation</li>
+<li>Risk-tier matrix tied to assessment depth (Annex III high-risk → Pro/Enterprise; Art. 50 → Pro; minimal → Starter or self-attestation)</li>
+<li>Procurement gate: no new AI vendor contracts without an EU AI Act classification and 13-dimension assessment for Annex III matches</li>
+<li>Article 26 compliance procedure: human oversight assignment, log retention (≥ 6 months), input-data oversight, FRIA template where applicable</li>
+<li>Article 73 incident-reporting workflow with vendor relay clauses</li>
+<li>Quarterly portfolio review tied to DORA Art. 28(3) register updates</li>
+</ul>
+<h3>Ongoing monitoring stand-up</h3>
+<p>Beyond Day 90, the programme moves into monitoring mode:</p>
+<ul>
+<li>Quarterly re-assessment of top-decile vendors</li>
+<li>Annual full re-assessment of the entire AI vendor portfolio</li>
+<li>Continuous: contract-renewal triggers, incident-driven re-assessment, regulatory-update triggers (delegated acts, codes of practice, supervisor guidance)</li>
+<li>New-vendor pre-procurement assessment (gating)</li>
+<li>Vendor-side material-change notifications integrated into the risk register</li>
+</ul>
+<p>Output of Days 60-90: closed remediation log for top-decile, board-approved policy, governance procedures live, monitoring cadence in operation.</p>
+<hr />
+<h2>5. Common failure modes</h2>
+<p>The 30/60/90 plan fails predictably when:</p>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Symptom</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inventory is incomplete</td>
+<td>Vendors surface during Day 60 review that should have been on Day 7</td>
+<td>Two-source verification rule; engineering / cloud-cost integration</td>
+</tr>
+<tr>
+<td>Top-10 ranking is biased toward spend, not risk</td>
+<td>High-risk Annex III vendors with low spend get overlooked</td>
+<td>Two-axis matrix; explicit Annex III flag overrides spend</td>
+</tr>
+<tr>
+<td>Vendor self-attestation is treated as evidence</td>
+<td>Findings without cited documents</td>
+<td>Hard rule: every finding has a quote, document reference, or probe ID</td>
+</tr>
+<tr>
+<td>Remediation deadlines slip without escalation</td>
+<td>Day 90 governance sign-off pending</td>
+<td>Day 75 escalation gate to risk committee</td>
+</tr>
+<tr>
+<td>Programme dies after Day 90</td>
+<td>Quarterly cadence not stood up</td>
+<td>Calendar-locked Q+1 review meeting and quarterly board reporting</td>
+</tr>
+</tbody>
+</table>
+<p>A single-quarter sprint that does not transition into ongoing monitoring is wasted; regulators read the quarterly cadence as the maturity signal.</p>
+<hr />
+<h2>6. Frequently asked questions</h2>
+<p><strong>Can a risk team smaller than 5 people run this plan?</strong>
+Yes, with two compromises: outsource the assessment phase (PartnerScope Pro at €299/vendor or Enterprise at €4,900/quarter for 15 vendors) and reduce the assessment cohort to top-5 instead of top-10. The structure stays.</p>
+<p><strong>What is the right size for the AI vendor inventory before assessment?</strong>
+Most DACH mid-sized organizations land between 30 and 150 confirmed AI vendors after a thorough inventory. Anything below 20 typically reflects an incomplete inventory; anything above 200 typically reflects double-counting from non-AI products that ship AI features.</p>
+<p><strong>How do I justify the 13-dimension scope to executive management?</strong>
+Map each dimension to a regulator: SOC 2 → auditor; BSI C5 → BSI/BaFin; DPA → BfDI/DPA; Annex III classification → market-surveillance authority; sub-processor chain → DORA register; concentration → DORA Art. 29; AI red-teaming → operational risk. The scope is not optional; it is the regulators' aggregated checklist.</p>
+<p><strong>How does this plan handle vendors discovered after Day 30?</strong>
+Treat new discoveries as exception cases routed to the same triage: add to inventory, score on two-axis matrix, classify in next quarterly cohort unless the score puts them in the current top-10 (then bump). The plan's resilience is in the standing process, not the one-time exercise.</p>
+<p><strong>Can PartnerScope deliver the assessment cohort within Days 30-60?</strong>
+Yes for cohorts up to 15-20 vendors. Pro tier assessments deliver in 5-10 working days each; Enterprise onboarding for a 15-vendor portfolio takes 2-3 weeks plus assessment time. €4,900/quarter Enterprise + €2,500 onboarding fits the budget envelope of a typical mid-market risk function.</p>
+<hr />
+<h2>CTA</h2>
+<p>Run a free 60-second EU AI Act Snapshot at <a href="https://partnerscope.eu/">partnerscope.eu</a> to seed your AI vendor inventory and surface the highest-exposure vendor in your stack. Or read the <a href="https://partnerscope.eu/eu-ai-act-third-party-risk">complete pillar guide</a>.</p>
+
+      <section class="final-cta">
+        <h2>Try PartnerScope</h2>
+        <p>Run a free 60-second EU AI Act Snapshot — classifies your vendor's AI under the Act and produces a starter scorecard before any commitment.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://partnerscope.eu/">Start free Snapshot</a>
+          <a class="btn btn-ghost" href="/eu-ai-act-third-party-risk/">Read the complete EU AI Act guide →</a>
+        </div>
+      </section>
+
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-tagline">PartnerScope is operated by EKM Global Consulting GmbH in Baden-Baden, Germany. The EU AI Act third-party risk assessment platform for risk officers, DPOs, and CISOs at DACH-regulated organizations.</p>
+      <nav class="footer-nav" aria-label="Legal">
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/dpa">DPA</a>
+        <a href="/legal/sub-processors">Sub-processors</a>
+        <a href="/legal/imprint">Impressum</a>
+        <a href="mailto:elshan.musayev@partnerscope.eu">Contact</a>
+        <a href="/de/">Deutsch</a>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+</html>
