@@ -2,7 +2,7 @@
  * TLS_001 tests — inject a fake probe to avoid real network.
  */
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type TlsProbe, runTls } from './tls.js';
 
@@ -29,6 +29,19 @@ function probeWith(info: {
 }
 
 describe('runTls', () => {
+  beforeEach(() => {
+    // Freeze Date so the fixture's Date.now() and runTls's Date.now() agree
+    // exactly. Without this, daysLeft is off-by-one whenever the two calls
+    // straddle a millisecond boundary (e.g. "expires in 5 days" → "4 days").
+    // toFake: ['Date'] leaves setTimeout/microtasks alone so `await` works.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-05-06T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('passes on healthy TLS 1.3 + fresh cert', async () => {
     const r = await runTls({ domain: 'example.com' }, probeWith({ daysOffset: 60 }));
     expect(r.status).toBe('pass');
