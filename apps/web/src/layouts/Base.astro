@@ -99,7 +99,14 @@ const p = (route: string) => (isDe ? '/de' + route : route);
 
 const year = new Date().getFullYear();
 const site = Astro.site ?? new URL('https://partnerscope.eu');
-const canonicalHref = canonical ?? new URL(Astro.url.pathname, site).toString();
+// Strip .html and trailing /index from pathname for canonical (trailingSlash: 'never' +
+// build.format: 'file' otherwise emits canonical URLs with .html, fragmenting from
+// public/*.html static articles that use clean no-extension URLs as canonical).
+const cleanPath = Astro.url.pathname
+  .replace(/\.html$/, '')
+  .replace(/\/index$/, '/')
+  .replace(/\/$/, '') || '/';
+const canonicalHref = canonical ?? new URL(cleanPath, site).toString();
 const ogImageHref = new URL(ogImage, site).toString();
 const enAlternateHref = new URL(enHref, site).toString();
 const deAlternateHref = new URL(deHref, site).toString();
