@@ -1,29 +1,32 @@
 /**
  * POST /v1/intake  (public)
  *
- * Scope-request handoff from the marketing site's /get-started page.
+ * Scope-request handoff from the marketing site:
+ *   - /get-started  — paid tiers (starter / pro / enterprise)
+ *   - /assessment   — Free Partner Stack Assessment (free_assessment)
+ *   - /pilot        — Pilot Program 2026 application (pilot_application)
+ *
  * This is intentionally lean: no DB write, no Stripe coupling. We render
  * an internal email to hello@partnerscope.eu via the existing Resend
- * integration. A human confirms scope and issues the Stripe payment link.
- *
- * This keeps the conversion funnel unblocked while Stripe Price IDs are
- * still being configured externally.
+ * integration. A human confirms scope and (for paid tiers) issues the
+ * Stripe payment link. Free flows are delivered manually within the
+ * advertised SLA.
  */
 
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
 import { env } from '../config/env.js';
-import { sendInternalIntakeNotice } from '../services/email/index.js';
+import { sendInternalIntakeNotice, sendTx05IntakeAck } from '../services/email/index.js';
 
 const IntakeSchema = z.object({
-  tier: z.enum(['starter', 'pro', 'enterprise']),
+  tier: z.enum(['starter', 'pro', 'enterprise', 'free_assessment', 'pilot_application']),
   email: z.string().email().max(254),
   buyerName: z.string().min(1).max(120),
   buyerCompany: z.string().min(1).max(200),
   vendorDomain: z.string().min(3).max(253),
   vendorLegalName: z.string().max(200).optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().max(4000).optional(),
   utm: z
     .object({
       source: z.string().max(100).optional(),
@@ -37,8 +40,10 @@ export async function intakeRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.post('/v1/intake', { config: { public: true } }, async (req, reply) => {
     const body = IntakeSchema.parse(req.body);
 
-    try {
-      const result = await sendInternalIntakeNotice({
+    // Fire internal notice + buyer auto-ack in parallel. Either can fail without
+    // blocking the submission acknowledgement; logged for manual recovery.
+    const [internalRes, ackRes] = await Promise.allSettled([
+      sendInternalIntakeNotice({
         to: env.RESEND_REPLY_TO, // hello@partnerscope.eu by default
         replyTo: body.email,
         tier: body.tier,
@@ -50,17 +55,24 @@ export async function intakeRoutes(fastify: FastifyInstance): Promise<void> {
         notes: body.notes,
         utm: body.utm,
         submittedAt: new Date().toISOString(),
-      });
+      }),
+      sendTx05IntakeAck({
+        to: body.email,
+        buyerName: body.buyerName,
+        buyerCompany: body.buyerCompany,
+        tier: body.tier,
+      }),
+    ]);
 
-      reply.code(201).send({
-        received: true,
-        deliveryId: result.id,
-        dryRun: result.dryRun,
-      });
-    } catch (err) {
-      req.log.error({ err }, 'intake email failed');
-      // Still accept the submission — losing leads to SMTP outages is worse
-      // than returning a soft success; the API logs the payload for recovery.
+    if (internalRes.status === 'rejected') {
+      req.log.error({ err: internalRes.reason }, 'internal intake notice failed');
+    }
+    if (ackRes.status === 'rejected') {
+      req.log.error({ err: ackRes.reason }, 'buyer intake ack failed');
+    }
+
+    if (internalRes.status === 'rejected' && ackRes.status === 'rejected') {
+      // Both emails failed — log full payload for manual recovery, return soft 202.
       req.log.warn(
         {
           intake: {
@@ -68,11 +80,20 @@ export async function intakeRoutes(fastify: FastifyInstance): Promise<void> {
             email: body.email,
             vendorDomain: body.vendorDomain,
             buyerCompany: body.buyerCompany,
+            notes: body.notes,
           },
         },
-        'intake payload (email send failed — recover from logs)',
+        'intake payload (BOTH emails failed — recover from logs)',
       );
       reply.code(202).send({ received: true, queuedForManualFollowup: true });
+      return;
     }
+
+    reply.code(201).send({
+      received: true,
+      deliveryId: internalRes.status === 'fulfilled' ? internalRes.value.id : null,
+      ackSent: ackRes.status === 'fulfilled' && ackRes.value.delivered,
+      dryRun: internalRes.status === 'fulfilled' ? internalRes.value.dryRun : false,
+    });
   });
 }

@@ -57,7 +57,7 @@ export interface Tx04PasswordReset {
 export interface InternalIntakeNotice {
   to: string; // internal inbox (hello@partnerscope.eu)
   replyTo: string; // buyer's email — so a reply goes back to them
-  tier: 'starter' | 'pro' | 'enterprise';
+  tier: 'starter' | 'pro' | 'enterprise' | 'free_assessment' | 'pilot_application';
   email: string;
   buyerName: string;
   buyerCompany: string;
@@ -66,6 +66,13 @@ export interface InternalIntakeNotice {
   notes?: string;
   utm?: { source?: string; medium?: string; campaign?: string };
   submittedAt: string;
+}
+
+export interface Tx05IntakeAck {
+  to: string; // buyer's email
+  buyerName: string;
+  buyerCompany: string;
+  tier: 'starter' | 'pro' | 'enterprise' | 'free_assessment' | 'pilot_application';
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -190,12 +197,67 @@ export async function sendTx04PasswordReset(input: Tx04PasswordReset): Promise<S
 }
 
 /**
+ * Auto-acknowledge email — sent to the buyer immediately on intake submission,
+ * so they have something in their inbox before the human follow-up arrives.
+ * Conditional copy per tier handled in the .hbs template via Handlebars #if.
+ */
+export async function sendTx05IntakeAck(input: Tx05IntakeAck): Promise<SendResult> {
+  const tierLabel =
+    input.tier === 'starter'
+      ? 'Starter assessment'
+      : input.tier === 'pro'
+        ? 'Pro assessment'
+        : input.tier === 'enterprise'
+          ? 'Enterprise enquiry'
+          : input.tier === 'free_assessment'
+            ? 'Free Partner Stack Assessment'
+            : 'Pilot Program 2026 application';
+
+  const vars = {
+    buyerName: input.buyerName,
+    buyerCompany: input.buyerCompany,
+    tierLabel,
+    isFreeAssessment: input.tier === 'free_assessment',
+    isPilotApplication: input.tier === 'pilot_application',
+    isPaidTier: input.tier === 'starter' || input.tier === 'pro' || input.tier === 'enterprise',
+  };
+
+  const [html, text] = await Promise.all([
+    loadTemplate('tx05_intake_ack.hbs').then((t) => t(vars)),
+    loadTemplate('tx05_intake_ack.txt.hbs').then((t) => t(vars)),
+  ]);
+
+  const subject =
+    input.tier === 'free_assessment'
+      ? `We received your free assessment request — ${input.buyerCompany}`
+      : input.tier === 'pilot_application'
+        ? `We received your 2026 pilot application — ${input.buyerCompany}`
+        : `We received your ${tierLabel} request — ${input.buyerCompany}`;
+
+  return sendRaw({
+    to: input.to,
+    subject,
+    html,
+    text,
+    tag: 'tx05_intake_ack',
+  });
+}
+
+/**
  * Internal notice — buyer filled out /get-started, a human needs to confirm
  * scope and issue the Stripe payment link. Plain-text + minimal HTML.
  */
 export async function sendInternalIntakeNotice(input: InternalIntakeNotice): Promise<SendResult> {
   const tierLabel =
-    input.tier === 'starter' ? 'Starter (€99)' : input.tier === 'pro' ? 'Pro (€299)' : 'Enterprise';
+    input.tier === 'starter'
+      ? 'Starter (€99)'
+      : input.tier === 'pro'
+        ? 'Pro (€299)'
+        : input.tier === 'enterprise'
+          ? 'Enterprise'
+          : input.tier === 'free_assessment'
+            ? 'Free Partner Stack Assessment (2-business-day SLA)'
+            : 'Pilot Application 2026 (5 DACH slots)';
 
   const lines = [
     `New PartnerScope scope request — ${tierLabel}`,

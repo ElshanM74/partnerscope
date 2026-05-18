@@ -1,0 +1,28 @@
+<div style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;color:#1a2233;line-height:1.55">
+  <p style="margin:0 0 16px">Hello {{buyerName}},</p>
+
+  <p style="margin:0 0 16px">We received your <strong>{{tierLabel}}</strong> request for <strong>{{buyerCompany}}</strong>.</p>
+
+  {{#if isFreeAssessment}}
+  <p style="margin:0 0 16px">Elshan will personally deliver your structured first-pass assessment <strong>within 2 business days</strong> (Europe/Berlin, Mon–Fri). It arrives in your inbox as a markdown report — no dashboard sign-up required. Look for it from <a href="mailto:elshan.musayev@partnerscope.eu">elshan.musayev@partnerscope.eu</a>.</p>
+  <p style="margin:0 0 16px">In the meantime, you can browse our methodology if you want to know how we score: <a href="https://partnerscope.eu/methodology">partnerscope.eu/methodology</a>.</p>
+  {{/if}}
+
+  {{#if isPilotApplication}}
+  <p style="margin:0 0 16px">Elshan reads every pilot application personally. You will hear back — <strong>yes or no</strong> — within 7 business days. If shortlisted, expect a 30-minute scope call invitation in the same window.</p>
+  <p style="margin:0 0 16px">While you wait: <a href="https://partnerscope.eu/methodology">the 13-dimension framework</a> underlying every Pilot assessment.</p>
+  {{/if}}
+
+  {{#if isPaidTier}}
+  <p style="margin:0 0 16px">A human will confirm scope and email you a <strong>secure Stripe payment link within one business day</strong> (Europe/Berlin, Mon–Fri).</p>
+  {{/if}}
+
+  <p style="margin:0 0 24px;color:#6b7488;font-size:0.95em">If you have anything urgent to add, just reply to this email — it routes straight to Elshan.</p>
+
+  <hr style="border:none;border-top:1px solid #e3e6ec;margin:24px 0" />
+
+  <p style="margin:0;font-size:0.85em;color:#6b7488">
+    <strong>PartnerScope</strong> · EKM Global Consulting GmbH · Baden-Baden, Germany<br />
+    <a href="https://partnerscope.eu" style="color:#4f7cff">partnerscope.eu</a>
+  </p>
+</div>

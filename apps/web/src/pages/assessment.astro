@@ -1,0 +1,461 @@
+---
+/**
+ * /assessment — Free Partner Stack Assessment landing page.
+ *
+ * CTA 1 from LinkedIn article for Vienna Up 2026 traffic. Target: DACH scaleup
+ * founders/CTOs/compliance leads preparing for Series A or US enterprise pilots.
+ *
+ * POSTs to /v1/intake with tier='free_assessment', captures their partner stack
+ * in structured notes field, delivers first-pass assessment within 2 business days.
+ */
+
+import Base from '../layouts/Base.astro';
+
+// Default to same-origin /api in production (nginx proxies /api/* to Fastify).
+// Override via PUBLIC_API_BASE_URL=http://localhost:4000 in apps/web/.env for dev.
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Free Partner Stack Assessment — PartnerScope"
+  description="Submit your AI/data/infrastructure partner stack. Receive a structured first-pass assessment within 2 business days with specific procurement-risk gaps flagged. Free, no sales call."
+>
+  <section class="intake section">
+    <div class="container intake-inner">
+      <header class="intake-head">
+        <p class="eyebrow">Free · DACH scaleups · Vienna Up 2026</p>
+        <h1>Free Partner Stack Assessment</h1>
+        <p class="intake-sub">
+          Submit your current partner stack — AI models, data processors, infrastructure providers, security tooling.
+          We deliver a structured first-pass assessment within 2 business days, with specific gaps flagged against
+          EU procurement scrutiny. No commitment, no sales call required.
+        </p>
+      </header>
+
+      <form id="assessment-form" class="intake-form" novalidate data-api-base={apiBase}>
+        <input type="hidden" name="tier" value="free_assessment" />
+
+        <div class="row">
+          <label>
+            <span>Your work email <em>*</em></span>
+            <input type="email" name="email" required autocomplete="email" placeholder="founder@yourco.eu" />
+          </label>
+          <label>
+            <span>Your name <em>*</em></span>
+            <input type="text" name="buyerName" required autocomplete="name" placeholder="Maria Schmidt" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            <span>Your company <em>*</em></span>
+            <input type="text" name="buyerCompany" required autocomplete="organization" placeholder="ScaleUp GmbH" />
+          </label>
+          <label>
+            <span>Your company website <em>*</em></span>
+            <input type="text" name="vendorDomain" required autocomplete="url" placeholder="founderco.eu" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            <span>Your role <em>*</em></span>
+            <select name="role" required>
+              <option value="" disabled selected>Choose your role</option>
+              <option value="Founder">Founder</option>
+              <option value="CTO">CTO</option>
+              <option value="CISO">CISO</option>
+              <option value="Head of Compliance">Head of Compliance</option>
+              <option value="Head of Procurement">Head of Procurement</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>
+            <span>Timeline <em>*</em></span>
+            <select name="timeline" required>
+              <option value="" disabled selected>Target timeline</option>
+              <option value="Less than 3 months">Less than 3 months</option>
+              <option value="3 to 6 months">3 to 6 months</option>
+              <option value="6 to 12 months">6 to 12 months</option>
+              <option value="12 to 24 months">12 to 24 months</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="customer-segment">
+          <legend>Target customer segment <em>*</em></legend>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="customerSegment" value="US enterprise (Fortune 500 / mid-market)" required />
+              <span>US enterprise (Fortune 500 / mid-market)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="customerSegment" value="DACH bank / insurer" required />
+              <span>DACH bank / insurer</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="customerSegment" value="EU public sector" required />
+              <span>EU public sector</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="customerSegment" value="Other regulated EU enterprise" required />
+              <span>Other regulated EU enterprise</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label class="full">
+          <span>Current partner stack <em>*</em></span>
+          <textarea
+            name="partnerStack"
+            rows="6"
+            required
+            placeholder="AI models (e.g., OpenAI, Anthropic), data processors, infrastructure providers (AWS/GCP/Azure), security tooling, observability, payments, comms — one per line is fine."
+          ></textarea>
+        </label>
+
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            I agree to PartnerScope's <a href="/legal/terms">Terms</a> and
+            <a href="/legal/privacy">Privacy Policy</a>. I understand this is a free
+            assessment request with no commitment required.
+          </span>
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="assessment-submit">Request my assessment →</button>
+        </div>
+
+        <p class="tiny">
+          Prefer to talk first?
+          <a href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20partner%20strategy%20call">Book a 30-minute partner strategy call</a>.
+        </p>
+      </form>
+
+      <div id="assessment-success" class="intake-success" hidden>
+        <div class="success-card">
+          <div class="success-check" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h2>Request received.</h2>
+          <p>
+            We have your details. Elshan will personally deliver your structured first-pass assessment within
+            2 business days (Europe/Berlin, Mon–Fri). It arrives in your inbox as a markdown report — no dashboard
+            sign-up required. Watch <strong>elshan.musayev@partnerscope.eu</strong> — if it lands in spam, please flag it.
+          </p>
+          <div class="success-actions">
+            <a class="btn btn-dark" href="/plans">Back to homepage</a>
+            <a class="btn btn-ghost" href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20partner%20strategy%20call">Email us directly</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="assessment-error" class="intake-error" hidden>
+        <div class="error-card">
+          <h3>Couldn't submit the request.</h3>
+          <p id="assessment-error-msg">We couldn't reach the API. Please email elshan.musayev@partnerscope.eu and we'll process it manually.</p>
+          <button type="button" class="btn btn-ghost" id="assessment-retry">Try again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JSON-LD schema for the free assessment service -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Free Partner Stack Assessment",
+    "provider": { "@type": "Organization", "@id": "https://partnerscope.eu/#organization" },
+    "description": "Structured first-pass assessment of a scaleup's AI / data / infrastructure / security partner stack. Delivered within 2 business days. Free.",
+    "areaServed": [
+      { "@type": "Country", "name": "Germany" },
+      { "@type": "Country", "name": "Austria" },
+      { "@type": "Country", "name": "Switzerland" }
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
+</Base>
+
+<style>
+  .intake-inner {
+    max-width: 720px;
+  }
+  .intake-head {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .intake-sub {
+    color: var(--ps-muted);
+    max-width: 540px;
+    margin: 0.5rem auto 0;
+  }
+
+  .intake-form {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ps-text);
+  }
+  label.full {
+    margin-bottom: 1rem;
+  }
+  label > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  label em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  input[type='email'],
+  input[type='text'],
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  select {
+    cursor: pointer;
+  }
+  select option[disabled] {
+    color: var(--ps-muted);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+
+  .customer-segment {
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .customer-segment legend {
+    padding: 0 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--ps-text);
+  }
+  .customer-segment legend em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  .radio-option input[type='radio'] {
+    width: auto;
+    margin: 0;
+  }
+  .radio-option span {
+    margin: 0;
+    font-weight: normal;
+  }
+
+  .consent {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--ps-text);
+  }
+  .consent input {
+    margin-top: 0.2rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .tiny {
+    color: var(--ps-muted);
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
+  .intake-success,
+  .intake-error {
+    margin-top: 1rem;
+  }
+  .success-card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .success-check {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: rgba(27, 143, 79, 0.12);
+    color: var(--band-minimal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.25rem;
+  }
+  .error-card {
+    background: #fff5f1;
+    border: 1px solid rgba(211, 90, 29, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .error-card h3 {
+    margin-top: 0;
+    color: var(--band-high);
+  }
+</style>
+
+<script>
+  const form = document.getElementById('assessment-form') as HTMLFormElement | null;
+  const success = document.getElementById('assessment-success') as HTMLDivElement | null;
+  const errorBox = document.getElementById('assessment-error') as HTMLDivElement | null;
+  const errorMsg = document.getElementById('assessment-error-msg');
+  const submitBtn = document.getElementById('assessment-submit') as HTMLButtonElement | null;
+  const retry = document.getElementById('assessment-retry') as HTMLButtonElement | null;
+
+  retry?.addEventListener('click', () => {
+    if (errorBox) errorBox.hidden = true;
+    if (form) form.hidden = false;
+  });
+
+  if (form && success) {
+    const apiBase = form.dataset.apiBase || '/api';
+    const url = new URL(window.location.href);
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+
+      // Build structured notes field
+      const role = String(fd.get('role') ?? '').trim();
+      const customerSegment = String(fd.get('customerSegment') ?? '').trim();
+      const timeline = String(fd.get('timeline') ?? '').trim();
+      const partnerStack = String(fd.get('partnerStack') ?? '').trim();
+
+      const notes = `=== PARTNER STACK ASSESSMENT REQUEST ===
+
+Role: ${role}
+Target customer segment: ${customerSegment}
+Timeline to Series A or US enterprise pilot: ${timeline}
+
+Current partner stack:
+${partnerStack}`;
+
+      const payload = {
+        tier: 'free_assessment',
+        email: String(fd.get('email') ?? '').trim(),
+        buyerName: String(fd.get('buyerName') ?? '').trim(),
+        buyerCompany: String(fd.get('buyerCompany') ?? '').trim(),
+        vendorDomain: String(fd.get('vendorDomain') ?? '').trim(), // Repurposed as company website
+        notes: notes,
+        utm: {
+          source: url.searchParams.get('utm_source') ?? undefined,
+          medium: url.searchParams.get('utm_medium') ?? undefined,
+          campaign: url.searchParams.get('utm_campaign') ?? undefined,
+        },
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting…';
+      }
+
+      try {
+        const res = await fetch(`${apiBase}/v1/intake`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API ${res.status}: ${text.slice(0, 200)}`);
+        }
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        if (errorBox) errorBox.hidden = false;
+        if (errorMsg) {
+          errorMsg.textContent = `We couldn't reach the API. ${(err as Error).message}. Please email elshan.musayev@partnerscope.eu and we'll process it manually.`;
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Request my assessment →';
+        }
+      }
+    });
+  }
+</script>

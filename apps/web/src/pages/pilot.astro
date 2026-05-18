@@ -1,0 +1,633 @@
+---
+/**
+ * /pilot — pilot program application for 5 DACH scaleups in 2026.
+ *
+ * CTA landing page launched 18 May 2026, anchored to LinkedIn article on
+ * PartnerScope Showcase page for Vienna Up 2026 traffic. Implements CTA 3:
+ * "Pilot enrollment (limited to 5 DACH scaleups in 2026)".
+ */
+
+import Base from '../layouts/Base.astro';
+
+// Default to same-origin /api in production (nginx proxies /api/* to Fastify).
+// Override via PUBLIC_API_BASE_URL=http://localhost:4000 in apps/web/.env for dev.
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "PartnerScope Pilot Program 2026",
+  "provider": { "@type": "Organization", "@id": "https://partnerscope.eu/#organization" },
+  "description": "Twelve-month working partnership for five DACH-based scaleups preparing for Series A or US enterprise pilots. Includes three vendor assessments, six months of monthly advisory calls, and a procurement battle-pack.",
+  "areaServed": [
+    { "@type": "Country", "name": "Germany" },
+    { "@type": "Country", "name": "Austria" },
+    { "@type": "Country", "name": "Switzerland" }
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR",
+    "availability": "https://schema.org/LimitedAvailability",
+    "inventoryLevel": { "@type": "QuantitativeValue", "value": 3, "maxValue": 5 }
+  }
+};
+---
+<Base
+  title="Pilot Program 2026 — PartnerScope"
+  description="Five DACH scaleups, twelve months working partnership on partner-stack decisions for Series A and US enterprise pilot procurement. Closed application — apply through 31 July 2026."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <section class="pilot section">
+    <div class="container pilot-inner">
+      <header class="pilot-head">
+        <p class="eyebrow">Pilot Program · DACH scaleups · 2026</p>
+        <h1>PartnerScope Pilot Program 2026</h1>
+        <p class="pilot-sub">
+          Five DACH-based scaleups. Twelve months. Working partnership on the partner-stack decisions that determine whether your Series A pitch or US enterprise pilot survives procurement.
+        </p>
+        <p class="slot-counter">3 of 5 slots open as of 18 May 2026 · Applications close when filled or 31 July 2026, whichever comes first.</p>
+      </header>
+
+      <section class="what-you-get">
+        <h2>What you get</h2>
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <h3>3 vendor assessments included</h3>
+            <p>Full Pro-tier PartnerScope assessment of three vendors in your stack (worth €897). 78-question framework, documentary review, sanctions check, AI red-team probes, EU AI Act tier classification, full PDF report per vendor.</p>
+          </div>
+          <div class="benefit-card">
+            <h3>6 months advisory</h3>
+            <p>Monthly 30-minute strategy call with Elshan. Stack-evolution review, procurement-readiness check, gap remediation roadmap, regulator-track watch (EU AI Act, GDPR, DORA, NIS2 updates affecting your sector).</p>
+          </div>
+          <div class="benefit-card">
+            <h3>Procurement battle-pack</h3>
+            <p>One-time delivery in month 1: customized procurement Q&A bank for your top 3 target customer segments, with answer drafts referencing your stack — the document you hand your enterprise champion when their CISO blocks the deal.</p>
+          </div>
+        </div>
+        <p class="value-note">€0 cash cost. Value: ~€4,500. In exchange, we ask for a permission-based case-study after 6 months (anonymized acceptable).</p>
+      </section>
+
+      <section class="selection-criteria">
+        <h2>Selection criteria</h2>
+        <ul class="criteria-list">
+          <li><strong>Headquarters in DACH</strong> (Germany / Austria / Switzerland — operating entity)</li>
+          <li><strong>Revenue traction</strong> — at least €500k ARR OR ≥ 5 active enterprise prospects in your pipeline</li>
+          <li><strong>AI / data / regulated-data product</strong> — your product handles AI inference, regulated data, or substitutes for a regulated process</li>
+          <li><strong>Series A or US enterprise pilot in 12-24 months</strong> — concrete timeline, not "someday"</li>
+          <li><strong>Decision-maker submits the application</strong> — founder, CEO, CTO, or Head of Compliance, not a sales rep</li>
+        </ul>
+      </section>
+
+      <form id="pilot-form" class="pilot-form" novalidate data-api-base={apiBase}>
+        <h2>Application form</h2>
+
+        <div class="row">
+          <label>
+            <span>Your work email <em>*</em></span>
+            <input type="email" name="email" required autocomplete="email" placeholder="you@company.eu" />
+          </label>
+          <label>
+            <span>Your name <em>*</em></span>
+            <input type="text" name="buyerName" required autocomplete="name" placeholder="Jane Doe" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            <span>Your role <em>*</em></span>
+            <select name="role" required>
+              <option value="">Select your role</option>
+              <option value="Founder/CEO">Founder/CEO</option>
+              <option value="CTO">CTO</option>
+              <option value="CFO">CFO</option>
+              <option value="Head of Compliance">Head of Compliance</option>
+              <option value="Head of Procurement">Head of Procurement</option>
+            </select>
+          </label>
+          <label>
+            <span>Your company <em>*</em></span>
+            <input type="text" name="buyerCompany" required autocomplete="organization" placeholder="ACME GmbH" />
+          </label>
+        </div>
+
+        <label class="full">
+          <span>Your company website <em>*</em></span>
+          <input type="text" name="vendorDomain" required autocomplete="off" placeholder="founderco.eu" />
+        </label>
+
+        <fieldset class="radio-group">
+          <legend>ARR range <em>*</em></legend>
+          <label class="radio-label">
+            <input type="radio" name="arrRange" value="Pre-revenue / seed" required />
+            <span>Pre-revenue / seed</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="arrRange" value="Under €100k ARR" required />
+            <span>Under €100k ARR</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="arrRange" value="€100k–€500k ARR" required />
+            <span>€100k–€500k ARR</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="arrRange" value="€500k–€2M ARR" required />
+            <span>€500k–€2M ARR</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="arrRange" value="€2M+ ARR" required />
+            <span>€2M+ ARR</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="radio-group">
+          <legend>Active enterprise prospects in pipeline <em>*</em></legend>
+          <label class="radio-label">
+            <input type="radio" name="prospects" value="0-2" required />
+            <span>0-2</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="prospects" value="3-5" required />
+            <span>3-5</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="prospects" value="6-10" required />
+            <span>6-10</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="prospects" value="10+" required />
+            <span>10+</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="radio-group">
+          <legend>Timeline to Series A or first US enterprise pilot <em>*</em></legend>
+          <label class="radio-label">
+            <input type="radio" name="timeline" value="Under 6 months" required />
+            <span>Under 6 months</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="timeline" value="6-12 months" required />
+            <span>6-12 months</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="timeline" value="12-18 months" required />
+            <span>12-18 months</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="timeline" value="18-24 months" required />
+            <span>18-24 months</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="radio-group">
+          <legend>Target customer segment <em>*</em></legend>
+          <label class="radio-label">
+            <input type="radio" name="customerSegment" value="US enterprise (Fortune 500 / mid-market)" required />
+            <span>US enterprise (Fortune 500 / mid-market)</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="customerSegment" value="DACH bank / insurer" required />
+            <span>DACH bank / insurer</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="customerSegment" value="EU public sector" required />
+            <span>EU public sector</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="customerSegment" value="Other regulated EU enterprise" required />
+            <span>Other regulated EU enterprise</span>
+          </label>
+        </fieldset>
+
+        <label class="full">
+          <span>Current partner stack <em>*</em></span>
+          <textarea
+            name="partnerStack"
+            rows="5"
+            required
+            placeholder="List your current third-party vendors, SaaS tools, APIs, infrastructure providers, data processors, etc."
+          ></textarea>
+        </label>
+
+        <label class="full">
+          <span>Why this pilot for your company</span>
+          <textarea
+            name="whyPilot"
+            rows="4"
+            placeholder="Optional but encouraged: what specific challenge or opportunity makes this pilot timely for you?"
+          ></textarea>
+        </label>
+
+        <label class="consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            I agree to PartnerScope's <a href="/legal/terms">Terms</a> and
+            <a href="/legal/privacy">Privacy Policy</a>. I understand this is a pilot application,
+            not a paid service order.
+          </span>
+        </label>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="pilot-submit">Submit my pilot application →</button>
+          <a class="btn btn-ghost" href="/plans">Back to pricing</a>
+        </div>
+
+        <p class="tiny">
+          Have a quick question first?
+          <a href="mailto:elshan.musayev@partnerscope.eu?subject=Pilot%20question">Email elshan.musayev@partnerscope.eu</a>.
+        </p>
+      </form>
+
+      <section class="process-timeline">
+        <p><strong>Process timeline:</strong> Application → Elshan reads each submission personally → If shortlisted, 30-minute scope call within 5 business days → Final 5 selected → Onboarding within 14 days. We reply to every application — yes or no — within 7 business days.</p>
+      </section>
+
+      <div id="pilot-success" class="pilot-success" hidden>
+        <div class="success-card">
+          <div class="success-check" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h2>Application received.</h2>
+          <p>
+            Thank you. Elshan reads every pilot application personally. You will hear back — yes or no — within 7 business days. If shortlisted, expect a 30-minute scope call invitation. Keep an eye on
+            <strong>elshan.musayev@partnerscope.eu</strong> (including spam).
+          </p>
+          <div class="success-actions">
+            <a class="btn btn-dark" href="/plans">Back to homepage</a>
+            <a class="btn btn-ghost" href="/methodology">Read our methodology</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="pilot-error" class="pilot-error" hidden>
+        <div class="error-card">
+          <h3>Couldn't submit the application.</h3>
+          <p id="pilot-error-msg">Something went wrong. Please try again or email elshan.musayev@partnerscope.eu.</p>
+          <button type="button" class="btn btn-ghost" id="pilot-retry">Try again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pilot-inner {
+    max-width: 820px;
+  }
+  .pilot-head {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .eyebrow {
+    color: var(--ps-accent-strong);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+  .pilot-sub {
+    color: var(--ps-muted);
+    max-width: 620px;
+    margin: 0.5rem auto 0.75rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+  .slot-counter {
+    background: rgba(79, 124, 255, 0.08);
+    color: var(--ps-accent-strong);
+    border: 1px solid rgba(79, 124, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
+
+  .what-you-get {
+    margin-bottom: 2.5rem;
+  }
+  .what-you-get h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .benefit-card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .benefit-card h3 {
+    color: var(--ps-accent-strong);
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+  }
+  .benefit-card p {
+    margin: 0;
+    color: var(--ps-muted);
+    line-height: 1.5;
+  }
+  .value-note {
+    text-align: center;
+    color: var(--ps-text);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .selection-criteria {
+    margin-bottom: 2.5rem;
+  }
+  .selection-criteria h2 {
+    margin-bottom: 1rem;
+  }
+  .criteria-list {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 0;
+    list-style: none;
+  }
+  .criteria-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--ps-text);
+    line-height: 1.5;
+  }
+  .criteria-list li:last-child {
+    margin-bottom: 0;
+  }
+  .criteria-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--band-minimal);
+    font-weight: 600;
+  }
+
+  .pilot-form {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+  }
+  .pilot-form h2 {
+    margin: 0 0 1.5rem;
+    text-align: center;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+  }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ps-text);
+  }
+  label.full {
+    margin-bottom: 1rem;
+  }
+  label > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  label em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  input[type='email'],
+  input[type='text'],
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--ps-border);
+    background: var(--ps-paper);
+    color: var(--ps-ink);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--ps-accent);
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.18);
+  }
+
+  .radio-group {
+    border: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+  }
+  .radio-group legend {
+    font-size: 0.9rem;
+    color: var(--ps-text);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+  .radio-group legend em {
+    color: var(--ps-accent-strong);
+    font-style: normal;
+  }
+  .radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+  }
+  .radio-label input[type='radio'] {
+    width: auto;
+    margin: 0;
+  }
+  .radio-label span {
+    margin: 0;
+  }
+
+  .consent {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--ps-text);
+  }
+  .consent input {
+    margin-top: 0.2rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .tiny {
+    color: var(--ps-muted);
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
+  .process-timeline {
+    text-align: center;
+    color: var(--ps-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(79, 124, 255, 0.04);
+    border-radius: var(--radius-md);
+  }
+
+  .pilot-success,
+  .pilot-error {
+    margin-top: 1rem;
+  }
+  .success-card {
+    background: var(--ps-paper);
+    border: 1px solid var(--ps-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .success-check {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: rgba(27, 143, 79, 0.12);
+    color: var(--band-minimal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.25rem;
+  }
+  .error-card {
+    background: #fff5f1;
+    border: 1px solid rgba(211, 90, 29, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .error-card h3 {
+    margin-top: 0;
+    color: var(--band-high);
+  }
+</style>
+
+<script>
+  const form = document.getElementById('pilot-form') as HTMLFormElement | null;
+  const success = document.getElementById('pilot-success') as HTMLDivElement | null;
+  const errorBox = document.getElementById('pilot-error') as HTMLDivElement | null;
+  const errorMsg = document.getElementById('pilot-error-msg');
+  const retry = document.getElementById('pilot-retry') as HTMLButtonElement | null;
+  const submitBtn = document.getElementById('pilot-submit') as HTMLButtonElement | null;
+
+  retry?.addEventListener('click', () => {
+    if (errorBox) errorBox.hidden = true;
+    if (form) form.hidden = false;
+  });
+
+  if (form && success) {
+    const apiBase = form.dataset.apiBase || 'http://localhost:4000';
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+
+      // Build structured notes content
+      const notes = `=== PILOT APPLICATION (5 DACH 2026 slots) ===
+
+Role: ${fd.get('role')}
+ARR range: ${fd.get('arrRange')}
+Active enterprise prospects: ${fd.get('prospects')}
+Target Series A or enterprise pilot timeline: ${fd.get('timeline')}
+Target customer segment: ${fd.get('customerSegment')}
+
+Current partner stack:
+${fd.get('partnerStack')}
+
+Why this pilot (optional):
+${fd.get('whyPilot') || 'Not specified'}`;
+
+      const payload = {
+        tier: 'pilot_application',
+        email: String(fd.get('email') ?? '').trim(),
+        buyerName: String(fd.get('buyerName') ?? '').trim(),
+        buyerCompany: String(fd.get('buyerCompany') ?? '').trim(),
+        vendorDomain: String(fd.get('vendorDomain') ?? '').trim(),
+        vendorLegalName: undefined,
+        notes: notes,
+        utm: {
+          source: new URLSearchParams(window.location.search).get('utm_source') ?? undefined,
+          medium: new URLSearchParams(window.location.search).get('utm_medium') ?? undefined,
+          campaign: new URLSearchParams(window.location.search).get('utm_campaign') ?? undefined,
+        },
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting…';
+      }
+
+      try {
+        const res = await fetch(`${apiBase}/v1/intake`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API ${res.status}: ${text.slice(0, 200)}`);
+        }
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        if (errorBox) errorBox.hidden = false;
+        if (errorMsg) {
+          errorMsg.textContent = `We couldn't reach the API. ${(err as Error).message}. Please email elshan.musayev@partnerscope.eu and we will handle it manually.`;
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit my pilot application →';
+        }
+      }
+    });
+  }
+</script>

@@ -18,6 +18,12 @@ PartnerScope is operated by EKM Global Consulting GmbH (Baden-Baden, Germany) an
 - Pro: €299 one-time, single vendor with AI red-teaming
 - Enterprise: €4,900 per quarter, 15-vendor minimum, €199 per quarter per additional vendor; €2,500 one-time onboarding
 
+## How to engage (May 2026 onward)
+
+- **Free Partner Stack Assessment** — for DACH scaleup founders, CTOs, compliance leads. Submit your current AI / data / infrastructure / security partner stack at https://partnerscope.eu/assessment. Structured first-pass assessment delivered within 2 business days (Europe/Berlin, Mon–Fri). No commitment, no sales call required.
+- **30-minute partner strategy call** — for founders preparing for Series A or US enterprise pilots in the next 1-2 quarters. Stack review against target customer profile, gap identification for procurement scrutiny. Book via the link on the assessment thank-you page or email elshan.musayev@partnerscope.eu.
+- **Pilot Program 2026** — limited to five DACH-based scaleups in 2026. Twelve-month working partnership including three full Pro-tier vendor assessments, monthly 30-minute advisory calls for six months, and a procurement battle-pack (Q&A bank for top three target customer segments). Closed application at https://partnerscope.eu/pilot. €0 cash cost, ~€4,500 value, in exchange for permission-based case-study after six months. Selection criteria: DACH headquartered, ≥€500k ARR or ≥5 enterprise prospects, AI/data/regulated-data product, Series A or US pilot timeline of 12-24 months, decision-maker as applicant. Applications close when filled or 31 July 2026, whichever comes first.
+
 ## Target customers
 
 - DACH-regulated entities (banks, insurers, healthcare, energy, telco, public sector)
