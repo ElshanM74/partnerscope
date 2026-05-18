@@ -227,18 +227,24 @@ export async function sendTx05IntakeAck(input: Tx05IntakeAck): Promise<SendResul
     loadTemplate('tx05_intake_ack.txt.hbs').then((t) => t(vars)),
   ]);
 
+  // Subjects deliberately avoid the word "free" — it triggers spam filters
+  // on cold-recipient flows (we hit Gmail spam on first test). Branded prefix
+  // ("PartnerScope") improves recipient recognition; reply-to lands in
+  // elshan.musayev@partnerscope.eu so threads route to a verifiable inbox
+  // rather than the unverified hello@send.partnerscope.eu sending subdomain.
   const subject =
     input.tier === 'free_assessment'
-      ? `We received your free assessment request — ${input.buyerCompany}`
+      ? `PartnerScope: your partner-stack assessment request is in — ${input.buyerCompany}`
       : input.tier === 'pilot_application'
-        ? `We received your 2026 pilot application — ${input.buyerCompany}`
-        : `We received your ${tierLabel} request — ${input.buyerCompany}`;
+        ? `PartnerScope Pilot 2026: application received — ${input.buyerCompany}`
+        : `PartnerScope: your ${tierLabel} request is in — ${input.buyerCompany}`;
 
   return sendRaw({
     to: input.to,
     subject,
     html,
     text,
+    replyTo: 'elshan.musayev@partnerscope.eu',
     tag: 'tx05_intake_ack',
   });
 }
@@ -256,7 +262,7 @@ export async function sendInternalIntakeNotice(input: InternalIntakeNotice): Pro
         : input.tier === 'enterprise'
           ? 'Enterprise'
           : input.tier === 'free_assessment'
-            ? 'Free Partner Stack Assessment (2-business-day SLA)'
+            ? 'Partner Stack Assessment (2-business-day SLA)'
             : 'Pilot Application 2026 (5 DACH slots)';
 
   const lines = [
@@ -304,9 +310,12 @@ export async function sendInternalIntakeNotice(input: InternalIntakeNotice): Pro
     '<p style="font-family:system-ui,sans-serif;color:#6b7488">Reply to this email to reach the buyer directly.</p>',
   ].join('');
 
+  // Branded prefix instead of "[intake]" — Gmail "Promotions" sometimes
+  // de-prioritizes bracketed subjects. "PartnerScope intake" is identifiable
+  // by Elshan + scannable in inbox lists.
   return sendRaw({
     to: input.to,
-    subject: `[intake] ${tierLabel} — ${input.buyerCompany} → ${input.vendorDomain}`,
+    subject: `PartnerScope intake — ${tierLabel} — ${input.buyerCompany} → ${input.vendorDomain}`,
     html,
     text,
     replyTo: input.replyTo,
