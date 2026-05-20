@@ -132,6 +132,37 @@ jobs:
             ops/deploy.sh \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/partnerscope/
 
+      - name: Inject newsletter API key into prod env (idempotent)
+        env:
+          NEWSLETTER_API_KEY: ${{ secrets.RESEND_NEWSLETTER_API_KEY }}
+          SSH_TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+        run: |
+          # Avoid embedding the secret in the SSH command string (which would
+          # appear in `ps` on the deploy host). Instead: write to local tmpfile
+          # with restrictive perms, scp it across, and let server-side bash
+          # source it. Local tmpfile cleaned up at end. Idempotent — guarded
+          # by grep so re-runs don't append duplicates.
+          if [ -z "$NEWSLETTER_API_KEY" ]; then
+            echo "RESEND_NEWSLETTER_API_KEY secret not set — skipping injection"
+            exit 0
+          fi
+          TMPFILE=$(mktemp)
+          chmod 600 "$TMPFILE"
+          printf 'RESEND_NEWSLETTER_API_KEY=%s\n' "$NEWSLETTER_API_KEY" > "$TMPFILE"
+          scp "$TMPFILE" "$SSH_TARGET:/tmp/.newsletter_env.$$"
+          ssh "$SSH_TARGET" "
+            if grep -q '^RESEND_NEWSLETTER_API_KEY=' /opt/partnerscope/.env; then
+              echo 'RESEND_NEWSLETTER_API_KEY already present — skipping'
+              rm -f /tmp/.newsletter_env.$$
+            else
+              cat /tmp/.newsletter_env.$$ >> /opt/partnerscope/.env
+              chmod 600 /opt/partnerscope/.env
+              rm -f /tmp/.newsletter_env.$$
+              echo 'RESEND_NEWSLETTER_API_KEY injected'
+            fi
+          "
+          rm -f "$TMPFILE"
+
       - name: Run deploy.sh
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \

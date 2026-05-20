@@ -66,6 +66,13 @@ const EnvSchema = z.object({
   // subscribe endpoint runs in dry-log mode without hitting Resend.
   RESEND_NEWSLETTER_AUDIENCE_ID: z.string().optional(),
 
+  // Dedicated Full-access Resend key for the newsletter subscribe endpoint.
+  // Separated from RESEND_API_KEY (Sending-only) because Audiences API
+  // requires Full access. Smaller blast radius if compromised: this key
+  // can manage contacts in audiences but main transactional sends use a
+  // different (Sending-only) key. Empty in dev = falls back to dry-log.
+  RESEND_NEWSLETTER_API_KEY: z.string().optional(),
+
   // APNs (Apple Push Notification service) — optional in dev; required for
   // actual push delivery in prod. If any are missing at runtime, the push
   // service no-ops with a warning log (token registration still succeeds).

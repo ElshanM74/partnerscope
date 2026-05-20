@@ -52,13 +52,19 @@ export async function newsletterRoutes(fastify: FastifyInstance): Promise<void> 
       return;
     }
 
-    if (!env.RESEND_API_KEY) {
-      req.log.error('newsletter subscribe: RESEND_API_KEY not set');
+    // Audiences API requires Full-access permission. The main RESEND_API_KEY
+    // is Sending-only (smaller blast radius for transactional sends), so we
+    // use a dedicated newsletter key. If not provided in dev, dry-run.
+    const newsletterKey = env.RESEND_NEWSLETTER_API_KEY ?? env.RESEND_API_KEY;
+    if (!newsletterKey) {
+      req.log.error(
+        'newsletter subscribe: neither RESEND_NEWSLETTER_API_KEY nor RESEND_API_KEY set',
+      );
       reply.code(503).send({ error: 'newsletter temporarily unavailable' });
       return;
     }
 
-    const resend = new Resend(env.RESEND_API_KEY);
+    const resend = new Resend(newsletterKey);
 
     try {
       const result = await resend.contacts.create({
