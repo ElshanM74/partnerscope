@@ -60,6 +60,12 @@ const EnvSchema = z.object({
 
   SENTRY_DSN: z.string().optional(),
 
+  // Resend Audience for «Before the Pitch» newsletter (Persona A — AI
+  // Strategy + EU AI Act + DACH). Subscribers landing via /newsletter
+  // are POSTed to this audience via Resend contacts API. Empty in dev =
+  // subscribe endpoint runs in dry-log mode without hitting Resend.
+  RESEND_NEWSLETTER_AUDIENCE_ID: z.string().optional(),
+
   // APNs (Apple Push Notification service) — optional in dev; required for
   // actual push delivery in prod. If any are missing at runtime, the push
   // service no-ops with a warning log (token registration still succeeds).

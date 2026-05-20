@@ -1,0 +1,298 @@
+---
+/**
+ * /newsletter — «Before the Pitch» subscribe page.
+ *
+ * Elshan's personal newsletter (Persona A — AI Strategy + EU AI Act + DACH).
+ * Hosted under partnerscope.eu because audience overlap is heavy and we get
+ * domain authority + analytics for free, but the content positions Elshan
+ * personally, not the SaaS — no PartnerScope upsell on this page.
+ *
+ * Subscribers land in the Resend Audience (RESEND_NEWSLETTER_AUDIENCE_ID)
+ * via POST /v1/newsletter/subscribe. Unsubscribe handled natively by Resend
+ * on every Broadcast send (List-Unsubscribe header + hosted page).
+ */
+
+import Base from '../layouts/Base.astro';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base
+  title="Before the Pitch — Newsletter by Elshan Musayev"
+  description="A short weekly read on AI startup due diligence, EU AI Act enforcement, and DACH-market strategy. Written by Elshan Musayev. No fluff, no growth-hacks — analysis with citations."
+  ogImage="/og/newsletter.png"
+>
+  <section class="newsletter section">
+    <div class="container newsletter-inner">
+      <header class="newsletter-head">
+        <p class="eyebrow">Newsletter · weekly · free</p>
+        <h1>Before the Pitch</h1>
+        <p class="newsletter-sub">
+          A short weekly read on AI startup due diligence, EU AI Act enforcement, and DACH-market strategy.
+          Written by Elshan Musayev. No fluff, no growth-hacks — analysis with citations.
+        </p>
+      </header>
+
+      <form id="newsletter-form" class="newsletter-form" novalidate data-api-base={apiBase}>
+        <div class="row">
+          <label class="full">
+            <span>Your work email <em>*</em></span>
+            <input
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="founder@yourco.eu"
+            />
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="full">
+            <span>Your first name <em class="optional">(optional)</em></span>
+            <input
+              type="text"
+              name="firstName"
+              autocomplete="given-name"
+              placeholder="Maria"
+              maxlength="80"
+            />
+          </label>
+        </div>
+
+        <p class="newsletter-fine">
+          One email per week max. Unsubscribe in one click. No sharing with third parties — your address
+          stays with Resend (EU data residency) and Elshan. <a href="/legal/privacy">Privacy notice</a>.
+        </p>
+
+        <button type="submit" class="btn btn-primary" id="newsletter-submit">
+          Subscribe to Before the Pitch →
+        </button>
+      </form>
+
+      <div id="newsletter-success" class="newsletter-success" hidden>
+        <h2>You're on the list.</h2>
+        <p>
+          Look for a confirmation in your inbox in a minute or two. If it doesn't arrive, check spam —
+          the first email lands from <code>elshan.musayev@ekmgc.de</code>.
+        </p>
+        <p class="newsletter-fine">
+          The next issue ships on the upcoming publication date. Past issues are at
+          <a href="https://www.linkedin.com/newsletters/before-the-pitch-7330000000000000000/">LinkedIn archive</a>.
+        </p>
+      </div>
+
+      <div id="newsletter-error" class="newsletter-error" hidden>
+        <h3>Couldn't process the subscription.</h3>
+        <p>
+          <span id="newsletter-error-msg">Network error.</span>
+        </p>
+        <button type="button" id="newsletter-retry" class="btn btn-ghost">Try again</button>
+        <p class="newsletter-fine">
+          If it keeps failing, email <a href="mailto:elshan.musayev@ekmgc.de">elshan.musayev@ekmgc.de</a>
+          and you'll be added manually.
+        </p>
+      </div>
+
+      <section class="newsletter-what">
+        <h2>What you get</h2>
+        <ul>
+          <li><strong>Issue cadence:</strong> weekly, usually Tuesday mornings (Europe/Berlin).</li>
+          <li><strong>Topic mix:</strong> AI startup due diligence breakdowns, EU AI Act enforcement reads, DACH-market scaleup signals.</li>
+          <li><strong>Length:</strong> 4-7 minute read. Markdown source, citations linked.</li>
+          <li><strong>No upsell:</strong> the newsletter does not sell anything. Advisory engagements happen separately, off-list.</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .newsletter.section {
+    padding: 64px 0 96px;
+  }
+  .newsletter-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .newsletter-head {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .newsletter-head h1 {
+    font-size: 2.5rem;
+    margin: 8px 0 16px;
+    line-height: 1.15;
+  }
+  .newsletter-sub {
+    color: #4b5568;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    color: #6b7488;
+    margin: 0;
+  }
+  .newsletter-form {
+    background: #fafbfc;
+    border: 1px solid #e3e6ec;
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .newsletter-form .row {
+    margin-bottom: 16px;
+  }
+  .newsletter-form label {
+    display: block;
+  }
+  .newsletter-form label.full {
+    width: 100%;
+  }
+  .newsletter-form label > span {
+    display: block;
+    font-size: 0.9rem;
+    color: #1a2233;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .newsletter-form label > span em {
+    color: #c0392b;
+    font-style: normal;
+  }
+  .newsletter-form label > span em.optional {
+    color: #6b7488;
+    font-weight: 400;
+  }
+  .newsletter-form input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #c8cdd6;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+    box-sizing: border-box;
+  }
+  .newsletter-form input:focus {
+    outline: 2px solid #4f7cff;
+    outline-offset: -1px;
+    border-color: #4f7cff;
+  }
+  .newsletter-fine {
+    font-size: 0.85rem;
+    color: #6b7488;
+    margin: 16px 0;
+    line-height: 1.5;
+  }
+  .newsletter-fine a {
+    color: #4f7cff;
+  }
+  .newsletter-form button[type='submit'] {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .newsletter-success,
+  .newsletter-error {
+    background: #fafbfc;
+    border: 1px solid #e3e6ec;
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .newsletter-success h2 {
+    margin: 0 0 12px;
+    color: #1e8449;
+  }
+  .newsletter-error h3 {
+    color: #c0392b;
+    margin: 0 0 12px;
+  }
+  .newsletter-what {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid #e3e6ec;
+  }
+  .newsletter-what h2 {
+    font-size: 1.25rem;
+    margin: 0 0 16px;
+  }
+  .newsletter-what ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .newsletter-what li {
+    margin-bottom: 12px;
+    color: #4b5568;
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement | null;
+  const success = document.getElementById('newsletter-success') as HTMLDivElement | null;
+  const errorBox = document.getElementById('newsletter-error') as HTMLDivElement | null;
+  const errorMsg = document.getElementById('newsletter-error-msg');
+  const submitBtn = document.getElementById('newsletter-submit') as HTMLButtonElement | null;
+  const retry = document.getElementById('newsletter-retry') as HTMLButtonElement | null;
+
+  retry?.addEventListener('click', () => {
+    if (errorBox) errorBox.hidden = true;
+    if (form) form.hidden = false;
+  });
+
+  if (form && success) {
+    const apiBase = form.dataset.apiBase || '/api';
+    const url = new URL(window.location.href);
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+
+      const payload = {
+        email: String(fd.get('email') ?? '').trim(),
+        firstName: String(fd.get('firstName') ?? '').trim() || undefined,
+        locale: 'en',
+        utm: {
+          source: url.searchParams.get('utm_source') ?? undefined,
+          medium: url.searchParams.get('utm_medium') ?? undefined,
+          campaign: url.searchParams.get('utm_campaign') ?? undefined,
+        },
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Subscribing…';
+      }
+
+      try {
+        const res = await fetch(`${apiBase}/v1/newsletter/subscribe`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API ${res.status}: ${text.slice(0, 200)}`);
+        }
+        form.hidden = true;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        if (errorBox) errorBox.hidden = false;
+        if (errorMsg) {
+          errorMsg.textContent = `We couldn't reach the API. ${(err as Error).message}.`;
+        }
+        form.hidden = true;
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Subscribe to Before the Pitch →';
+        }
+      }
+    });
+  }
+</script>

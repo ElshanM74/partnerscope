@@ -19,12 +19,16 @@ import { checkoutRoutes } from './routes/checkout.js';
 import { demoRoutes } from './routes/demo.js';
 import { healthRoutes } from './routes/health.js';
 import { intakeRoutes } from './routes/intake.js';
+import { newsletterRoutes } from './routes/newsletter.js';
 import { pushRoutes } from './routes/push.js';
 import { runRoutes } from './routes/runs.js';
+import { unsubscribeRoutes } from './routes/unsubscribe.js';
 import { vendorRoutes } from './routes/vendors.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { closePdfBrowser } from './services/pdf/index.js';
 import { closePushProvider } from './services/push.js';
+import { closeQueue } from './services/queue/index.js';
+import { startDripWorker, stopDripWorker } from './services/queue/drip-worker.js';
 
 export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   const app = Fastify({
@@ -62,6 +66,8 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   await app.register(adminRoutes);
   await app.register(demoRoutes);
   await app.register(intakeRoutes);
+  await app.register(newsletterRoutes);
+  await app.register(unsubscribeRoutes);
   await app.register(vendorRoutes);
   await app.register(runRoutes);
   await app.register(checkoutRoutes);
@@ -70,7 +76,13 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   // install doesn't leak to the rest of the API.
   await app.register(webhookRoutes);
 
+  // Start the BullMQ drip worker. Lazy: connects to Redis on first job.
+  // The worker shares its Fastify logger for structured per-job logs.
+  startDripWorker(app.log);
+
   app.addHook('onClose', async () => {
+    await stopDripWorker().catch(() => {});
+    await closeQueue().catch(() => {});
     await closePdfBrowser();
     await closePushProvider();
     await pool.end().catch(() => {});

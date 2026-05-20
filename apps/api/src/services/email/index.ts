@@ -76,6 +76,24 @@ export interface Tx05IntakeAck {
 }
 
 // ────────────────────────────────────────────────────────────────
+// Drip campaign — shared base (Tx06/Tx07/Tx08)
+// ────────────────────────────────────────────────────────────────
+
+interface DripBase {
+  to: string;
+  buyerName: string;
+  buyerCompany: string;
+  vendorDomain: string;
+  unsubscribeUrl: string; // https://partnerscope.eu/v1/unsubscribe/<token>
+}
+
+export type Tx06aAssessmentDay3 = DripBase;
+export type Tx07aAssessmentDay7 = DripBase;
+export type Tx06bPilotDay1 = DripBase;
+export type Tx07bPilotDay5 = DripBase;
+export type Tx08bPilotDay14 = DripBase;
+
+// ────────────────────────────────────────────────────────────────
 // Template loading (cached after first read)
 // ────────────────────────────────────────────────────────────────
 
@@ -116,6 +134,12 @@ interface RawSendInput {
   text: string;
   replyTo?: string;
   tag?: string;
+  /**
+   * If set, sends List-Unsubscribe + List-Unsubscribe-Post headers so Gmail/
+   * Apple Mail show a native one-click unsubscribe button. Required for drip
+   * compliance (CAN-SPAM / EU privacy) and improves deliverability scoring.
+   */
+  listUnsubscribeUrl?: string;
 }
 
 async function sendRaw(input: RawSendInput): Promise<SendResult> {
@@ -127,9 +151,17 @@ async function sendRaw(input: RawSendInput): Promise<SendResult> {
       subject: input.subject,
       tag: input.tag,
       textPreview: input.text.slice(0, 160),
+      listUnsubscribe: input.listUnsubscribeUrl ?? null,
     });
     return { id: null, delivered: false, dryRun: true };
   }
+
+  const headers: Record<string, string> | undefined = input.listUnsubscribeUrl
+    ? {
+        'List-Unsubscribe': `<${input.listUnsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      }
+    : undefined;
 
   const { data, error } = await client.emails.send({
     from: env.RESEND_FROM_EMAIL,
@@ -138,6 +170,7 @@ async function sendRaw(input: RawSendInput): Promise<SendResult> {
     html: input.html,
     text: input.text,
     replyTo: input.replyTo ?? env.RESEND_REPLY_TO,
+    headers,
     tags: input.tag ? [{ name: 'type', value: input.tag }] : undefined,
   });
 
@@ -321,6 +354,94 @@ export async function sendInternalIntakeNotice(input: InternalIntakeNotice): Pro
     replyTo: input.replyTo,
     tag: 'internal_intake',
   });
+}
+
+// ────────────────────────────────────────────────────────────────
+// Drip senders — Tx06/Tx07/Tx08
+//
+// Triggered by BullMQ worker on a delay. Cadence:
+//   - free_assessment   → Tx06a (Day 3), Tx07a (Day 7)
+//   - pilot_application → Tx06b (Day 1), Tx07b (Day 5), Tx08b (Day 14)
+//
+// All drip emails include List-Unsubscribe header + unsubscribeUrl in body.
+// Reply-to lands in elshan.musayev@partnerscope.eu (same as Tx05).
+// ────────────────────────────────────────────────────────────────
+
+const CALCOM_URL = 'https://cal.com/partnerscope/partner-strategy';
+const DRIP_REPLY_TO = 'elshan.musayev@partnerscope.eu';
+
+async function renderDrip(
+  templateBase: string,
+  vars: DripBase & { calcomUrl: string },
+): Promise<{ html: string; text: string }> {
+  const [html, text] = await Promise.all([
+    loadTemplate(`${templateBase}.hbs`).then((t) => t(vars)),
+    loadTemplate(`${templateBase}.txt.hbs`).then((t) => t(vars)),
+  ]);
+  return { html, text };
+}
+
+async function sendDrip(
+  input: DripBase,
+  templateBase: string,
+  subject: string,
+  tag: string,
+): Promise<SendResult> {
+  const { html, text } = await renderDrip(templateBase, { ...input, calcomUrl: CALCOM_URL });
+  return sendRaw({
+    to: input.to,
+    subject,
+    html,
+    text,
+    replyTo: DRIP_REPLY_TO,
+    tag,
+    listUnsubscribeUrl: input.unsubscribeUrl,
+  });
+}
+
+export async function sendTx06aAssessmentDay3(input: Tx06aAssessmentDay3): Promise<SendResult> {
+  return sendDrip(
+    input,
+    'tx06a_assessment_day3',
+    `PartnerScope: making your partner stack assessment actionable`,
+    'tx06a_assessment_day3',
+  );
+}
+
+export async function sendTx07aAssessmentDay7(input: Tx07aAssessmentDay7): Promise<SendResult> {
+  return sendDrip(
+    input,
+    'tx07a_assessment_day7',
+    `PartnerScope: 30-minute walkthrough offer`,
+    'tx07a_assessment_day7',
+  );
+}
+
+export async function sendTx06bPilotDay1(input: Tx06bPilotDay1): Promise<SendResult> {
+  return sendDrip(
+    input,
+    'tx06b_pilot_day1',
+    `PartnerScope Pilot 2026: what happens next — ${input.buyerCompany}`,
+    'tx06b_pilot_day1',
+  );
+}
+
+export async function sendTx07bPilotDay5(input: Tx07bPilotDay5): Promise<SendResult> {
+  return sendDrip(
+    input,
+    'tx07b_pilot_day5',
+    `PartnerScope Pilot 2026: 8-week structure`,
+    'tx07b_pilot_day5',
+  );
+}
+
+export async function sendTx08bPilotDay14(input: Tx08bPilotDay14): Promise<SendResult> {
+  return sendDrip(
+    input,
+    'tx08b_pilot_day14',
+    `PartnerScope Pilot 2026: closing the loop — ${input.buyerCompany}`,
+    'tx08b_pilot_day14',
+  );
 }
 
 /** Test-only — clears template cache so re-reads pick up edited files. */

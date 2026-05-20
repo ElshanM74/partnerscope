@@ -31,6 +31,13 @@ const citext = text;
 // ────────────────────────────────────────────────────────────────
 
 export const tierEnum = pgEnum('tier_enum', ['free_snapshot', 'starter', 'pro', 'enterprise']);
+export const intakeTierEnum = pgEnum('intake_tier', [
+  'starter',
+  'pro',
+  'enterprise',
+  'free_assessment',
+  'pilot_application',
+]);
 export const riskBandEnum = pgEnum('risk_band', ['HIGH', 'MEDIUM', 'LOW', 'MINIMAL']);
 export const runStatusEnum = pgEnum('run_status', [
   'draft',
@@ -275,6 +282,49 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   usedAt: timestamp('used_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Intake submissions — every POST /v1/intake persists here. Drives the
+// drip campaign worker (Tx06/Tx07/Tx08) and links conversions back to
+// original lead source. See migrations/004_intake_submissions.sql.
+export const intakeSubmissions = pgTable('intake_submissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tier: intakeTierEnum('tier').notNull(),
+  email: citext('email').notNull(),
+  buyerName: text('buyer_name').notNull(),
+  buyerCompany: text('buyer_company').notNull(),
+  vendorDomain: text('vendor_domain').notNull(),
+  vendorLegalName: text('vendor_legal_name'),
+  notes: text('notes'),
+  // UTM tracking
+  utmSource: text('utm_source'),
+  utmMedium: text('utm_medium'),
+  utmCampaign: text('utm_campaign'),
+  // Submission timestamp + Tx05 ack (synchronous)
+  submittedAt: timestamp('submitted_at', { withTimezone: true }).defaultNow().notNull(),
+  tx05SentAt: timestamp('tx05_sent_at', { withTimezone: true }),
+  // Assessment drip (Day 3 + Day 7)
+  tx06aScheduledAt: timestamp('tx06a_scheduled_at', { withTimezone: true }),
+  tx06aSentAt: timestamp('tx06a_sent_at', { withTimezone: true }),
+  tx07aScheduledAt: timestamp('tx07a_scheduled_at', { withTimezone: true }),
+  tx07aSentAt: timestamp('tx07a_sent_at', { withTimezone: true }),
+  // Pilot drip (Day 1 + Day 5 + Day 14)
+  tx06bScheduledAt: timestamp('tx06b_scheduled_at', { withTimezone: true }),
+  tx06bSentAt: timestamp('tx06b_sent_at', { withTimezone: true }),
+  tx07bScheduledAt: timestamp('tx07b_scheduled_at', { withTimezone: true }),
+  tx07bSentAt: timestamp('tx07b_sent_at', { withTimezone: true }),
+  tx08bScheduledAt: timestamp('tx08b_scheduled_at', { withTimezone: true }),
+  tx08bSentAt: timestamp('tx08b_sent_at', { withTimezone: true }),
+  // Opt-out + halt
+  unsubscribeToken: text('unsubscribe_token').notNull().unique(),
+  unsubscribedAt: timestamp('unsubscribed_at', { withTimezone: true }),
+  dripDisabledAt: timestamp('drip_disabled_at', { withTimezone: true }),
+  dripDisabledReason: text('drip_disabled_reason'),
+  // Conversion linkage
+  convertedRunId: uuid('converted_run_id').references(() => runs.id, { onDelete: 'set null' }),
+  // Audit
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // APNs / FCM device registration for native push notifications.
