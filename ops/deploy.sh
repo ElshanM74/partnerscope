@@ -56,6 +56,23 @@ if ! grep -q '^RESEND_NEWSLETTER_AUDIENCE_ID=' "${PROJECT_DIR}/.env"; then
     chmod 600 "${PROJECT_DIR}/.env"
 fi
 
+# Ensure Elshan is in STAFF_EMAILS — required for admin endpoints
+# (/v1/admin/* gated by req.isStaff which is set when JWT email is in
+# STAFF_EMAILS). Idempotent: append email to comma-separated list only
+# if missing.
+STAFF_EMAIL_TO_ENSURE="elshan.musayev@ekmgc.de"
+if grep -q '^STAFF_EMAILS=' "${PROJECT_DIR}/.env"; then
+    if ! grep -qE "^STAFF_EMAILS=.*${STAFF_EMAIL_TO_ENSURE}" "${PROJECT_DIR}/.env"; then
+        log "appending ${STAFF_EMAIL_TO_ENSURE} to existing STAFF_EMAILS"
+        sed -i.bak "s|^STAFF_EMAILS=\(.*\)$|STAFF_EMAILS=\1,${STAFF_EMAIL_TO_ENSURE}|" "${PROJECT_DIR}/.env"
+        rm -f "${PROJECT_DIR}/.env.bak"
+    fi
+else
+    log "creating STAFF_EMAILS with ${STAFF_EMAIL_TO_ENSURE}"
+    echo "STAFF_EMAILS=${STAFF_EMAIL_TO_ENSURE}" >> "${PROJECT_DIR}/.env"
+fi
+chmod 600 "${PROJECT_DIR}/.env"
+
 # ─── 2. Pull the new API image ────────────────────────────────────────────
 log "pulling latest API image…"
 docker compose -f docker-compose.prod.yml pull api
