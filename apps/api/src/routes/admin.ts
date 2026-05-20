@@ -20,6 +20,7 @@ import { db } from '../db/client.js';
 import {
   auditLog,
   demoLeads,
+  intakeSubmissions,
   organizations,
   passwordResetTokens,
   runs,
@@ -27,6 +28,7 @@ import {
   vendors,
 } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
+import { cancelDripJobs } from '../services/queue/index.js';
 import { hashPassword } from '../utils/password.js';
 
 const ROW_LIMIT = 500;
@@ -217,5 +219,99 @@ export async function adminRoutes(fastify: FastifyInstance): Promise<void> {
     });
 
     reply.send({ ok: true });
+  });
+
+  // ── GET /v1/admin/intake-submissions ───────────────────────
+  // Recent submissions, newest-first. Shows drip state so staff can spot
+  // leads that need manual halt (replied, converted, or out-of-scope).
+  fastify.get('/v1/admin/intake-submissions', async (req, reply) => {
+    requireStaff(req);
+
+    const rows = await db
+      .select({
+        id: intakeSubmissions.id,
+        tier: intakeSubmissions.tier,
+        email: intakeSubmissions.email,
+        buyerName: intakeSubmissions.buyerName,
+        buyerCompany: intakeSubmissions.buyerCompany,
+        vendorDomain: intakeSubmissions.vendorDomain,
+        submittedAt: intakeSubmissions.submittedAt,
+        tx05SentAt: intakeSubmissions.tx05SentAt,
+        tx06aScheduledAt: intakeSubmissions.tx06aScheduledAt,
+        tx06aSentAt: intakeSubmissions.tx06aSentAt,
+        tx07aScheduledAt: intakeSubmissions.tx07aScheduledAt,
+        tx07aSentAt: intakeSubmissions.tx07aSentAt,
+        tx06bScheduledAt: intakeSubmissions.tx06bScheduledAt,
+        tx06bSentAt: intakeSubmissions.tx06bSentAt,
+        tx07bScheduledAt: intakeSubmissions.tx07bScheduledAt,
+        tx07bSentAt: intakeSubmissions.tx07bSentAt,
+        tx08bScheduledAt: intakeSubmissions.tx08bScheduledAt,
+        tx08bSentAt: intakeSubmissions.tx08bSentAt,
+        unsubscribedAt: intakeSubmissions.unsubscribedAt,
+        dripDisabledAt: intakeSubmissions.dripDisabledAt,
+        dripDisabledReason: intakeSubmissions.dripDisabledReason,
+        convertedRunId: intakeSubmissions.convertedRunId,
+      })
+      .from(intakeSubmissions)
+      .orderBy(desc(intakeSubmissions.submittedAt))
+      .limit(ROW_LIMIT);
+
+    reply.send({ submissions: rows, limit: ROW_LIMIT });
+  });
+
+  // ── POST /v1/admin/intake-submissions/:id/disable-drip ─────
+  // Halts all future drip sends for this submission. Idempotent — re-hit
+  // overwrites the timestamp and reason (intentional: latest disable wins).
+  // Best-effort cancels still-pending BullMQ jobs; jobs already in-flight
+  // are skipped by the worker's own drip_disabled_at guard.
+  //
+  // Body: { reason?: string } — kept brief in DB for analytics later.
+  const DisableDripSchema = z.object({
+    reason: z.string().min(1).max(280).optional(),
+  });
+  fastify.post('/v1/admin/intake-submissions/:id/disable-drip', async (req, reply) => {
+    requireStaff(req);
+
+    const params = z.object({ id: z.string().uuid() }).parse(req.params);
+    const body = DisableDripSchema.parse(req.body ?? {});
+
+    const existing = await db
+      .select({ id: intakeSubmissions.id, dripDisabledAt: intakeSubmissions.dripDisabledAt })
+      .from(intakeSubmissions)
+      .where(eq(intakeSubmissions.id, params.id))
+      .limit(1);
+    if (!existing[0]) {
+      throw new ApiError(404, 'submission_not_found', 'Intake submission not found.');
+    }
+
+    const actorId =
+      req.user && typeof req.user === 'object' && 'sub' in req.user
+        ? (req.user.sub as string)
+        : null;
+
+    await db
+      .update(intakeSubmissions)
+      .set({
+        dripDisabledAt: new Date(),
+        dripDisabledReason: body.reason ?? 'manual halt',
+      })
+      .where(eq(intakeSubmissions.id, params.id));
+
+    // Best-effort: remove pending BullMQ jobs. Worker's runtime guard will
+    // also catch any in-flight, so this is belt-and-suspenders.
+    await cancelDripJobs(params.id).catch((err) => {
+      req.log.warn({ err, submissionId: params.id }, 'cancelDripJobs failed (non-fatal)');
+    });
+
+    await db.insert(auditLog).values({
+      actorUserId: actorId,
+      actorIp: req.ip,
+      action: 'intake.drip_disabled',
+      resourceType: 'intake_submission',
+      resourceId: params.id,
+      payload: { reason: body.reason ?? null, at: new Date().toISOString() },
+    });
+
+    reply.send({ ok: true, disabled: true, alreadyWasDisabled: existing[0].dripDisabledAt !== null });
   });
 }
