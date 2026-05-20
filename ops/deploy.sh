@@ -44,6 +44,18 @@ else
     log "nginx sync skipped (SKIP_NGINX=${SKIP_NGINX:-1})"
 fi
 
+# ─── 1.5 Ensure required non-secret env vars (idempotent) ────────────────
+# Audience ID is a public-ish UUID — it identifies the «Before the Pitch»
+# Resend Audience but is useless without the (secret) RESEND_API_KEY. Safe
+# to bake here for one-time injection; future deploys are no-ops due to
+# the grep guard.
+NEWSLETTER_AUDIENCE_ID="16be44bf-fc35-4bce-8e8f-78467cc55b0d"
+if ! grep -q '^RESEND_NEWSLETTER_AUDIENCE_ID=' "${PROJECT_DIR}/.env"; then
+    log "injecting RESEND_NEWSLETTER_AUDIENCE_ID into .env"
+    echo "RESEND_NEWSLETTER_AUDIENCE_ID=${NEWSLETTER_AUDIENCE_ID}" >> "${PROJECT_DIR}/.env"
+    chmod 600 "${PROJECT_DIR}/.env"
+fi
+
 # ─── 2. Pull the new API image ────────────────────────────────────────────
 log "pulling latest API image…"
 docker compose -f docker-compose.prod.yml pull api
