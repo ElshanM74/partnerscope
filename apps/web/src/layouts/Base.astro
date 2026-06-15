@@ -50,7 +50,7 @@ const t = isDe
       navAccount: 'Konto',
       navDashboard: 'Dashboard',
       navAdmin: 'Admin',
-      footerLegal: 'EKM Global Consulting GmbH · Geschäftsführer Elshan Musayev · Baden-Baden, DE · Siehe',
+      footerLegal: 'EM Consulting · Geschäftsführer Elshan Musayev · Baden-Baden, DE · Siehe',
       footerImprint: 'Impressum',
       footerCopyright: 'PartnerScope. Alle Rechte vorbehalten.',
       appsLabel: 'Holen Sie sich die PartnerScope-App',
@@ -76,7 +76,7 @@ const t = isDe
       navAccount: 'Account',
       navDashboard: 'Dashboard',
       navAdmin: 'Admin',
-      footerLegal: 'EKM Global Consulting GmbH · Managing Director Elshan Musayev · Baden-Baden, DE · See',
+      footerLegal: 'EM Consulting · Managing Director Elshan Musayev · Baden-Baden, DE · See',
       footerImprint: 'Impressum',
       footerCopyright: 'PartnerScope. All rights reserved.',
       appsLabel: 'Get the PartnerScope app',
@@ -112,8 +112,8 @@ const enAlternateHref = new URL(enHref, site).toString();
 const deAlternateHref = new URL(deHref, site).toString();
 
 // Schema.org JSON-LD — Organization (always) + SoftwareApplication (homepage/pricing only).
-// PartnerScope is a brand of EKM Global Consulting GmbH (Baden-Baden, founded Jan 2013).
-// LinkedIn: EKMGC main page + PartnerScope Showcase Page (id 121553912).
+// PartnerScope is a brand of EM Consulting (Baden-Baden, founded Jan 2013).
+// LinkedIn: EM Consulting main page + PartnerScope Showcase Page (id 121553912).
 const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -149,15 +149,15 @@ const orgSchema = {
   },
   parentOrganization: {
     '@type': 'Organization',
-    '@id': 'https://ekmgc.de/#organization',
-    name: 'EKM Global Consulting GmbH',
-    url: 'https://ekmgc.de',
+    '@id': 'https://elshanmusayev.com/#organization',
+    name: 'EM Consulting',
+    url: 'https://elshanmusayev.com',
     foundingDate: '2013-01',
     sameAs: [
-      'https://www.linkedin.com/company/ekm-global-consulting-gmbh/',
+      'https://www.linkedin.com/in/elshan-musayev/',
       'https://www.linkedin.com/showcase/121553912/',
       'https://www.linkedin.com/showcase/121603994/',
-      'https://www.crunchbase.com/organization/ekm-global-consulting',
+      'https://www.crunchbase.com/organization/elshan-musayev',
     ],
     address: {
       '@type': 'PostalAddress',
@@ -184,9 +184,9 @@ const orgSchema = {
     availableLanguage: ['en', 'de'],
   },
   sameAs: [
-    'https://www.linkedin.com/company/ekm-global-consulting-gmbh/',
+    'https://www.linkedin.com/in/elshan-musayev/',
     'https://www.linkedin.com/showcase/121553912/',
-    'https://www.crunchbase.com/organization/ekm-global-consulting',
+    'https://www.crunchbase.com/organization/elshan-musayev',
   ],
 };
 

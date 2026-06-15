@@ -1,0 +1,148 @@
+---
+/**
+ * /assess?vendor=<uuid> — buyer self-assessment questionnaire (intake).
+ *
+ * Renders the self-answerable questions (likert + select) grouped by the 13
+ * risk dimensions. On submit, POSTs real answers to
+ * /v1/vendors/:id/assess — the REAL scoring engine computes the result —
+ * then redirects to the vendor detail page.
+ */
+import Base from '../layouts/Base.astro';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base title="Assessment — PartnerScope" description="Vendor risk self-assessment.">
+  <section class="as section" data-api-base={apiBase}>
+    <div class="container as-inner">
+      <a href="/dashboard" class="vd-back">&larr; Back to assessments</a>
+      <header class="as-head">
+        <h1>Vendor self-assessment</h1>
+        <p class="muted" id="as-vendor">—</p>
+        <p class="muted tiny">Answer the questionnaire below. Document &amp; evidence
+          items (Layer 2 · documentary review) are completed separately by an analyst.</p>
+      </header>
+      <div id="as-loading" class="dash-state"><p class="muted">Loading questionnaire…</p></div>
+      <form id="as-form" hidden>
+        <div id="as-dims"></div>
+        <div class="as-actions">
+          <button type="submit" class="btn btn-primary">Submit &amp; score</button>
+          <span id="as-progress" class="muted tiny"></span>
+          <span id="as-msg" class="avf-msg" role="status"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .as-inner { max-width: 820px; }
+  .as-head h1 { margin: 0 0 .3rem; font-size: 1.5rem; }
+  .as-dim { border: 1px solid #e2e8f0; border-radius: .6rem; padding: 1rem 1.1rem; margin: 0.9rem 0; background: #fff; }
+  .as-dim h3 { margin: 0 0 .7rem; font-size: 1rem; }
+  .as-q { padding: 0.7rem 0; border-top: 1px solid #f1f5f9; }
+  .as-q:first-of-type { border-top: none; }
+  .as-q-prompt { font-size: 0.88rem; font-weight: 500; margin: 0 0 .5rem; }
+  .as-likert { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .as-likert label { flex: 1; min-width: 2.2rem; text-align: center; border: 1px solid #cbd5e1; border-radius: .45rem; padding: .4rem .2rem; cursor: pointer; font-size: .82rem; background: #fff; }
+  .as-likert input { display: none; }
+  .as-likert input:checked + span { font-weight: 700; }
+  .as-likert label:has(input:checked) { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .as-anchors { display: flex; justify-content: space-between; color: #94a3b8; font-size: .68rem; margin-top: .25rem; }
+  .as-opt { display: block; padding: .35rem .55rem; border: 1px solid #e2e8f0; border-radius: .4rem; margin: .25rem 0; cursor: pointer; font-size: .82rem; }
+  .as-opt:has(input:checked) { background: #eff3ff; border-color: #4f7cff; }
+  .as-opt input { margin-right: .5rem; }
+  .as-actions { display: flex; align-items: center; gap: .8rem; margin: 1.2rem 0 2rem; position: sticky; bottom: 0; background: linear-gradient(transparent, #f8fafc 30%); padding-top: .6rem; }
+</style>
+
+<script>
+  const root = document.querySelector('.as.section') as HTMLElement | null;
+  const apiBase = root?.dataset.apiBase || '/api';
+  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  (async () => {
+    const vendorId = new URLSearchParams(location.search).get('vendor');
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) { location.href = '/login'; return; }
+    if (!vendorId) { location.href = '/dashboard'; return; }
+
+    // Vendor name (best-effort) + questions
+    try {
+      const [vRes, qRes] = await Promise.all([
+        fetch(`${apiBase}/v1/vendors/${vendorId}/detail`, { headers: { authorization: `Bearer ${token}` } }),
+        fetch(`${apiBase}/v1/questions/intake`, { headers: { authorization: `Bearer ${token}` } }),
+      ]);
+      if (vRes.status === 401 || qRes.status === 401) { location.href = '/login'; return; }
+      const v = vRes.ok ? await vRes.json() : null;
+      const q = await qRes.json();
+      if (v?.vendor) document.getElementById('as-vendor')!.textContent = `${v.vendor.legalName} · ${v.vendor.domain}`;
+
+      const dimsEl = document.getElementById('as-dims')!;
+      let total = 0;
+      dimsEl.innerHTML = (q.dimensions as any[]).map((d) => {
+        const qs = d.questions.map((qq: any) => {
+          total++;
+          let input = '';
+          if (qq.type === 'likert') {
+            input = `<div class="as-likert">${[1,2,3,4,5].map((n) =>
+              `<label><input type="radio" name="${esc(qq.id)}" value="${n}"><span>${n}</span></label>`).join('')}</div>
+              <div class="as-anchors"><span>${esc(qq.anchor1||'Low')}</span><span>${esc(qq.anchor5||'High')}</span></div>`;
+          } else if (qq.type === 'single_select') {
+            input = (qq.options||[]).map((o: any) =>
+              `<label class="as-opt"><input type="radio" name="${esc(qq.id)}" value="${esc(o.value)}">${esc(o.label)}</label>`).join('');
+          } else {
+            input = (qq.options||[]).map((o: any) =>
+              `<label class="as-opt"><input type="checkbox" name="${esc(qq.id)}" value="${esc(o.value)}">${esc(o.label)}</label>`).join('');
+          }
+          return `<div class="as-q" data-qid="${esc(qq.id)}" data-type="${esc(qq.type)}">
+            <p class="as-q-prompt">${esc(qq.prompt)}</p>${input}</div>`;
+        }).join('');
+        return `<div class="as-dim"><h3>${esc(d.code)} · ${esc(d.label)}</h3>${qs}</div>`;
+      }).join('');
+
+      document.getElementById('as-loading')!.hidden = true;
+      const form = document.getElementById('as-form') as HTMLFormElement;
+      form.hidden = false;
+      const progress = document.getElementById('as-progress')!;
+      const updateProgress = () => {
+        const answered = new Set<string>();
+        form.querySelectorAll('input:checked').forEach((i) => answered.add((i as HTMLInputElement).name));
+        progress.textContent = `${answered.size}/${total} answered`;
+      };
+      form.addEventListener('change', updateProgress);
+      updateProgress();
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('as-msg')!;
+        const answers: any[] = [];
+        document.querySelectorAll('.as-q').forEach((qEl) => {
+          const el = qEl as HTMLElement;
+          const qid = el.dataset.qid!; const type = el.dataset.type!;
+          if (type === 'likert' || type === 'single_select') {
+            const checked = el.querySelector('input:checked') as HTMLInputElement | null;
+            if (checked) answers.push(type === 'likert'
+              ? { questionId: qid, likert: Number(checked.value) }
+              : { questionId: qid, choice: checked.value });
+          } else {
+            const vals = Array.from(el.querySelectorAll('input:checked')).map((i) => (i as HTMLInputElement).value);
+            if (vals.length) answers.push({ questionId: qid, choices: vals });
+          }
+        });
+        if (answers.length === 0) { msg.textContent = 'Answer at least one question.'; return; }
+        msg.textContent = 'Scoring…';
+        try {
+          const r = await fetch(`${apiBase}/v1/vendors/${vendorId}/assess`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+            body: JSON.stringify({ answers }),
+          });
+          if (!r.ok) { msg.textContent = `Error (HTTP ${r.status}).`; return; }
+          msg.textContent = 'Scored ✓ redirecting…';
+          location.href = `/vendor?id=${vendorId}`;
+        } catch { msg.textContent = 'Network error.'; }
+      });
+    } catch {
+      document.getElementById('as-loading')!.innerHTML = '<p class="muted">Could not load the questionnaire.</p>';
+    }
+  })();
+</script>

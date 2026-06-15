@@ -2,7 +2,7 @@
 
 > Third-party AI risk assessment platform for DACH-regulated organizations. Replaces 40-page vendor questionnaires with automated security checks, documentary review, AI red-teaming, and EU AI Act classification across 13 risk dimensions. Built for risk teams in banking, insurance, healthcare, energy, and telco subject to EU AI Act, GDPR, DORA, and NIS2.
 
-PartnerScope is operated by EKM Global Consulting GmbH (Baden-Baden, Germany) and serves DACH-regulated entities and EU enterprises managing AI vendor risk under emerging regulation.
+PartnerScope is operated by EM Consulting (Baden-Baden, Germany) and serves DACH-regulated entities and EU enterprises managing AI vendor risk under emerging regulation.
 
 ## What it does
 
@@ -38,7 +38,7 @@ PartnerScope is operated by EKM Global Consulting GmbH (Baden-Baden, Germany) an
 - 13-dimension scoring vs. typical 4-6 dimension cyber-only checks
 - Pricing transparent at all tiers (no "contact us" gating)
 - DACH-first: German support, BSI C5 awareness, BaFin/BfDI alignment
-- Operated by EKM Global Consulting GmbH in Baden-Baden, Germany (EU-based, GDPR-native)
+- Operated by EM Consulting in Baden-Baden, Germany (EU-based, GDPR-native)
 
 ## Founder and contact
 

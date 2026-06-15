@@ -1,0 +1,229 @@
+---
+/**
+ * /vendor?id=<uuid> — vendor detail (all 4 PartnerScope layers).
+ *
+ * Static shell (system-design T1): reads ?id, fetches
+ * /v1/vendors/:id/detail client-side with the Bearer token, renders
+ * composite header + 13 dimensions + red-team + documentary evidence +
+ * continuous-monitoring feed.
+ */
+import Base from '../layouts/Base.astro';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base title="Vendor — PartnerScope" description="Vendor risk detail.">
+  <section class="vd section" data-api-base={apiBase}>
+    <div class="container vd-inner">
+      <a href="/dashboard" class="vd-back">&larr; Back to assessments</a>
+      <div id="vd-loading" class="dash-state"><p class="muted">Loading vendor…</p></div>
+      <div id="vd-content" hidden>
+        <header class="vd-head">
+          <div>
+            <h1 id="vd-name">—</h1>
+            <p class="muted" id="vd-meta">—</p>
+          </div>
+          <div class="vd-score-box">
+            <span id="vd-score" class="vd-score">—</span>
+            <span id="vd-band" class="pill">—</span>
+            <a id="vd-assess" class="btn btn-ghost btn-sm" href="#">Re-assess via questionnaire &rarr;</a>
+          </div>
+        </header>
+        <div id="vd-redflag" class="vd-redflag" hidden></div>
+        <div id="vd-pending" class="vd-pending" hidden>
+          <strong>Assessment pending.</strong> This vendor was added to the
+          database but the 13-domain questionnaire hasn't been completed yet.
+        </div>
+
+        <div id="vd-layers" hidden>
+          <h2 class="vd-h2">Layer 1 · Risk dimensions <span class="vd-count" id="vd-dim-count"></span></h2>
+          <div id="vd-dims" class="vd-dims"></div>
+
+          <h2 class="vd-h2">Layer 3 · AI red-team <span class="vd-count" id="vd-rt-count"></span></h2>
+          <div id="vd-rt" class="vd-table"></div>
+
+          <h2 class="vd-h2">Layer 2 · Documentary review <span class="vd-count" id="vd-ev-count"></span>
+            <button type="button" id="vd-doc-toggle" class="btn btn-ghost btn-sm" style="float:right">+ Attach document</button>
+          </h2>
+          <form id="vd-doc-form" class="vd-doc-form" hidden>
+            <input id="vd-doc-name" type="text" placeholder="Filename (e.g. ISO27001_cert.pdf)" />
+            <input id="vd-doc-type" type="text" placeholder="Type (DPA / ISO27001 / SOC2 / SBOM)" />
+            <input id="vd-doc-dim" type="text" placeholder="Dim (D02)" maxlength="3" />
+            <button type="submit" class="btn btn-primary btn-sm">Register</button>
+            <span id="vd-doc-msg" class="vd-row-sub"></span>
+          </form>
+          <div id="vd-ev" class="vd-table"></div>
+
+          <h2 class="vd-h2">Layer 4 · Continuous monitoring <span class="vd-count" id="vd-mon-count"></span></h2>
+          <div id="vd-mon" class="vd-mon"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style is:global>
+  .vd-inner { max-width: 940px; }
+  .vd-back { display: inline-block; margin-bottom: 1rem; color: #4f7cff; font-size: 0.85rem; text-decoration: none; }
+  .vd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
+  .vd-head h1 { margin: 0; font-size: 1.55rem; }
+  .vd-score-box { text-align: right; white-space: nowrap; }
+  .vd-score { font: 800 2rem ui-monospace, SFMono-Regular, Menlo, monospace; color: #0f172a; display: block; }
+  .vd-redflag { margin: 1rem 0; padding: 0.7rem 1rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b; font-size: 0.9rem; font-weight: 600; border: 1px solid #fecaca; }
+  .vd-pending { margin: 1.2rem 0; padding: 0.9rem 1rem; border-radius: 0.5rem; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.9rem; }
+  .vd-h2 { font-size: 1.05rem; margin: 1.8rem 0 0.7rem; }
+  .vd-count { color: #94a3b8; font-weight: 500; font-size: 0.85rem; }
+  .vd-dims { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .vd-dim { border: 1px solid #e2e8f0; border-radius: 0.55rem; padding: 0.65rem 0.8rem; background: #fff; }
+  .vd-dim-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .vd-dim-label { font-weight: 600; font-size: 0.86rem; }
+  .vd-dim-score { font: 700 0.95rem ui-monospace, Menlo, monospace; }
+  .vd-dim-find { margin: 0.4rem 0 0; padding-left: 1rem; color: #475569; font-size: 0.78rem; }
+  .vd-dim-find li { margin: 0.15rem 0; }
+  .vd-table { border: 1px solid #e2e8f0; border-radius: 0.55rem; overflow: hidden; }
+  .vd-row { display: grid; grid-template-columns: auto 1fr auto; gap: 0.7rem; align-items: center; padding: 0.55rem 0.8rem; border-top: 1px solid #f1f5f9; font-size: 0.84rem; }
+  .vd-row:first-child { border-top: none; }
+  .vd-row-main { font-weight: 600; }
+  .vd-row-sub { color: #64748b; font-size: 0.78rem; }
+  .vd-mon { display: flex; flex-direction: column; gap: 0.5rem; }
+  .vd-mon-item { display: flex; gap: 0.7rem; align-items: center; padding: 0.6rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #fff; font-size: 0.84rem; }
+  .sev { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+  .sev-low { background: #dcfce7; color: #166534; }
+  .sev-medium { background: #fef3c7; color: #92400e; }
+  .sev-high { background: #fee2e2; color: #991b1b; }
+  .sev-critical { background: #7f1d1d; color: #fff; }
+  .oc-succeeded { color: #991b1b; font-weight: 700; }
+  .oc-blocked { color: #166534; font-weight: 700; }
+  .oc-partial { color: #92400e; font-weight: 700; }
+  .doc-verified { color: #166534; } .doc-rejected { color: #991b1b; } .doc-pending, .doc-received { color: #92400e; }
+  @media (max-width: 640px) { .vd-dims { grid-template-columns: 1fr; } }
+  .vd-doc-form { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; margin: 0 0 .7rem; padding: .6rem; border: 1px dashed #cbd5e1; border-radius: .5rem; }
+  .vd-doc-form input { height: 2.1rem; padding: 0 .55rem; border: 1px solid #cbd5e1; border-radius: .4rem; font-size: .82rem; }
+  #vd-doc-name { flex: 2; min-width: 10rem; } #vd-doc-type { flex: 1; min-width: 8rem; } #vd-doc-dim { width: 4rem; }
+  .btn-sm { padding: .28rem .6rem; font-size: .78rem; }
+</style>
+
+<script>
+  const root = document.querySelector('.vd.section') as HTMLElement | null;
+  const apiBase = root?.dataset.apiBase || '/api';
+  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const bandClass = (b: string) => `pill-band-${b}`;
+  const sevClass = (s: string | null) => `sev sev-${(s||'low').toLowerCase()}`;
+
+  (async () => {
+    const id = new URLSearchParams(location.search).get('id');
+    let token: string | null = null;
+    try { token = localStorage.getItem('ps_token'); } catch {}
+    if (!token) { location.href = '/login'; return; }
+    if (!id) { location.href = '/dashboard'; return; }
+
+    let d: any;
+    try {
+      const r = await fetch(`${apiBase}/v1/vendors/${id}/detail`, { headers: { authorization: `Bearer ${token}` } });
+      if (r.status === 401) { location.href = '/login'; return; }
+      if (!r.ok) throw new Error(String(r.status));
+      d = await r.json();
+    } catch {
+      const l = document.getElementById('vd-loading');
+      if (l) l.innerHTML = '<p class="muted">Could not load this vendor.</p>';
+      return;
+    }
+
+    const $ = (id: string) => document.getElementById(id);
+    $('vd-loading')!.hidden = true;
+    $('vd-content')!.hidden = false;
+    $('vd-name')!.textContent = d.vendor.legalName;
+    $('vd-meta')!.textContent = [d.vendor.domain, d.vendor.country, d.vendor.industry].filter(Boolean).join(' · ');
+    ($('vd-assess') as HTMLAnchorElement).href = `/assess?vendor=${id}`;
+
+    if (!d.run || d.run.compositeScore === null) {
+      $('vd-pending')!.hidden = false;
+      $('vd-score')!.textContent = '—';
+      $('vd-band')!.textContent = d.run ? d.run.status : 'no run';
+      return;
+    }
+
+    $('vd-score')!.innerHTML = `${d.run.compositeScore}<span style="font-size:1rem;color:#64748b">/100</span>`;
+    const band = $('vd-band')!; band.textContent = `${d.run.riskBand.toLowerCase()} risk`; band.className = `pill ${bandClass(d.run.riskBand)}`;
+    if (d.run.hardRedFlag) {
+      const rf = $('vd-redflag')!; rf.hidden = false;
+      rf.textContent = '🚩 Hard red flag — ' + (d.run.capReason || 'onboarding blocked pending remediation.');
+    }
+    $('vd-layers')!.hidden = false;
+
+    // Layer 1 — dimensions
+    $('vd-dim-count')!.textContent = `(${d.dimensions.length})`;
+    $('vd-dims')!.innerHTML = d.dimensions.map((x: any) => `
+      <div class="vd-dim">
+        <div class="vd-dim-top">
+          <span class="vd-dim-label">${esc(x.code)} · ${esc(x.label)}</span>
+          <span class="vd-dim-score">${x.score}<span class="pill ${bandClass(x.band)}" style="margin-left:.4rem">${esc(x.band.toLowerCase())}</span></span>
+        </div>
+        ${x.findings.length ? `<ul class="vd-dim-find">${x.findings.map((f: string)=>`<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+      </div>`).join('');
+
+    // Layer 3 — red-team
+    $('vd-rt-count')!.textContent = `(${d.redteam.length})`;
+    $('vd-rt')!.innerHTML = d.redteam.length ? d.redteam.map((x: any) => `
+      <div class="vd-row">
+        <span class="${sevClass(x.severity)}">${esc(x.severity||'')}</span>
+        <span><span class="vd-row-main">${esc(x.category)}</span> · ${esc(x.subType||'')}<br><span class="vd-row-sub">${esc(x.evidence||'')}</span></span>
+        <span class="oc-${esc(x.outcome)}">${esc(x.outcome)}</span>
+      </div>`).join('') : '<div class="vd-row"><span class="muted">No red-team results.</span></div>';
+
+    // Layer 2 — documentary
+    const renderEvidence = (evs: any[]) => {
+      $('vd-ev-count')!.textContent = `(${evs.length})`;
+      $('vd-ev')!.innerHTML = evs.length ? evs.map((x: any) => `
+        <div class="vd-row">
+          <span class="vd-row-sub">${esc(x.dimensionCode||'')}</span>
+          <span><span class="vd-row-main">${esc(x.filename)}</span> · ${esc(x.docType)}<br><span class="vd-row-sub">${esc(x.reviewerNotes||'')}</span></span>
+          <span style="display:flex;gap:.4rem;align-items:center">
+            <span class="doc-${esc(x.status)}">${esc(x.status)}</span>
+            ${x.id && x.status !== 'verified' ? `<button class="btn btn-ghost btn-sm doc-act" data-id="${esc(x.id)}" data-st="verified">✓</button>` : ''}
+            ${x.id && x.status !== 'rejected' ? `<button class="btn btn-ghost btn-sm doc-act" data-id="${esc(x.id)}" data-st="rejected">✕</button>` : ''}
+          </span>
+        </div>`).join('') : '<div class="vd-row"><span class="muted">No documents.</span></div>';
+      // verify / reject handlers
+      $('vd-ev')!.querySelectorAll('.doc-act').forEach((b) => {
+        b.addEventListener('click', async () => {
+          const el = b as HTMLElement;
+          await fetch(`${apiBase}/v1/documents/${el.dataset.id}`, {
+            method: 'PATCH',
+            headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+            body: JSON.stringify({ status: el.dataset.st }),
+          });
+          location.reload();
+        });
+      });
+    };
+    renderEvidence(d.evidence);
+
+    // Attach-document form
+    const docToggle = $('vd-doc-toggle'), docForm = $('vd-doc-form') as HTMLFormElement;
+    docToggle?.addEventListener('click', () => { docForm.hidden = !docForm.hidden; });
+    docForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = $('vd-doc-msg')!;
+      const filename = ($('vd-doc-name') as HTMLInputElement).value.trim();
+      const docType = ($('vd-doc-type') as HTMLInputElement).value.trim();
+      const dim = ($('vd-doc-dim') as HTMLInputElement).value.trim().toUpperCase();
+      if (!filename || !docType) { msg.textContent = 'Filename + type required.'; return; }
+      const bodyObj: any = { filename, docType };
+      if (/^D\d{2}$/.test(dim)) bodyObj.dimensionCode = dim;
+      msg.textContent = 'Registering…';
+      const r = await fetch(`${apiBase}/v1/vendors/${id}/documents`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+        body: JSON.stringify(bodyObj),
+      });
+      if (r.ok) location.reload(); else msg.textContent = `Error (${r.status}).`;
+    });
+
+    // Layer 4 — monitoring
+    $('vd-mon-count')!.textContent = `(${d.monitoring.length})`;
+    $('vd-mon')!.innerHTML = d.monitoring.length ? d.monitoring.map((x: any) => `
+      <div class="vd-mon-item">
+        <span class="${sevClass(x.severity)}">${esc(x.severity)}</span>
+        <span><strong>${esc(x.signalCode)}</strong> — <span class="vd-row-sub">${esc(JSON.stringify(x.payload))}</span></span>
+      </div>`).join('') : '<p class="muted">No active signals.</p>';
+  })();
+</script>

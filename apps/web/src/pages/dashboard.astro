@@ -36,7 +36,26 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
         <div class="cards">
           <div class="card">
-            <h2>Your assessments</h2>
+            <div class="card-head">
+              <h2>Your assessments</h2>
+              <button id="add-vendor-toggle" type="button" class="btn btn-ghost btn-sm">+ Add vendor</button>
+            </div>
+            <form id="add-vendor-form" class="add-vendor-form" hidden>
+              <div class="avf-row">
+                <input id="avf-name" type="text" placeholder="Legal name (e.g. Azersun Holding)" required maxlength="255" />
+                <input id="avf-domain" type="text" placeholder="Domain (e.g. azersun.com)" required />
+              </div>
+              <div class="avf-row">
+                <input id="avf-industry" type="text" placeholder="Direction / industry (e.g. FMCG & Food)" maxlength="100" />
+                <input id="avf-country" type="text" placeholder="Country (ISO-2)" value="AZ" maxlength="2" />
+              </div>
+              <div class="avf-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Add to database</button>
+                <button id="avf-cancel" type="button" class="btn btn-ghost btn-sm">Cancel</button>
+                <span id="avf-msg" class="avf-msg" role="status"></span>
+              </div>
+            </form>
+            <div id="run-filters" class="run-filters" hidden></div>
             <div id="run-list" class="run-list">
               <p class="muted">Loading…</p>
             </div>
@@ -47,6 +66,13 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
             <div class="dash-cta-row">
               <a href="/methodology">How we score &rarr;</a>
               <a href="mailto:hello@partnerscope.eu?subject=New%20assessment%20request">Request a new assessment &rarr;</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Live monitoring · alerts</h2>
+            <div id="mon-feed" class="mon-feed">
+              <p class="muted">Loading…</p>
             </div>
           </div>
 
@@ -228,11 +254,35 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
   .pill-band-HIGH { background: #fee2e2; color: #991b1b; }
   .run-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.55rem; background: rgba(255,255,255,0.55); }
   .run-name { font-weight: 600; font-size: 0.95rem; margin: 0; }
+  .run-link { color: #0f172a; text-decoration: none; }
+  .run-link:hover { color: #4f7cff; text-decoration: underline; }
   .run-domain { color: #64748b; font-size: 0.78rem; margin: 0.15rem 0 0; }
   .run-meta { display: flex; gap: 0.5rem; align-items: center; font-size: 0.74rem; }
   .run-score { font: 700 1.05rem ui-monospace, SFMono-Regular, Menlo, monospace; color: #4f7cff; margin-right: 0.4rem; }
   .run-score-out-of { font-size: 0.7rem; color: #64748b; font-weight: 500; }
   .run-delivered { font-size: 0.72rem; color: #64748b; margin: 0.2rem 0 0; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .btn-sm { padding: 0.32rem 0.7rem; font-size: 0.8rem; }
+  .add-vendor-form { margin: 0.5rem 0 0.85rem; padding: 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.6rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.55rem; }
+  .avf-row { display: flex; gap: 0.55rem; }
+  .avf-row input { flex: 1; min-width: 0; height: 2.3rem; padding: 0 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.45rem; font-size: 0.85rem; background: #fff; }
+  .avf-row input:focus { outline: none; border-color: #4f7cff; box-shadow: 0 0 0 3px rgba(79,124,255,0.15); }
+  .avf-actions { display: flex; align-items: center; gap: 0.55rem; }
+  .avf-msg { font-size: 0.78rem; color: #475569; }
+  .avf-msg-error { color: #b91c1c; }
+  .run-filters { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.25rem 0 0.85rem; }
+  .chip { padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-size: 0.74rem; cursor: pointer; transition: all .12s; }
+  .chip:hover { border-color: #94a3b8; }
+  .chip-on { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .mon-feed { display: flex; flex-direction: column; gap: 0.45rem; }
+  .mon-row { display: flex; gap: 0.6rem; align-items: center; padding: 0.5rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #fff; text-decoration: none; color: inherit; }
+  .mon-row:hover { border-color: #94a3b8; }
+  .mon-body { display: flex; flex-direction: column; min-width: 0; }
+  .mon-vendor { font-weight: 600; font-size: 0.82rem; }
+  .mon-sig { color: #64748b; font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sev { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px; font-size: 0.66rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+  .sev-low { background: #dcfce7; color: #166534; } .sev-medium { background: #fef3c7; color: #92400e; }
+  .sev-high { background: #fee2e2; color: #991b1b; } .sev-critical { background: #7f1d1d; color: #fff; }
 </style>
 
 <script>
@@ -315,15 +365,17 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
       // Fetch runs + vendors in parallel and render the assessment list
       try {
-        const [runsRes, vendorsRes] = await Promise.all([
+        const [runsRes, vendorsRes, monRes] = await Promise.all([
           fetch(`${apiBase}/v1/runs`, { headers: { authorization: `Bearer ${token}` } }),
           fetch(`${apiBase}/v1/vendors`, { headers: { authorization: `Bearer ${token}` } }),
+          fetch(`${apiBase}/v1/monitoring/feed`, { headers: { authorization: `Bearer ${token}` } }),
         ]);
         const runsBody = runsRes.ok ? await runsRes.json() : { data: [] };
         const vendorsBody = vendorsRes.ok ? await vendorsRes.json() : { data: [] };
-        const vendors = new Map<string, { legalName: string; domain: string; country: string | null }>();
-        for (const v of (vendorsBody as { data: Array<{ id: string; legalName: string; domain: string; country: string | null }> }).data) {
-          vendors.set(v.id, { legalName: v.legalName, domain: v.domain, country: v.country });
+        const monBody = monRes.ok ? await monRes.json() : { data: [] };
+        const vendors = new Map<string, { legalName: string; domain: string; country: string | null; industry: string | null }>();
+        for (const v of (vendorsBody as { data: Array<{ id: string; legalName: string; domain: string; country: string | null; industry: string | null }> }).data) {
+          vendors.set(v.id, { legalName: v.legalName, domain: v.domain, country: v.country, industry: v.industry });
         }
         type RunRow = {
           id: string;
@@ -379,10 +431,11 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
               const deliveredLine = r.deliveredAt
                 ? `<p class="run-delivered">${escapeHtml(formatDeliveredAt(r.deliveredAt))}</p>`
                 : '';
+              const direction = v?.industry ? v.industry.split(' · ')[0] : 'Other';
               return `
-                <div class="run-row">
+                <div class="run-row" data-direction="${escapeHtml(direction)}" data-band="${escapeHtml(r.riskBand || 'none')}">
                   <div>
-                    <p class="run-name">${name}</p>
+                    <p class="run-name"><a href="/vendor?id=${escapeHtml(r.vendorId)}" class="run-link">${name}</a></p>
                     <p class="run-domain">${meta || '—'}</p>
                     ${deliveredLine}
                   </div>
@@ -397,6 +450,130 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
             if (empty) empty.hidden = true;
           }
         }
+
+        // ── Filter chips (by direction + risk band) — client-side show/hide
+        // over the already-rendered rows (system-design T3).
+        const filtersEl = document.getElementById('run-filters');
+        if (filtersEl && runs.length > 0) {
+          const dirs = Array.from(new Set(runs.map((r) => {
+            const v = vendors.get(r.vendorId);
+            return v?.industry ? v.industry.split(' · ')[0] : 'Other';
+          }))).sort();
+          const bands = ['HIGH', 'MEDIUM', 'LOW', 'MINIMAL'].filter((b) =>
+            runs.some((r) => r.riskBand === b));
+          const chip = (group: string, val: string, label: string) =>
+            `<button type="button" class="chip" data-group="${escapeHtml(group)}" data-val="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
+          filtersEl.innerHTML =
+            chip('all', 'all', 'All') +
+            bands.map((b) => chip('band', b, b.charAt(0) + b.slice(1).toLowerCase() + ' risk')).join('') +
+            dirs.map((dd) => chip('dir', dd, dd)).join('');
+          filtersEl.hidden = false;
+          let activeBand = 'all', activeDir = 'all';
+          const apply = () => {
+            document.querySelectorAll('#run-list .run-row').forEach((row) => {
+              const el = row as HTMLElement;
+              const okBand = activeBand === 'all' || el.dataset.band === activeBand;
+              const okDir = activeDir === 'all' || el.dataset.direction === activeDir;
+              el.style.display = okBand && okDir ? '' : 'none';
+            });
+            filtersEl.querySelectorAll('.chip').forEach((c) => {
+              const el = c as HTMLElement;
+              const on = (el.dataset.group === 'all' && activeBand === 'all' && activeDir === 'all')
+                || (el.dataset.group === 'band' && el.dataset.val === activeBand)
+                || (el.dataset.group === 'dir' && el.dataset.val === activeDir);
+              el.classList.toggle('chip-on', on);
+            });
+          };
+          filtersEl.addEventListener('click', (e) => {
+            const t = (e.target as HTMLElement).closest('.chip') as HTMLElement | null;
+            if (!t) return;
+            const g = t.dataset.group, val = t.dataset.val || 'all';
+            if (g === 'all') { activeBand = 'all'; activeDir = 'all'; }
+            else if (g === 'band') { activeBand = activeBand === val ? 'all' : val; }
+            else if (g === 'dir') { activeDir = activeDir === val ? 'all' : val; }
+            apply();
+          });
+          apply();
+        }
+
+        // ── Layer 4: Continuous-monitoring alerts feed ───────────────
+        const monEl = document.getElementById('mon-feed');
+        if (monEl) {
+          const sig = (monBody as { data: Array<{ vendorId: string; vendorName: string; signalCode: string; severity: string; payload: any; detectedAt: string }> }).data;
+          const sevRank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+          sig.sort((a, b) => (sevRank[a.severity] ?? 9) - (sevRank[b.severity] ?? 9));
+          if (sig.length === 0) {
+            monEl.innerHTML = '<p class="muted tiny">No active signals.</p>';
+          } else {
+            monEl.innerHTML = sig.slice(0, 12).map((s) => {
+              const summary = s.payload && typeof s.payload === 'object'
+                ? Object.entries(s.payload).slice(0, 2).map(([k, v]) => `${k}: ${v}`).join(' · ')
+                : '';
+              return `
+                <a class="mon-row" href="/vendor?id=${escapeHtml(s.vendorId)}">
+                  <span class="sev sev-${escapeHtml((s.severity || 'low').toLowerCase())}">${escapeHtml(s.severity)}</span>
+                  <span class="mon-body">
+                    <span class="mon-vendor">${escapeHtml(s.vendorName)}</span>
+                    <span class="mon-sig">${escapeHtml(s.signalCode)} — ${escapeHtml(summary)}</span>
+                  </span>
+                </a>`;
+            }).join('');
+          }
+        }
+
+        // ── "+ Add vendor" inline form ───────────────────────────────
+        // Vendors are independent of any tender corpus — onboard any
+        // company (stable private firms included). POST /v1/vendors then
+        // reload so the new vendor appears in the list.
+        const avToggle = document.getElementById('add-vendor-toggle');
+        const avForm = document.getElementById('add-vendor-form') as HTMLFormElement | null;
+        const avCancel = document.getElementById('avf-cancel');
+        const avMsg = document.getElementById('avf-msg');
+        const setMsg = (t: string, err = false) => {
+          if (avMsg) { avMsg.textContent = t; avMsg.classList.toggle('avf-msg-error', err); }
+        };
+        avToggle?.addEventListener('click', () => {
+          if (avForm) { avForm.hidden = !avForm.hidden; if (!avForm.hidden) (document.getElementById('avf-name') as HTMLInputElement | null)?.focus(); }
+        });
+        avCancel?.addEventListener('click', () => { if (avForm) avForm.hidden = true; setMsg(''); });
+        avForm?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = (document.getElementById('avf-name') as HTMLInputElement).value.trim();
+          const domain = (document.getElementById('avf-domain') as HTMLInputElement).value.trim().toLowerCase();
+          const industry = (document.getElementById('avf-industry') as HTMLInputElement).value.trim();
+          const country = (document.getElementById('avf-country') as HTMLInputElement).value.trim().toUpperCase();
+          if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) { setMsg('Enter a valid domain (e.g. company.az).', true); return; }
+          setMsg('Adding…');
+          try {
+            const body: Record<string, string> = { legalName: name, domain };
+            if (industry) body.industry = industry;
+            if (country.length === 2) body.country = country;
+            const r = await fetch(`${apiBase}/v1/vendors`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+              body: JSON.stringify(body),
+            });
+            if (r.status === 409) { setMsg('This vendor (domain) is already in your database.', true); return; }
+            if (!r.ok) { setMsg(`Could not add vendor (HTTP ${r.status}).`, true); return; }
+            // Run the real scoring engine on the new vendor so it gets an
+            // engine-computed composite + 13 dimension scores (not a manual
+            // number). Best-effort — vendor is already created either way.
+            try {
+              const created = await r.json() as { id?: string };
+              if (created?.id) {
+                setMsg('Scoring…');
+                await fetch(`${apiBase}/v1/vendors/${created.id}/auto-assess`, {
+                  method: 'POST',
+                  headers: { authorization: `Bearer ${token}` },
+                });
+              }
+            } catch { /* vendor still created; assessment is best-effort */ }
+            setMsg('Added ✓ reloading…');
+            window.location.reload();
+          } catch {
+            setMsg('Network error — please retry.', true);
+          }
+        });
       } catch {
         // Surface the failure so the user knows the page is incomplete.
         showBanner("Couldn't load your assessments.", {
