@@ -21,6 +21,7 @@ import { healthRoutes } from './routes/health.js';
 import { intakeRoutes } from './routes/intake.js';
 import { newsletterRoutes } from './routes/newsletter.js';
 import { pushRoutes } from './routes/push.js';
+import { questionnaireRoutes } from './routes/questionnaire.js';
 import { researchRoutes } from './routes/research.js';
 import { runRoutes } from './routes/runs.js';
 import { unsubscribeRoutes } from './routes/unsubscribe.js';
@@ -72,6 +73,7 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   await app.register(vendorRoutes);
   await app.register(runRoutes);
   await app.register(researchRoutes);
+  await app.register(questionnaireRoutes);
   await app.register(checkoutRoutes);
   await app.register(pushRoutes);
   // Webhook routes are encapsulated so the raw-body JSON parser they

@@ -4,7 +4,7 @@
  *
  * Renders the self-answerable questions (likert + select) grouped by the 13
  * risk dimensions. On submit, POSTs real answers to
- * /v1/vendors/:id/assess — the REAL scoring engine computes the result —
+ * /v1/vendors/:id/assess — the supplied answers are saved without an overall risk score —
  * then redirects to the vendor detail page.
  */
 import Base from '../layouts/Base.astro';
@@ -18,13 +18,13 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
         <h1>Vendor self-assessment</h1>
         <p class="muted" id="as-vendor">—</p>
         <p class="muted tiny">Answer the questionnaire below. Document &amp; evidence
-          items (Layer 2 · documentary review) are completed separately by an analyst.</p>
+          items are outside this questionnaire. These are your supplied answers, not independently verified facts. Leave unanswered items blank or choose Unknown. No overall risk score is calculated.</p>
       </header>
       <div id="as-loading" class="dash-state"><p class="muted">Loading questionnaire…</p></div>
       <form id="as-form" hidden>
         <div id="as-dims"></div>
         <div class="as-actions">
-          <button type="submit" class="btn btn-primary">Submit &amp; score</button>
+          <button type="submit" class="btn btn-primary">Save answers</button>
           <span id="as-progress" class="muted tiny"></span>
           <span id="as-msg" class="avf-msg" role="status"></span>
         </div>
@@ -43,7 +43,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
   .as-q-prompt { font-size: 0.88rem; font-weight: 500; margin: 0 0 .5rem; }
   .as-likert { display: flex; gap: .35rem; flex-wrap: wrap; }
   .as-likert label { flex: 1; min-width: 2.2rem; text-align: center; border: 1px solid #cbd5e1; border-radius: .45rem; padding: .4rem .2rem; cursor: pointer; font-size: .82rem; background: #fff; }
-  .as-likert input { display: none; }
+  .as-likert input { margin-right: .25rem; }
   .as-likert input:checked + span { font-weight: 700; }
   .as-likert label:has(input:checked) { background: #0f172a; color: #fff; border-color: #0f172a; }
   .as-anchors { display: flex; justify-content: space-between; color: #94a3b8; font-size: .68rem; margin-top: .25rem; }
@@ -56,7 +56,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 <script>
   const root = document.querySelector('.as.section') as HTMLElement | null;
   const apiBase = root?.dataset.apiBase || '/api';
-  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const esc = (s: string) => String(s ?? "").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
   (async () => {
     const vendorId = new URLSearchParams(location.search).get('vendor');
@@ -68,11 +68,12 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
     // Vendor name (best-effort) + questions
     try {
       const [vRes, qRes] = await Promise.all([
-        fetch(`${apiBase}/v1/vendors/${vendorId}/detail`, { headers: { authorization: `Bearer ${token}` } }),
+        fetch(`${apiBase}/v1/vendors/${encodeURIComponent(vendorId)}/detail`, { headers: { authorization: `Bearer ${token}` } }),
         fetch(`${apiBase}/v1/questions/intake`, { headers: { authorization: `Bearer ${token}` } }),
       ]);
       if (vRes.status === 401 || qRes.status === 401) { location.href = '/login'; return; }
-      const v = vRes.ok ? await vRes.json() : null;
+      if (!vRes.ok || !qRes.ok) throw new Error("Unable to load");
+      const v = await vRes.json();
       const q = await qRes.json();
       if (v?.vendor) document.getElementById('as-vendor')!.textContent = `${v.vendor.legalName} · ${v.vendor.domain}`;
 
@@ -85,18 +86,18 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           if (qq.type === 'likert') {
             input = `<div class="as-likert">${[1,2,3,4,5].map((n) =>
               `<label><input type="radio" name="${esc(qq.id)}" value="${n}"><span>${n}</span></label>`).join('')}</div>
-              <div class="as-anchors"><span>${esc(qq.anchor1||'Low')}</span><span>${esc(qq.anchor5||'High')}</span></div>`;
+              <div class="as-anchors"><span>${esc(qq.rubric.anchor1||'Low')}</span><span>${esc(qq.rubric.anchor5||'High')}</span></div>`;
           } else if (qq.type === 'single_select') {
-            input = (qq.options||[]).map((o: any) =>
+            input = (qq.rubric.options||[]).map((o: any) =>
               `<label class="as-opt"><input type="radio" name="${esc(qq.id)}" value="${esc(o.value)}">${esc(o.label)}</label>`).join('');
           } else {
-            input = (qq.options||[]).map((o: any) =>
+            input = (qq.rubric.options||[]).map((o: any) =>
               `<label class="as-opt"><input type="checkbox" name="${esc(qq.id)}" value="${esc(o.value)}">${esc(o.label)}</label>`).join('');
           }
           return `<div class="as-q" data-qid="${esc(qq.id)}" data-type="${esc(qq.type)}">
-            <p class="as-q-prompt">${esc(qq.prompt)}</p>${input}</div>`;
+            <p class="as-q-prompt">${esc(qq.prompt)}</p>${input}${qq.type === 'multi_select' ? '<label class="as-opt"><input type="checkbox" data-state="none">None of these</label>' : ''}<label class="as-opt"><input type="checkbox" data-state="unknown">Unknown / not enough information</label></div>`;
         }).join('');
-        return `<div class="as-dim"><h3>${esc(d.code)} · ${esc(d.label)}</h3>${qs}</div>`;
+        return `<div class="as-dim"><h3>${esc(d.code)} · ${esc(d.name)}</h3>${qs}</div>`;
       }).join('');
 
       document.getElementById('as-loading')!.hidden = true;
@@ -104,42 +105,63 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
       form.hidden = false;
       const progress = document.getElementById('as-progress')!;
       const updateProgress = () => {
-        const answered = new Set<string>();
-        form.querySelectorAll('input:checked').forEach((i) => answered.add((i as HTMLInputElement).name));
-        progress.textContent = `${answered.size}/${total} answered`;
+        let answered = 0; let unknown = 0;
+        form.querySelectorAll('.as-q').forEach((el) => {
+          if (el.querySelector('[data-state="unknown"]:checked')) unknown++;
+          else if (el.querySelector('input:checked')) answered++;
+        });
+        progress.textContent = `${answered}/${total} answered · ${unknown} unknown · ${total - answered - unknown} left blank`;
       };
-      form.addEventListener('change', updateProgress);
+      form.addEventListener('change', (event) => {
+        const input = event.target as HTMLInputElement;
+        const question = input.closest('.as-q');
+        if (!question || !input.checked) { updateProgress(); return; }
+        if (input.dataset.state) {
+          question.querySelectorAll<HTMLInputElement>('input').forEach((other) => { if (other !== input) other.checked = false; });
+        } else {
+          question.querySelectorAll<HTMLInputElement>('[data-state]').forEach((other) => { other.checked = false; });
+        }
+        updateProgress();
+      });
       updateProgress();
-
+      let saving = false;
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (saving) return;
         const msg = document.getElementById('as-msg')!;
-        const answers: any[] = [];
-        document.querySelectorAll('.as-q').forEach((qEl) => {
-          const el = qEl as HTMLElement;
-          const qid = el.dataset.qid!; const type = el.dataset.type!;
-          if (type === 'likert' || type === 'single_select') {
-            const checked = el.querySelector('input:checked') as HTMLInputElement | null;
-            if (checked) answers.push(type === 'likert'
-              ? { questionId: qid, likert: Number(checked.value) }
-              : { questionId: qid, choice: checked.value });
+        const answers: Array<{questionId: string; unknown: true} | {questionId: string; value: number | string | string[]}> = [];
+        form.querySelectorAll<HTMLElement>('.as-q').forEach((el) => {
+          const questionId = el.dataset.qid!; const type = el.dataset.type!;
+          if (el.querySelector('[data-state="unknown"]:checked')) { answers.push({questionId, unknown: true}); return; }
+          if (type === 'multi_select') {
+            const values = Array.from(el.querySelectorAll<HTMLInputElement>('input:checked:not([data-state])')).map((input) => input.value);
+            if (values.length || el.querySelector('[data-state="none"]:checked')) answers.push({questionId,value:values});
           } else {
-            const vals = Array.from(el.querySelectorAll('input:checked')).map((i) => (i as HTMLInputElement).value);
-            if (vals.length) answers.push({ questionId: qid, choices: vals });
+            const checked = el.querySelector<HTMLInputElement>('input:checked:not([data-state])');
+            if (checked) answers.push({questionId,value:type === 'likert' ? Number(checked.value) : checked.value});
           }
         });
-        if (answers.length === 0) { msg.textContent = 'Answer at least one question.'; return; }
-        msg.textContent = 'Scoring…';
+        if (!answers.length) { msg.textContent = 'Answer at least one question or mark it Unknown.'; return; }
+        saving = true;
+        form.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input,button').forEach((control) => { control.disabled = true; });
+        msg.textContent = 'Saving your answers…';
         try {
-          const r = await fetch(`${apiBase}/v1/vendors/${vendorId}/assess`, {
+          const r = await fetch(`${apiBase}/v1/vendors/${encodeURIComponent(vendorId)}/assess`, {
             method: 'POST',
             headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
             body: JSON.stringify({ answers }),
           });
-          if (!r.ok) { msg.textContent = `Error (HTTP ${r.status}).`; return; }
-          msg.textContent = 'Scored ✓ redirecting…';
-          location.href = `/vendor?id=${vendorId}`;
-        } catch { msg.textContent = 'Network error.'; }
+          if (r.status === 401) { location.href = '/login'; return; }
+          if (!r.ok) throw new Error(`Could not save answers (HTTP ${r.status}).`);
+          const saved = await r.json() as {runId: string};
+          if (!saved.runId) throw new Error('Saved assessment identifier is missing. Check your dashboard before retrying.');
+          msg.textContent = 'Saved. Opening your answers…';
+          location.href = `/vendor?id=${encodeURIComponent(vendorId)}&runId=${encodeURIComponent(saved.runId)}`;
+        } catch (error) { msg.textContent = error instanceof Error ? error.message : 'Network error. Check your dashboard before retrying.'; }
+        finally {
+          saving = false;
+          form.querySelectorAll<HTMLInputElement | HTMLButtonElement>('input,button').forEach((control) => { control.disabled = false; });
+        }
       });
     } catch {
       document.getElementById('as-loading')!.innerHTML = '<p class="muted">Could not load the questionnaire.</p>';

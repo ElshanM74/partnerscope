@@ -33,6 +33,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           database but the 13-domain questionnaire hasn't been completed yet.
         </div>
 
+        <section id="vd-questionnaire" hidden aria-label="Saved questionnaire"></section>
         <div id="vd-layers" hidden>
           <h2 class="vd-h2">Layer 1 · Risk dimensions <span class="vd-count" id="vd-dim-count"></span></h2>
           <div id="vd-dims" class="vd-dims"></div>
@@ -62,6 +63,11 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
 <style is:global>
   .vd-inner { max-width: 940px; }
+  #vd-questionnaire { overflow-wrap: anywhere; }
+  #vd-questionnaire .vd-dim { margin: .6rem 0; }
+  #vd-questionnaire h3 { margin-top: 1.4rem; }
+  #vd-questionnaire li { margin: .5rem 0; }
+  @media (max-width: 600px) { .vd-head { flex-direction: column; } .vd-score-box { text-align: left; white-space: normal; } }
   .vd-back { display: inline-block; margin-bottom: 1rem; color: #4f7cff; font-size: 0.85rem; text-decoration: none; }
   .vd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
   .vd-head h1 { margin: 0; font-size: 1.55rem; }
@@ -109,7 +115,9 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
   const sevClass = (s: string | null) => `sev sev-${(s||'low').toLowerCase()}`;
 
   (async () => {
-    const id = new URLSearchParams(location.search).get('id');
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const runId = params.get('runId');
     let token: string | null = null;
     try { token = localStorage.getItem('ps_token'); } catch {}
     if (!token) { location.href = '/login'; return; }
@@ -117,7 +125,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
     let d: any;
     try {
-      const r = await fetch(`${apiBase}/v1/vendors/${id}/detail`, { headers: { authorization: `Bearer ${token}` } });
+      const r = await fetch(`${apiBase}/v1/vendors/${encodeURIComponent(id)}/detail${runId ? `?runId=${encodeURIComponent(runId)}` : ''}`, { headers: { authorization: `Bearer ${token}` } });
       if (r.status === 401) { location.href = '/login'; return; }
       if (!r.ok) throw new Error(String(r.status));
       d = await r.json();
@@ -133,6 +141,35 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
     $('vd-name')!.textContent = d.vendor.legalName;
     $('vd-meta')!.textContent = [d.vendor.domain, d.vendor.country, d.vendor.industry].filter(Boolean).join(' · ');
     ($('vd-assess') as HTMLAnchorElement).href = `/assess?vendor=${id}`;
+
+    if (d.run?.reportJson?.source === 'questionnaire') {
+      const report = d.run.reportJson as { answeredCount: number; unknownCount: number; totalCount: number; answers: Array<{questionId:string;prompt:string;dimensionCode:string;status:string;answerLabel:string}>; gaps:Array<{questionId:string;prompt:string;dimensionCode:string}> };
+      $('vd-score')!.textContent = 'Saved';
+      $('vd-band')!.textContent = 'Self-reported answers';
+      const section = $('vd-questionnaire')!; section.hidden = false;
+      const heading = document.createElement('h2'); heading.className = 'vd-h2'; heading.textContent = 'Your saved questionnaire';
+      const summary = document.createElement('p');
+      summary.textContent = `${report.answeredCount}/${report.totalCount} answered · ${report.unknownCount} explicitly unknown · ${report.gaps.length} information gaps`;
+      const notice = document.createElement('p'); notice.className = 'vd-pending';
+      notice.textContent = 'These answers were supplied by you and have not been independently verified. No overall risk score or supplier approval is calculated. Unknown and unanswered items remain information gaps.';
+      const savedAt = document.createElement('p'); savedAt.className = 'muted tiny';
+      savedAt.textContent = `Saved ${new Date(d.run.deliveredAt || d.run.createdAt).toLocaleString()}`;
+      const permalink = document.createElement('a'); permalink.href = `/vendor?id=${encodeURIComponent(id)}&runId=${encodeURIComponent(d.run.id)}`; permalink.textContent = 'Link to this saved assessment';
+      section.append(heading, summary, notice, savedAt, permalink);
+      const answersHeading = document.createElement('h3'); answersHeading.textContent = 'Supplied answers'; section.append(answersHeading);
+      for (const answer of report.answers) {
+        const card = document.createElement('div'); card.className = 'vd-dim';
+        const prompt = document.createElement('p'); prompt.className = 'vd-dim-label'; prompt.textContent = `${answer.dimensionCode} · ${answer.prompt}`;
+        const value = document.createElement('p'); value.textContent = answer.status === 'unknown' ? 'Unknown / not enough information' : answer.answerLabel;
+        card.append(prompt, value); section.append(card);
+      }
+      const gapsHeading = document.createElement('h3'); gapsHeading.textContent = 'Information still needed'; section.append(gapsHeading);
+      const gaps = document.createElement('ul');
+      for (const gap of report.gaps) { const item = document.createElement('li'); item.textContent = `${gap.dimensionCode} · ${gap.prompt}`; gaps.append(item); }
+      if (!report.gaps.length) { const item = document.createElement('li'); item.textContent = 'All questionnaire items have supplied answers. Independent verification is still required.'; gaps.append(item); }
+      section.append(gaps);
+      return;
+    }
 
     if (!d.run || d.run.compositeScore === null) {
       $('vd-pending')!.hidden = false;

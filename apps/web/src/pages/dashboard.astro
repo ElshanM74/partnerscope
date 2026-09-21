@@ -35,11 +35,12 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           </p>
         </header>
 
+        <p><a class="btn btn-primary" href="/research">Найти и проверить партнёров с ИИ</a></p>
         <div class="cards">
           <div class="card">
             <div class="card-head">
               <h2>Your assessments</h2>
-              <button id="add-vendor-toggle" type="button" class="btn btn-ghost btn-sm">+ Add vendor</button>
+              <button id="add-vendor-toggle" type="button" class="btn btn-ghost btn-sm">Start assessment</button>
             </div>
             <form id="add-vendor-form" class="add-vendor-form" hidden>
               <div class="avf-row">
@@ -51,7 +52,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
                 <input id="avf-country" type="text" placeholder="Country (ISO-2)" value="AZ" maxlength="2" />
               </div>
               <div class="avf-actions">
-                <button type="submit" class="btn btn-primary btn-sm">Add to database</button>
+                <button type="submit" class="btn btn-primary btn-sm">Continue to questionnaire</button>
                 <button id="avf-cancel" type="button" class="btn btn-ghost btn-sm">Cancel</button>
                 <span id="avf-msg" class="avf-msg" role="status"></span>
               </div>
@@ -264,6 +265,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
   .run-delivered { font-size: 0.72rem; color: #64748b; margin: 0.2rem 0 0; }
   .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
   .btn-sm { padding: 0.32rem 0.7rem; font-size: 0.8rem; }
+  .add-vendor-form[hidden] { display: none; }
   .add-vendor-form { margin: 0.5rem 0 0.85rem; padding: 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.6rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.55rem; }
   .avf-row { display: flex; gap: 0.55rem; }
   .avf-row input { flex: 1; min-width: 0; height: 2.3rem; padding: 0 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.45rem; font-size: 0.85rem; background: #fff; }
@@ -387,6 +389,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           compositeScore: number | null;
           riskBand: string | null;
           deliveredAt: string | null;
+          reportJson?: { source?: string } | null;
         };
         const runs = (runsBody as { data: RunRow[] }).data;
         const list = document.getElementById('run-list');
@@ -416,15 +419,16 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 
         if (list) {
           if (runs.length === 0) {
-            list.innerHTML = '<p class="muted">No assessments yet. Start with a free snapshot or request a full report.</p>';
+            list.innerHTML = '<p class="muted">No assessments yet. Choose Start assessment to add a company and complete its questionnaire.</p>';
             if (empty) empty.hidden = false;
           } else {
             list.innerHTML = runs.map((r) => {
               const v = vendors.get(r.vendorId);
               const name = escapeHtml(v ? v.legalName : 'Unknown vendor');
               const meta = escapeHtml([v?.domain, v?.country].filter(Boolean).join(' · '));
-              const tierLabel = escapeHtml(r.tier.replace('_', ' '));
-              const statusLabel = escapeHtml(r.status);
+              const questionnaire = r.reportJson?.source === 'questionnaire';
+              const tierLabel = questionnaire ? 'Self-assessment' : escapeHtml(r.tier.replace('_', ' '));
+              const statusLabel = questionnaire ? 'Saved answers' : escapeHtml(r.status);
               const scoreBlock = (r.compositeScore !== null && r.riskBand)
                 ? `<span class="run-score">${r.compositeScore}<span class="run-score-out-of">/100</span></span>
                    <span class="pill pill-band-${escapeHtml(r.riskBand)}">${escapeHtml(r.riskBand.toLowerCase())} risk</span>`
@@ -436,7 +440,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
               return `
                 <div class="run-row" data-direction="${escapeHtml(direction)}" data-band="${escapeHtml(r.riskBand || 'none')}">
                   <div>
-                    <p class="run-name"><a href="/vendor?id=${escapeHtml(r.vendorId)}" class="run-link">${name}</a></p>
+                    <p class="run-name"><a href="/vendor?id=${escapeHtml(r.vendorId)}&runId=${escapeHtml(r.id)}" class="run-link">${name}</a></p>
                     <p class="run-domain">${meta || '—'}</p>
                     ${deliveredLine}
                   </div>
@@ -539,7 +543,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           }
         }
 
-        // ── "+ Add vendor" inline form ───────────────────────────────
+        // ── "Start assessment" inline form ───────────────────────────────
         // Vendors are independent of any tender corpus — onboard any
         // company (stable private firms included). POST /v1/vendors then
         // reload so the new vendor appears in the list.
@@ -573,8 +577,9 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
             });
             if (r.status === 409) { setMsg('This vendor (domain) is already in your database.', true); return; }
             if (!r.ok) { setMsg(`Could not add vendor (HTTP ${r.status}).`, true); return; }
-            setMsg('Added ✓ — not assessed yet. Reloading…');
-            window.location.reload();
+            const created = await r.json();
+            setMsg('Opening questionnaire…');
+            window.location.href = `/assess?vendor=${encodeURIComponent(created.id)}`;
           } catch {
             setMsg('Network error — please retry.', true);
           }
