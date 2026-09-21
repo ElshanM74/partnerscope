@@ -2,23 +2,23 @@
 const FAQ = [
   {
     q: 'How is this different from our existing GRC tool?',
-    a: 'We plug in as a data source, not a replacement. Findings export as JSON, CSV, Parquet and deliver via direct webhook to ServiceNow, Archer, OneTrust and SAP Ariba.',
+    a: 'We are a data source, not a replacement. Reports are delivered as PDF; structured JSON is available on request. Direct GRC integrations (ServiceNow, Archer, OneTrust, SAP Ariba) are scoped per Enterprise contract, not available off the shelf.',
   },
   {
     q: 'Do vendors have to pay?',
-    a: 'No. The buyer pays; vendors respond to a questionnaire at no cost.',
+    a: 'No. The buyer pays; vendors are asked for documents and answers at no cost.',
   },
   {
     q: 'Who runs the red-team?',
-    a: 'Our analysts, using a maintained catalogue aligned to OWASP LLM Top 10 (2025), MITRE ATLAS and NIST AI RMF. Sandbox only; production is never exposed.',
+    a: 'Our analyst, using a catalogue aligned to OWASP LLM Top 10 (2025), MITRE ATLAS and NIST AI RMF — and only where the vendor exposes a testable endpoint under agreed rules of engagement. Otherwise the report says "not tested".',
   },
   {
     q: 'GDPR / EU hosting?',
-    a: 'Yes. All data stored in EU (Frankfurt). DPAs signed with every customer. Sub-processors listed on trust.partnerscope.eu.',
+    a: 'Yes. Data is stored in Germany (Hetzner, Falkenstein). DPAs signed with every customer. Sub-processors are listed at partnerscope.eu/legal/sub-processors.',
   },
   {
     q: 'Refunds?',
-    a: 'Starter refundable within 24h if automated tests cannot complete. Pro and Enterprise refundable pro-rata for undelivered work.',
+    a: 'Nothing is charged before scope is confirmed. If we cannot deliver the agreed scope, undelivered work is refunded pro-rata.',
   },
   {
     q: 'Can we self-serve?',

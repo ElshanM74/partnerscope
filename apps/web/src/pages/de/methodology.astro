@@ -28,6 +28,18 @@ const lastUpdated = '2026-04-22';
           Öffentlich, zitierfähig und im Einklang mit EU&nbsp;AI&nbsp;Act, GDPR, DORA und NIS2.
           Geben Sie es gerne an Ihr Procurement- oder Security-Team weiter.
         </p>
+        <div class="scope-notice">
+          <strong>Lieferumfang mit Stand 21. September 2026.</strong> Dieses Dokument beschreibt das
+          vollständige Bewertungs-Framework. Heute geliefert wird: <strong>Starter</strong> als
+          externer technischer Snapshot einer Anbieter-Domain — DNS, TLS, HTTP-Security-Header und
+          Certificate Transparency (4 automatisierte Prüfungen) — plus offene Fragen an den Anbieter;
+          ohne Composite-Score und ohne Proceed/Decline-Urteil. <strong>Pro</strong> ist
+          analystengeführt: Kontext-Briefing, Dokumentenprüfung, Sanktions- und Insolvenz-Screening,
+          EU-AI-Act-Anwendbarkeit, Red-Team nur bei testbarem Endpunkt. Abschnitte zu weiteren
+          automatisierten Tests, kontinuierlichem Monitoring, Red-Team-Suiten und der Bewertung von
+          Fragebogen-Antworten sind Framework-Design und nicht Teil eines gelieferten Reports, sofern
+          nicht im Umfang vereinbart. Unbekanntes wird als unbekannt ausgewiesen, nie bewertet.
+        </div>
         <p class="meta">
           Version {version} · Zuletzt aktualisiert {lastUpdated} ·
           <a href="/PartnerScope_Methodology_v1.md" download data-native-share data-share-title="PartnerScope Methodology">Als Markdown herunterladen</a>
@@ -301,14 +313,14 @@ const lastUpdated = '2026-04-22';
             <tr><th>Tarif</th><th>Anzahl automatisierter Tests</th><th>Takt</th></tr>
           </thead>
           <tbody>
-            <tr><td>Free Snapshot</td><td>2</td><td>Auf Anfrage</td></tr>
-            <tr><td><strong>Starter (€99)</strong></td><td><strong>7</strong></td><td>Einmal pro Lauf</td></tr>
-            <tr><td><strong>Pro (€299)</strong></td><td><strong>18</strong></td><td>Einmal pro Lauf, auf Anfrage erneut ausführbar</td></tr>
-            <tr><td><strong>Enterprise (€4 900/Jahr)</strong></td><td><strong>25 + kontinuierlich</strong></td><td>Einmal pro Lauf + 11 wöchentliche Signale</td></tr>
+            <tr><td>Kostenloser Snapshot</td><td>2</td><td>Auf Anfrage</td></tr>
+            <tr><td><strong>Starter (€99)</strong></td><td><strong>4</strong> — DNS, TLS, HTTP-Security-Header, CT-Log</td><td>Einmal pro Anfrage</td></tr>
+            <tr><td><strong>Pro (€299)</strong></td><td>Dieselben 4 plus Analystenprüfung der vorgelegten Nachweise</td><td>Einmal pro Auftrag</td></tr>
+            <tr><td><strong>Enterprise (€4 900/Quartal, mind. 15 Anbieter)</strong></td><td>Wie Pro, über das Portfolio; weitere Tests und Monitoring pro Vertrag vereinbart</td><td>Quartalsweise Neubewertung</td></tr>
           </tbody>
         </table>
 
-        <h3>6.1 Was der Starter-Tarif ausführt</h3>
+        <h3>6.1 Starter-Testkatalog (Tests 1, 2, 3 und 6 heute geliefert; 4, 5 und 7 Framework-Design)</h3>
         <table>
           <thead>
             <tr><th>#</th><th>Test</th><th>Was er prüft</th><th>Primäre Dim.</th></tr>
@@ -324,7 +336,7 @@ const lastUpdated = '2026-04-22';
           </tbody>
         </table>
 
-        <h3>6.2 Was Pro hinzufügt (Tests 8–18)</h3>
+        <h3>6.2 Pro — Framework-Design (Tests 8–18; heute als Analystenprüfung, nicht als Automatisierung geliefert)</h3>
         <p>
           PEP-Screening · Adverse-Media-Scan (30-Tage-Fenster) · Handelsregister-Lookup
           (DE / AT / CH / AZ; OpenCorporates-Fallback) · UBO-Extraktion &amp; Cross-Check ·
@@ -334,7 +346,7 @@ const lastUpdated = '2026-04-22';
           (LLM-gestützt) · Klausel-Extraktor für GDPR Art. 28 AVV.
         </p>
 
-        <h3>6.3 Was Enterprise hinzufügt (Tests 19–25 + kontinuierlich)</h3>
+        <h3>6.3 Enterprise — Framework-Design (Tests 19–25 + kontinuierlich; pro Vertrag vereinbart)</h3>
         <p>
           Dark-Web-Exposition (Intel X, HIBP Enterprise) · ASN- + Egress-IP-Geolokalisierung ·
           Sub-Processor-Enumeration + Konzentration · Modell-Drift-Signal · DORA-IKT-Register-
@@ -418,8 +430,8 @@ const lastUpdated = '2026-04-22';
           </thead>
           <tbody>
             <tr><td>Starter</td><td><strong>0</strong></td><td>—</td><td>Nicht in Starter enthalten. Upgrade auf Pro.</td></tr>
-            <tr><td><strong>Pro</strong></td><td><strong>5</strong></td><td>Prompt Injection (3) · Jailbreak (1) · PII-Leakage (1)</td><td>Automatisiert, mit kurzem Report-Abschnitt.</td></tr>
-            <tr><td><strong>Enterprise</strong></td><td><strong>25+</strong>, kontinuierlich</td><td>Alle 6 Kategorien (adaptiv, wöchentliche Wiederholung)</td><td>Dedizierter Analyst + wöchentlicher Retest.</td></tr>
+            <tr><td><strong>Pro</strong></td><td>bis zu <strong>5</strong></td><td>Prompt Injection (3) · Jailbreak (1) · PII-Leakage (1)</td><td>Nur bei testbarem Endpunkt des Anbieters unter vereinbarten Rules of Engagement; sonst als „nicht getestet“ ausgewiesen.</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td>Pro Vertrag vereinbart</td><td>Kategorien je Auftrag vereinbart</td><td>Dedizierter Analyst; nicht von der Stange.</td></tr>
           </tbody>
         </table>
 
@@ -561,21 +573,21 @@ const lastUpdated = '2026-04-22';
           <tbody>
             <tr>
               <td><strong>Starter</strong></td>
-              <td>€99, einmalig, pro Anbieter</td>
-              <td>Automatisiertes Dossier: 7 automatisierte Tests, 13-Dimensionen-Scorecard auf Basis eines käuferseitigen Fragebogens, PDF-Report (~8 Seiten), Zusammenfassung der Red Flags, Empfehlungsabsatz. Kein Red-Team. Kein Analyst.</td>
-              <td>Selber Werktag.</td>
+              <td>€99, einmalig, pro Anbieter-Domain</td>
+              <td>Externer technischer Snapshot: 4 automatisierte Prüfungen (DNS, TLS, HTTP-Security-Header, CT-Log), jeweils mit Zeitpunkt, Prüfgegenstand und Grenzen; offene Fragen an den Anbieter. Kein Composite-Score, kein Urteil, kein Analyst.</td>
+              <td>Nach Bestätigung; in der Regel innerhalb von 5 Werktagen nach Bestätigung des Umfangs.</td>
             </tr>
             <tr>
               <td><strong>Pro</strong></td>
-              <td>€299, einmalig, pro Anbieter</td>
-              <td>Alles aus Starter + 18 automatisierte Tests + 5 Red-Team-Payloads + analystenverifizierte Dokumentenprüfung + schriftliche Einordnung (2–3 Seiten) + Nachbesserungs-Checkliste.</td>
-              <td>48h SLA.</td>
+              <td>€299, einmalig, pro Anbieter und Einsatzszenario</td>
+              <td>Alles aus Starter + Kontext-Briefing + Prüfung der vorgelegten Dokumente + Sanktions- (EU/UN/OFAC) und Insolvenzregister-Screening + EU-AI-Act-Anwendbarkeit mit Begründung + Red-Team bei testbarem Endpunkt + schriftliche Empfehlung mit Quelle, Datum und Prüfstatus je Befund. Namentlich genannter Analyst.</td>
+              <td>Innerhalb von 5 Werktagen nach Bestätigung des Umfangs.</td>
             </tr>
             <tr>
               <td><strong>Enterprise</strong></td>
-              <td>€4 900 / Jahr / Anbieter</td>
-              <td>Alles aus Pro + 25 automatisierte Tests + kontinuierliches Monitoring (11 Signale, wöchentlich) + vollständige Red-Team-Suite (25+ Payloads, adaptiv) + Quartals-Dashboard + dedizierter Analyst + Nachbesserungs-Tracking + Retest auf Anfrage. Mindestens 15 Anbieter.</td>
-              <td>Kontinuierlich.</td>
+              <td>€4 900 / Quartal, mind. 15 Anbieter</td>
+              <td>Alles aus Pro über das Portfolio + quartalsweise Neubewertung + dedizierter Analyst + Executive Briefing. Monitoring, SSO und GRC-Integrationen pro Vertrag vereinbart.</td>
+              <td>Quartalsweise.</td>
             </tr>
           </tbody>
         </table>
@@ -658,6 +670,16 @@ const lastUpdated = '2026-04-22';
 </Base>
 
 <style>
+  .scope-notice {
+    margin: 1.25rem 0 0;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--ps-accent-strong, #3b4fd8);
+    border-radius: 8px;
+    background: rgba(59, 79, 216, 0.06);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
   .method {
     padding-top: 2.5rem;
   }

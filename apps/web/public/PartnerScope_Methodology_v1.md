@@ -1,3 +1,5 @@
+> **Delivery scope as of 21 September 2026.** This document describes the full assessment framework. Delivered today: **Starter** = external technical snapshot of one vendor domain (DNS, TLS, HTTP security headers, Certificate Transparency — 4 automated checks) plus open questions for the vendor, with no composite score and no proceed/decline verdict; **Pro** = analyst-led context brief, documentary review, sanctions and insolvency screening, EU AI Act applicability, red-team only where a testable endpoint exists; **Enterprise** = Pro across a portfolio, €4 900 per quarter, 15-vendor minimum, further scope per contract. Sections on additional automated tests, continuous monitoring, red-team suites and questionnaire scoring are framework design, not part of a delivered report unless agreed in scope. Unknowns are reported as unknown, never scored.
+
 # PartnerScope — Assessment Methodology
 
 **Version:** 1.0

@@ -28,6 +28,18 @@ const lastUpdated = '2026-04-22';
           and aligned with EU&nbsp;AI&nbsp;Act, GDPR, DORA and NIS2. Share it with your procurement
           or security team.
         </p>
+        <div class="scope-notice">
+          <strong>Delivery scope as of 21 September 2026.</strong> This document describes the
+          full assessment framework. What is delivered today: <strong>Starter</strong> is an external
+          technical snapshot of one vendor domain — DNS, TLS, HTTP security headers and Certificate
+          Transparency (4 automated checks) — plus open questions for the vendor; it carries no
+          composite score and no proceed/decline verdict. <strong>Pro</strong> is analyst-led:
+          context brief, documentary review, sanctions and insolvency screening, EU AI Act
+          applicability, red-team only where a testable endpoint exists. Sections describing
+          further automated tests, continuous monitoring, red-team suites and scoring of
+          questionnaire answers are framework design and are not part of a delivered report
+          unless agreed in scope. Unknowns are reported as unknown, never scored.
+        </div>
         <p class="meta">
           Version {version} · Last updated {lastUpdated} ·
           <a href="/PartnerScope_Methodology_v1.md" download data-native-share data-share-title="PartnerScope Methodology">Download as Markdown</a>
@@ -297,13 +309,13 @@ const lastUpdated = '2026-04-22';
           </thead>
           <tbody>
             <tr><td>Free snapshot</td><td>2</td><td>On demand</td></tr>
-            <tr><td><strong>Starter (€99)</strong></td><td><strong>7</strong></td><td>Once per run</td></tr>
-            <tr><td><strong>Pro (€299)</strong></td><td><strong>18</strong></td><td>Once per run, re-runnable on request</td></tr>
-            <tr><td><strong>Enterprise (€4,900/yr)</strong></td><td><strong>25 + continuous</strong></td><td>Once per run + 11 weekly signals</td></tr>
+            <tr><td><strong>Starter (€99)</strong></td><td><strong>4</strong> — DNS, TLS, HTTP security headers, CT log</td><td>Once per request</td></tr>
+            <tr><td><strong>Pro (€299)</strong></td><td>The same 4, plus analyst review of supplied evidence</td><td>Once per engagement</td></tr>
+            <tr><td><strong>Enterprise (€4 900/quarter, 15-vendor minimum)</strong></td><td>As Pro, across the portfolio; further tests and monitoring scoped per contract</td><td>Quarterly re-review</td></tr>
           </tbody>
         </table>
 
-        <h3>6.1 What the Starter tier runs</h3>
+        <h3>6.1 Starter test catalogue (tests 1, 2, 3 and 6 delivered today; 4, 5 and 7 framework design)</h3>
         <table>
           <thead>
             <tr><th>#</th><th>Test</th><th>What it checks</th><th>Primary dim.</th></tr>
@@ -319,7 +331,7 @@ const lastUpdated = '2026-04-22';
           </tbody>
         </table>
 
-        <h3>6.2 What Pro adds (tests 8–18)</h3>
+        <h3>6.2 Pro — framework design (tests 8–18; delivered today as analyst review, not automation)</h3>
         <p>
           PEP screening · adverse-media scan (30-day window) · commercial register lookup
           (DE / AT / CH / AZ; OpenCorporates fallback) · UBO extraction &amp; cross-check · credit
@@ -329,7 +341,7 @@ const lastUpdated = '2026-04-22';
           GDPR Art. 28 DPA clause extractor.
         </p>
 
-        <h3>6.3 What Enterprise adds (tests 19–25 + continuous)</h3>
+        <h3>6.3 Enterprise — framework design (tests 19–25 + continuous; scoped per contract)</h3>
         <p>
           Dark-web exposure (Intel X, HIBP Enterprise) · ASN + egress-IP geolocation ·
           sub-processor enumeration + concentration · model-drift signal · DORA ICT-register
@@ -409,8 +421,8 @@ const lastUpdated = '2026-04-22';
           </thead>
           <tbody>
             <tr><td>Starter</td><td><strong>0</strong></td><td>—</td><td>Not included in Starter. Upgrade to Pro.</td></tr>
-            <tr><td><strong>Pro</strong></td><td><strong>5</strong></td><td>Prompt injection (3) · Jailbreak (1) · PII leakage (1)</td><td>Automated, with a short report section.</td></tr>
-            <tr><td><strong>Enterprise</strong></td><td><strong>25+</strong>, continuous</td><td>All 6 categories (adaptive, weekly retest)</td><td>Dedicated analyst + weekly retest.</td></tr>
+            <tr><td><strong>Pro</strong></td><td>up to <strong>5</strong></td><td>Prompt injection (3) · Jailbreak (1) · PII leakage (1)</td><td>Only where the vendor exposes a testable endpoint under agreed rules of engagement; otherwise reported as “not tested”.</td></tr>
+            <tr><td><strong>Enterprise</strong></td><td>Scoped per contract</td><td>Categories agreed per engagement</td><td>Dedicated analyst; not off the shelf.</td></tr>
           </tbody>
         </table>
 
@@ -547,21 +559,21 @@ const lastUpdated = '2026-04-22';
           <tbody>
             <tr>
               <td><strong>Starter</strong></td>
-              <td>€99, one-time, per vendor</td>
-              <td>Automated dossier: 7 automated tests, 13-dimension scorecard driven by a buyer-side questionnaire, PDF report (~8 pages), red-flag summary, recommendation letter paragraph. No red-team. No analyst.</td>
-              <td>Same business day.</td>
+              <td>€99, one-time, per vendor domain</td>
+              <td>External technical snapshot: 4 automated checks (DNS, TLS, HTTP security headers, CT log), each with time, object tested and limits; open questions for the vendor. No composite score, no verdict, no analyst.</td>
+              <td>Confirmed on request; typically within 5 business days of scope confirmation.</td>
             </tr>
             <tr>
               <td><strong>Pro</strong></td>
-              <td>€299, one-time, per vendor</td>
-              <td>Everything in Starter + 18 automated tests + 5 red-team payloads + analyst-verified documentary review + written narrative (2–3 pages) + remediation checklist.</td>
-              <td>48 h SLA.</td>
+              <td>€299, one-time, per vendor and use case</td>
+              <td>Everything in Starter + context brief + documentary review of supplied evidence + sanctions (EU/UN/OFAC) and insolvency-register screening + EU AI Act applicability with stated basis + red-team where a testable endpoint exists + written recommendation with source, date and verification status per finding. Named analyst.</td>
+              <td>Within 5 business days of scope confirmation.</td>
             </tr>
             <tr>
               <td><strong>Enterprise</strong></td>
-              <td>€4,900 / year / vendor</td>
-              <td>Everything in Pro + 25 automated tests + continuous monitoring (11 signals, weekly) + full red-team suite (25+ payloads, adaptive) + quarterly dashboard + dedicated analyst + remediation tracking + re-test on demand. Minimum 15 vendors.</td>
-              <td>Continuous.</td>
+              <td>€4 900 / quarter, 15-vendor minimum</td>
+              <td>Everything in Pro across the portfolio + quarterly re-review + dedicated analyst + executive briefing. Monitoring, SSO and GRC integrations scoped per contract.</td>
+              <td>Quarterly.</td>
             </tr>
           </tbody>
         </table>
@@ -643,6 +655,16 @@ const lastUpdated = '2026-04-22';
 </Base>
 
 <style>
+  .scope-notice {
+    margin: 1.25rem 0 0;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--ps-accent-strong, #3b4fd8);
+    border-radius: 8px;
+    background: rgba(59, 79, 216, 0.06);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
   .method {
     padding-top: 2.5rem;
   }

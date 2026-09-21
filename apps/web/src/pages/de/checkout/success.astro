@@ -11,8 +11,8 @@
 import Base from '../../../layouts/Base.astro';
 ---
 <Base
-  title="Zahlung erhalten — PartnerScope"
-  description="Ihre PartnerScope-Bewertung ist nun in unserer Warteschlange. Den signierten PDF-Report senden wir innerhalb der SLA des jeweiligen Tarifs."
+  title="Anfrage erhalten — PartnerScope"
+  description="Ihre PartnerScope-Anfrage ist eingegangen. Umfang, Preis und Liefertermin bestätigen wir per E-Mail."
 >
   <section class="success section">
     <div class="container success-inner">
@@ -22,25 +22,23 @@ import Base from '../../../layouts/Base.astro';
         </svg>
       </div>
 
-      <p class="eyebrow">Zahlung erhalten</p>
-      <h1>Vielen Dank — Ihre Bewertung ist nun in unserer Warteschlange.</h1>
+      <p class="eyebrow">Anfrage erhalten</p>
+      <h1>Vielen Dank — Ihre Anfrage ist eingegangen.</h1>
       <p class="lead">
-        Eine Bestätigung ist auf dem Weg in Ihr Postfach. Der signierte PDF-Report folgt innerhalb
-        der SLA des jeweiligen Tarifs (24h für Starter, 48h für Pro, Mo–Fr Europe/Berlin).
+        Das Öffnen dieser Seite erzeugt keine Bestellung und bestätigt keine Zahlung. Falls Sie über
+        einen Stripe-Checkout hierher gelangt sind, prüfen wir die Zahlung serverseitig und
+        informieren Sie per E-Mail, sobald sie bestätigt ist.
       </p>
 
       <div class="next">
         <h2>Wie es weitergeht</h2>
         <ol>
-          <li>Sie erhalten innerhalb weniger Minuten eine Zahlungsbestätigung per E-Mail.</li>
+          <li>Wir bestätigen Umfang, Preis und Liefertermin innerhalb eines Werktages per E-Mail.</li>
           <li>
-            Unsere Plattform führt die automatisierten Prüfungen durch (DNS, TLS, Header, Breach-Historie,
-            CT-Log-Scan) und — bei Pro — die Dokumentenprüfung und das KI-Red-Team.
+            Starter: automatisierte Prüfungen der Anbieter-Domain (DNS, TLS, HTTP-Security-Header, CT-Log).
+            Pro: Dokumentenprüfung und Analystenbewertung des vereinbarten Produkts und Einsatzszenarios.
           </li>
-          <li>
-            Sie erhalten den PDF-Report per E-Mail sowie einen Portal-Link für 90 Tage (Starter)
-            bzw. 180 Tage (Pro) zur Neubewertung.
-          </li>
+          <li>Sie erhalten den signierten PDF-Report per E-Mail zum bestätigten Liefertermin.</li>
         </ol>
         <p class="next-method">
           Möchten Sie genau wissen, wie wir Ihren Anbieter bewerten?

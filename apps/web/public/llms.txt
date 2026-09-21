@@ -49,11 +49,10 @@ HQ: Baden-Baden, Germany
 ## Key resources
 
 - [Homepage](https://partnerscope.eu)
-- [Trust page](https://trust.partnerscope.eu)
-- [Sub-processors](https://partnerscope.eu/sub-processors)
+- [Sub-processors](https://partnerscope.eu/legal/sub-processors)
 - [Privacy Policy](https://partnerscope.eu/privacy)
-- [DPA template](https://partnerscope.eu/dpa)
-- [Impressum](https://partnerscope.eu/impressum)
+- [DPA template](https://partnerscope.eu/legal/dpa)
+- [Impressum](https://partnerscope.eu/legal/imprint)
 
 ## Regulatory framework references
 

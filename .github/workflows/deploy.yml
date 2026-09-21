@@ -26,9 +26,33 @@ concurrency:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────
+  # 0. Gate: the same typecheck / lint / test as ci.yml. Nothing is built
+  #    or deployed unless this passes.
+  # ─────────────────────────────────────────────────────────────────────
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  # ─────────────────────────────────────────────────────────────────────
   # 1. Build API image and push to ghcr.io/<repo>/api:<sha>,latest
   # ─────────────────────────────────────────────────────────────────────
   build-api:
+    needs: [check]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -71,6 +95,7 @@ jobs:
   # 2. Build Astro site
   # ─────────────────────────────────────────────────────────────────────
   build-web:
+    needs: [check]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
