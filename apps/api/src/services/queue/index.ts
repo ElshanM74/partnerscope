@@ -15,7 +15,7 @@
  * Payload (all job types): { submissionId: string }
  */
 
-import { Queue, type JobsOptions } from 'bullmq';
+import { type JobsOptions, Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 
 import { env } from '../../config/env.js';

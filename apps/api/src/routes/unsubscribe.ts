@@ -53,10 +53,7 @@ async function handleUnsubscribe(token: string): Promise<void> {
     .update(intakeSubmissions)
     .set({ unsubscribedAt: new Date() })
     .where(
-      and(
-        eq(intakeSubmissions.unsubscribeToken, token),
-        isNull(intakeSubmissions.unsubscribedAt),
-      ),
+      and(eq(intakeSubmissions.unsubscribeToken, token), isNull(intakeSubmissions.unsubscribedAt)),
     );
 }
 

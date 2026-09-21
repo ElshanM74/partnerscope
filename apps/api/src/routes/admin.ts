@@ -312,6 +312,10 @@ export async function adminRoutes(fastify: FastifyInstance): Promise<void> {
       payload: { reason: body.reason ?? null, at: new Date().toISOString() },
     });
 
-    reply.send({ ok: true, disabled: true, alreadyWasDisabled: existing[0].dripDisabledAt !== null });
+    reply.send({
+      ok: true,
+      disabled: true,
+      alreadyWasDisabled: existing[0].dripDisabledAt !== null,
+    });
   });
 }

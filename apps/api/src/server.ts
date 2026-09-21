@@ -27,8 +27,8 @@ import { vendorRoutes } from './routes/vendors.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { closePdfBrowser } from './services/pdf/index.js';
 import { closePushProvider } from './services/push.js';
-import { closeQueue } from './services/queue/index.js';
 import { startDripWorker, stopDripWorker } from './services/queue/drip-worker.js';
+import { closeQueue } from './services/queue/index.js';
 
 export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
   const app = Fastify({

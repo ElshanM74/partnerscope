@@ -11,24 +11,24 @@
  * Skips (guard failures) log + complete the job successfully (no retry).
  */
 
-import { Worker, type Job } from 'bullmq';
+import { type Job, Worker } from 'bullmq';
 import { eq } from 'drizzle-orm';
-import type { FastifyBaseLogger } from 'fastify';
 import type { PgColumn } from 'drizzle-orm/pg-core';
+import type { FastifyBaseLogger } from 'fastify';
 
 import { env } from '../../config/env.js';
 import { db } from '../../db/client.js';
 import { intakeSubmissions } from '../../db/schema.js';
 import {
+  type SendResult,
   sendTx06aAssessmentDay3,
   sendTx06bPilotDay1,
   sendTx07aAssessmentDay7,
   sendTx07bPilotDay5,
   sendTx08bPilotDay14,
-  type SendResult,
 } from '../email/index.js';
 
-import { DRIP_QUEUE_NAME, redisConnection, type DripJobData, type DripJobType } from './index.js';
+import { DRIP_QUEUE_NAME, type DripJobData, type DripJobType, redisConnection } from './index.js';
 
 // ────────────────────────────────────────────────────────────────
 // Handler registry — single source of truth for jobType → behaviour
@@ -169,7 +169,9 @@ async function processDripJob(
 
 let _worker: Worker<DripJobData, unknown, DripJobType> | null = null;
 
-export function startDripWorker(logger: FastifyBaseLogger): Worker<DripJobData, unknown, DripJobType> {
+export function startDripWorker(
+  logger: FastifyBaseLogger,
+): Worker<DripJobData, unknown, DripJobType> {
   if (_worker) return _worker;
 
   _worker = new Worker<DripJobData, unknown, DripJobType>(
@@ -184,10 +186,7 @@ export function startDripWorker(logger: FastifyBaseLogger): Worker<DripJobData, 
   );
 
   _worker.on('completed', (job, result) => {
-    logger.info(
-      { jobId: job.id, jobType: job.name, result },
-      'drip job completed',
-    );
+    logger.info({ jobId: job.id, jobType: job.name, result }, 'drip job completed');
   });
 
   _worker.on('failed', (job, err) => {
