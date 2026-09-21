@@ -20,6 +20,12 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
         <p class="muted tiny">Answer the questionnaire below. Document &amp; evidence
           items are outside this questionnaire. These are your supplied answers, not independently verified facts. Leave unanswered items blank or choose Unknown. No overall risk score is calculated.</p>
       </header>
+      <div class="as-dim">
+        <label>Questionnaire scope <select id="as-profile"><option value="general">General supplier / partner</option><option value="ai">AI / software supplier</option></select></label>
+        <p class="muted tiny">Changing scope reloads the questionnaire and clears unsaved answers.</p>
+        <label>What will this supplier do?<textarea id="as-task" maxlength="2000" rows="3"></textarea></label>
+        <label>What matters most?<textarea id="as-criteria" maxlength="1000" rows="2" placeholder="Comparable projects, team availability, deadlines"></textarea></label>
+      </div>
       <div id="as-loading" class="dash-state"><p class="muted">Loading questionnaire…</p></div>
       <form id="as-form" hidden>
         <div id="as-dims"></div>
@@ -34,6 +40,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 </Base>
 
 <style is:global>
+  .as-dim textarea, .as-dim select { display:block; width:100%; margin:.5rem 0 1rem; padding:.6rem; }
   .as-inner { max-width: 820px; }
   .as-head h1 { margin: 0 0 .3rem; font-size: 1.5rem; }
   .as-dim { border: 1px solid #e2e8f0; border-radius: .6rem; padding: 1rem 1.1rem; margin: 0.9rem 0; background: #fff; }
@@ -65,11 +72,18 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
     if (!token) { location.href = '/login'; return; }
     if (!vendorId) { location.href = '/dashboard'; return; }
 
+    const profile = new URLSearchParams(location.search).get('profile') === 'ai' ? 'ai' : 'general';
+    const profileSelect = document.getElementById('as-profile') as HTMLSelectElement;
+    profileSelect.value = profile;
+    profileSelect.addEventListener('change', () => {
+      if (document.querySelector('.as-q input:checked') && !confirm('Changing scope will clear unsaved questionnaire answers. Continue?')) { profileSelect.value = profile; return; }
+      location.href = `/assess?vendor=${encodeURIComponent(vendorId)}&profile=${profileSelect.value}`;
+    });
     // Vendor name (best-effort) + questions
     try {
       const [vRes, qRes] = await Promise.all([
         fetch(`${apiBase}/v1/vendors/${encodeURIComponent(vendorId)}/detail`, { headers: { authorization: `Bearer ${token}` } }),
-        fetch(`${apiBase}/v1/questions/intake`, { headers: { authorization: `Bearer ${token}` } }),
+        fetch(`${apiBase}/v1/questions/intake?profile=${profile}`, { headers: { authorization: `Bearer ${token}` } }),
       ]);
       if (vRes.status === 401 || qRes.status === 401) { location.href = '/login'; return; }
       if (!vRes.ok || !qRes.ok) throw new Error("Unable to load");
@@ -149,7 +163,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           const r = await fetch(`${apiBase}/v1/vendors/${encodeURIComponent(vendorId)}/assess`, {
             method: 'POST',
             headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-            body: JSON.stringify({ answers }),
+            body: JSON.stringify({ answers, profile, context: { task: (document.getElementById('as-task') as HTMLTextAreaElement).value, criteria: (document.getElementById('as-criteria') as HTMLTextAreaElement).value } }),
           });
           if (r.status === 401) { location.href = '/login'; return; }
           if (!r.ok) throw new Error(`Could not save answers (HTTP ${r.status}).`);

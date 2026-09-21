@@ -74,6 +74,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           </form>
         </div>
 
+        <section class="card" aria-label="Purchased services"><h2>Purchased services</h2><div id="acc-services">Loading services…</div><p class="muted tiny">Starter and Pro are individual orders. Research beta access is shared across plans. Platform administration is separate from purchased services.</p></section>
         <section class="danger-zone" aria-labelledby="danger-title">
           <h2 id="danger-title">Danger zone</h2>
           <p class="muted">
@@ -514,6 +515,19 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
       if (roleEl) roleEl.textContent = u.role;
       if (orgEl) orgEl.textContent = u.organizationId || '—';
 
+      const services = document.getElementById('acc-services')!;
+      try {
+        const result = await fetch(`${apiBase}/v1/billing/entitlements`, {headers:{authorization:`Bearer ${token}`}});
+        if (!result.ok) throw new Error();
+        const entitlements = await result.json();
+        services.replaceChildren();
+        const plan = document.createElement('p'); plan.textContent = `Plan: ${entitlements.plan || 'No active paid plan'}`; services.append(plan);
+        const beta = document.createElement('p'); beta.textContent = `Research beta: ${entitlements.researchBeta.requestsPerHour} requests per organization per hour. Paid plan ${entitlements.researchBeta.paidPlanRequired ? 'required' : 'not required'}.`; services.append(beta);
+        const orders = document.createElement('ul');
+        for (const order of entitlements.activeOrders || []) { const item = document.createElement('li'); item.textContent = `${order.tier || order.plan || 'Service'} · ${order.status || 'active'}${order.paidUntil ? ' · paid until ' + new Date(order.paidUntil).toLocaleDateString() : ''}`; if (order.vendorId && order.runId) { const link=document.createElement('a'); link.href=`/vendor?id=${encodeURIComponent(order.vendorId)}&runId=${encodeURIComponent(order.runId)}`; link.textContent=' — Open assessment'; item.append(link); } orders.append(item); }
+        if (!orders.children.length) { const empty = document.createElement('li'); empty.textContent = 'No active paid orders.'; orders.append(empty); }
+        services.append(orders);
+      } catch { services.textContent = 'Unable to load purchased services. Reload to retry.'; }
       const loading = document.getElementById('acc-loading');
       const content = document.getElementById('acc-content');
       if (loading) loading.hidden = true;

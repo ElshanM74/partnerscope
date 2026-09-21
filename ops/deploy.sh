@@ -77,6 +77,16 @@ chmod 600 "${PROJECT_DIR}/.env"
 log "pulling latest API image…"
 docker compose -f docker-compose.prod.yml pull api
 
+# Save a recoverable database snapshot before additive schema changes.
+log "backing up database before migrations…"
+docker compose -f docker-compose.prod.yml exec -T db sh -c 'umask 077; pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "/backups/pre-release-$(date -u +%Y%m%dT%H%M%SZ).dump"' \
+  || fail "database backup failed; existing API remains running"
+
+# Apply additive migrations from the new image before serving new routes.
+log "running migrations before API restart…"
+docker compose -f docker-compose.prod.yml run --rm --no-deps api node apps/api/dist/db/migrate.js \
+  || fail "migrations failed; existing API remains running"
+
 # ─── 3. Rolling restart — start new api, keep db/redis warm ───────────────
 log "starting / updating containers…"
 docker compose -f docker-compose.prod.yml up -d --remove-orphans
@@ -92,10 +102,6 @@ for i in {1..30}; do
     sleep 2
 done
 
-# ─── 5. Run DB migrations (idempotent) ────────────────────────────────────
-log "running migrations…"
-docker compose -f docker-compose.prod.yml exec -T api node apps/api/dist/db/migrate.js \
-  || fail "migrations failed"
 
 # ─── 6. Prune stale images ────────────────────────────────────────────────
 log "pruning dangling images…"

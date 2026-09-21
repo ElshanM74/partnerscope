@@ -46,3 +46,21 @@ describe('questionnaire supplied answer validation', () => {
     expect(emptySelection.supplied[0].rawAnswer).toEqual({ type: 'multi_select', values: [] });
   });
 });
+
+describe('buyer-selected scope', () => {
+  it('excludes AI model questions from a general supplier assessment and rejects injected answers', () => {
+    const ai = intakeQuestions.find((q) => q.dimensionCode === 'D11');
+    if (!ai) throw new Error('AI fixture missing');
+    expect(() =>
+      validateQuestionnaire({ profile: 'general', answers: [{ questionId: ai.id, value: 3 }] }),
+    ).toThrow();
+    const report = validateQuestionnaire({
+      profile: 'general',
+      context: { task: 'Build optical fibre routes', criteria: 'Team and deadlines' },
+      answers: [{ questionId: likertId, value: 3 }],
+    }).report;
+    expect(report.totalCount).toBeLessThan(intakeQuestions.length);
+    expect(report.gaps.every((q) => Number(q.dimensionCode.slice(1)) <= 10)).toBe(true);
+    expect(report.context?.criteria).toBe('Team and deadlines');
+  });
+});

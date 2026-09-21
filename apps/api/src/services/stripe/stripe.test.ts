@@ -54,6 +54,7 @@ describe('Stripe webhook signature verification', () => {
           id: 'cs_test_abc',
           object: 'checkout.session',
           payment_status: 'paid',
+          mode: 'payment',
           payment_intent: 'pi_test_xyz',
           amount_total: 9900,
           currency: 'eur',

@@ -346,3 +346,46 @@ export const pushDevices = pgTable(
     userDeviceUniq: unique('push_devices_user_device_key').on(t.userId, t.deviceToken),
   }),
 );
+
+// Run-scoped purchased services; Enterprise additionally expires with its paid period.
+export const billingOrders = pgTable('billing_orders', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organizations.id),
+  vendorId: uuid('vendor_id')
+    .notNull()
+    .references(() => vendors.id),
+  runId: uuid('run_id')
+    .notNull()
+    .unique()
+    .references(() => runs.id),
+  tier: tierEnum('tier').notNull(),
+  stripeSessionId: text('stripe_session_id').notNull().unique(),
+  stripePaymentIntent: text('stripe_payment_intent'),
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  status: text('status').notNull(),
+  amountTotal: integer('amount_total').notNull(),
+  currency: text('currency').notNull(),
+  subscriptionStatus: text('subscription_status'),
+  paidUntil: timestamp('paid_until', { withTimezone: true }),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+export const billingEvents = pgTable('billing_events', {
+  stripeEventId: text('stripe_event_id').primaryKey(),
+  eventType: text('event_type').notNull(),
+  outcome: text('outcome').notNull(),
+  processedAt: timestamp('processed_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Full one-off refunds are tombstones: delayed checkout events cannot restore access.
+export const billingRefunds = pgTable('billing_refunds', {
+  stripePaymentIntent: text('stripe_payment_intent').primaryKey(),
+  stripeEventId: text('stripe_event_id')
+    .notNull()
+    .references(() => billingEvents.stripeEventId),
+  refundedAt: timestamp('refunded_at', { withTimezone: true }).defaultNow().notNull(),
+});

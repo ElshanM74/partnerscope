@@ -10,10 +10,11 @@
 
 import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
+import { z } from 'zod';
 
 import type { Tier } from '@partnerscope/core';
 import { env } from '../../config/env.js';
-import { db } from '../../db/client.js';
+import { db, pool } from '../../db/client.js';
 import { organizations } from '../../db/schema.js';
 
 // ────────────────────────────────────────────────────────────────
@@ -28,6 +29,8 @@ export function getStripe(): Stripe {
   }
   _stripe = new Stripe(env.STRIPE_SECRET_KEY, {
     typescript: true,
+    timeout: 10_000,
+    maxNetworkRetries: 1,
     // Pin to the library's default API version — Stripe auto-upgrades the
     // account if omitted, which is what we want; do not hard-code.
   });
@@ -53,7 +56,7 @@ export interface CheckoutInput {
   cancelUrl?: string;
 }
 
-function priceIdForTier(tier: Tier): string {
+export function priceIdForTier(tier: Tier): string {
   switch (tier) {
     case 'starter':
       if (!env.STRIPE_PRICE_STARTER) throw new Error('STRIPE_PRICE_STARTER not set.');
@@ -78,29 +81,74 @@ function modeForTier(tier: Tier): 'payment' | 'subscription' {
 // Checkout
 // ────────────────────────────────────────────────────────────────
 
+export function checkoutRedirect(raw: string | undefined, kind: 'success' | 'cancel'): string {
+  const fallback = kind === 'success' ? env.STRIPE_SUCCESS_URL : env.STRIPE_CANCEL_URL;
+  const url = new URL(raw ?? fallback);
+  const origin = new URL(env.APP_PUBLIC_URL).origin;
+  const allowed =
+    kind === 'success'
+      ? ['/checkout/success', '/de/checkout/success']
+      : ['/checkout/cancelled', '/de/checkout/cancelled', '/plans', '/de/plans'];
+  if (url.origin !== origin || url.username || url.password || !allowed.includes(url.pathname))
+    throw new Error('invalid_checkout_redirect');
+  url.hash = '';
+  // Arbitrary redirect/query parameters do not cross the payment boundary.
+  url.search = '';
+  if (kind === 'success') return `${url.href}?session_id={CHECKOUT_SESSION_ID}`;
+  return url.href;
+}
+
 export async function createCheckoutSession(
   input: CheckoutInput,
 ): Promise<{ id: string; url: string | null }> {
   const stripe = getStripe();
   const price = priceIdForTier(input.tier);
-
-  const session = await stripe.checkout.sessions.create({
-    mode: modeForTier(input.tier),
-    line_items: [{ price, quantity: 1 }],
-    customer_email: input.buyerEmail,
-    success_url: `${input.successUrl ?? env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: input.cancelUrl ?? env.STRIPE_CANCEL_URL,
-    client_reference_id: input.organizationId,
-    metadata: {
-      tier: input.tier,
-      organizationId: input.organizationId,
-      vendorId: input.vendorId,
-      ...(input.runId ? { runId: input.runId } : {}),
+  const successUrl = checkoutRedirect(input.successUrl, 'success');
+  const cancelUrl = checkoutRedirect(input.cancelUrl, 'cancel');
+  const org = (
+    await pool.query('SELECT stripe_customer_id FROM organizations WHERE id=$1', [
+      input.organizationId,
+    ])
+  ).rows[0];
+  if (!org) throw new Error('billing_organization_missing');
+  let customerId: string | null = org.stripe_customer_id;
+  if (!customerId) {
+    const customer = await stripe.customers.create(
+      {
+        email: input.buyerEmail,
+        metadata: { organizationId: input.organizationId },
+      },
+      { idempotencyKey: `partnerscope-customer-${input.organizationId}` },
+    );
+    const updated = await pool.query(
+      'UPDATE organizations SET stripe_customer_id=$2, updated_at=now() WHERE id=$1 AND (stripe_customer_id IS NULL OR stripe_customer_id=$2) RETURNING stripe_customer_id',
+      [input.organizationId, customer.id],
+    );
+    if (!updated.rowCount) throw new Error('billing_customer_mismatch');
+    customerId = customer.id;
+  }
+  const metadata = {
+    tier: input.tier,
+    organizationId: input.organizationId,
+    vendorId: input.vendorId,
+    ...(input.runId ? { runId: input.runId } : {}),
+  };
+  const session = await stripe.checkout.sessions.create(
+    {
+      mode: modeForTier(input.tier),
+      line_items: [{ price, quantity: 1 }],
+      customer: customerId,
+      customer_update: { address: 'auto' },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: input.organizationId,
+      metadata,
+      ...(input.tier === 'enterprise' ? { subscription_data: { metadata } } : {}),
+      billing_address_collection: 'required',
+      automatic_tax: { enabled: true },
     },
-    billing_address_collection: 'required',
-    automatic_tax: { enabled: true },
-  });
-
+    input.runId ? { idempotencyKey: `partnerscope-checkout-${input.runId}` } : undefined,
+  );
   return { id: session.id, url: session.url };
 }
 
@@ -120,52 +168,120 @@ export function verifyWebhookSignature(rawBody: Buffer, signatureHeader: string)
 // Event → app-level action
 // ────────────────────────────────────────────────────────────────
 
+export const paidTierSchema = z.enum(['starter', 'pro', 'enterprise']);
+export type PaidTier = z.infer<typeof paidTierSchema>;
+const paymentMetadata = z.object({
+  tier: paidTierSchema,
+  organizationId: z.string().uuid(),
+  vendorId: z.string().uuid(),
+  runId: z.string().uuid().optional(),
+});
 export interface PaymentSucceededPayload {
-  tier: Tier;
+  tier: PaidTier;
   organizationId: string;
   vendorId: string;
   runId?: string;
   stripeSessionId: string;
   stripePaymentIntent: string | null;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
   buyerEmail: string | null;
-  amountTotal: number | null; // cents
-  currency: string | null;
+  amountTotal: number;
+  currency: string;
+}
+function objectId(value: string | { id: string } | null | undefined): string | null {
+  return typeof value === 'string' ? value : (value?.id ?? null);
 }
 
-/**
- * Normalise a `checkout.session.completed` event into the
- * app-level payload we actually care about. Pure — no DB writes.
- */
+/** Only paid, correctly typed Checkout sessions can grant a service entitlement. */
 export function parseCheckoutCompleted(event: Stripe.Event): PaymentSucceededPayload | null {
-  if (event.type !== 'checkout.session.completed') return null;
-  const session = event.data.object as Stripe.Checkout.Session;
-
-  if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') {
+  if (
+    !['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)
+  )
     return null;
-  }
-
-  const md = session.metadata ?? {};
-  const tier = md.tier as Tier | undefined;
-  const organizationId = md.organizationId ?? session.client_reference_id ?? null;
-  const vendorId = md.vendorId ?? null;
-  if (!tier || !organizationId || !vendorId) return null;
-
-  const pi =
-    typeof session.payment_intent === 'string'
-      ? session.payment_intent
-      : (session.payment_intent?.id ?? null);
-
+  const session = event.data.object as Stripe.Checkout.Session;
+  if (session.payment_status !== 'paid') return null;
+  const metadata = paymentMetadata.safeParse({
+    ...session.metadata,
+    organizationId: session.metadata?.organizationId ?? session.client_reference_id,
+  });
+  if (!metadata.success || !session.id?.startsWith('cs_')) return null;
+  const md = metadata.data;
+  if (session.client_reference_id && session.client_reference_id !== md.organizationId) return null;
+  if (session.mode !== (md.tier === 'enterprise' ? 'subscription' : 'payment')) return null;
+  if (
+    !Number.isSafeInteger(session.amount_total) ||
+    (session.amount_total ?? -1) < 0 ||
+    !/^[a-z]{3}$/.test(session.currency ?? '')
+  )
+    return null;
+  const subscriptionId = objectId(session.subscription);
+  const customerId = objectId(session.customer);
+  if (md.tier === 'enterprise' && (!subscriptionId || !customerId)) return null;
   return {
-    tier,
-    organizationId,
-    vendorId,
-    runId: md.runId,
+    ...md,
     stripeSessionId: session.id,
-    stripePaymentIntent: pi,
+    stripePaymentIntent: objectId(session.payment_intent),
+    stripeCustomerId: customerId,
+    stripeSubscriptionId: subscriptionId,
     buyerEmail: session.customer_details?.email ?? session.customer_email ?? null,
-    amountTotal: session.amount_total,
-    currency: session.currency,
+    amountTotal: session.amount_total as number,
+    currency: session.currency as string,
   };
+}
+
+export interface SubscriptionSnapshot {
+  id: string;
+  customerId: string;
+  status: Stripe.Subscription.Status;
+  currentPeriodEnd: Date;
+  paidUntil: Date | null;
+  cancelAtPeriodEnd: boolean;
+  organizationId: string | null;
+  vendorId: string | null;
+}
+
+/** Retrieve current authoritative state, so delayed webhook payloads cannot resurrect access. */
+export async function retrieveSubscriptionSnapshot(id: string): Promise<SubscriptionSnapshot> {
+  const sub = await getStripe().subscriptions.retrieve(id, { expand: ['latest_invoice'] });
+  const invoice = typeof sub.latest_invoice === 'object' ? sub.latest_invoice : null;
+  return {
+    id: sub.id,
+    customerId: objectId(sub.customer) ?? '',
+    status: sub.status,
+    currentPeriodEnd: new Date(sub.current_period_end * 1000),
+    paidUntil: invoice?.paid ? new Date(sub.current_period_end * 1000) : null,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    organizationId: sub.metadata.organizationId ?? null,
+    vendorId: sub.metadata.vendorId ?? null,
+  };
+}
+
+/** Prices are identified using configured Stripe Price IDs, never guessed from total amounts. */
+export async function verifyCheckoutPrice(payload: PaymentSucceededPayload): Promise<boolean> {
+  const lines = await getStripe().checkout.sessions.listLineItems(payload.stripeSessionId, {
+    limit: 2,
+  });
+  return (
+    !lines.has_more &&
+    lines.data.length === 1 &&
+    lines.data[0]?.quantity === 1 &&
+    lines.data[0]?.price?.id === priceIdForTier(payload.tier)
+  );
+}
+
+export function subscriptionIdForEvent(event: Stripe.Event): string | null {
+  if (
+    [
+      'customer.subscription.updated',
+      'customer.subscription.deleted',
+      'customer.subscription.created',
+    ].includes(event.type)
+  )
+    return (event.data.object as Stripe.Subscription).id;
+  if (['invoice.paid', 'invoice.payment_failed'].includes(event.type))
+    return objectId((event.data.object as Stripe.Invoice).subscription);
+  return null;
 }
 
 // ────────────────────────────────────────────────────────────────

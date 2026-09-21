@@ -10,15 +10,10 @@
 
 import type { FastifyInstance } from 'fastify';
 
-import { eq } from 'drizzle-orm';
-
-import { getEntitlements } from '@partnerscope/core';
 import type Stripe from 'stripe';
-import { db } from '../db/client.js';
-import { runs, vendors } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
-
-import { parseCheckoutCompleted, verifyWebhookSignature } from '../services/stripe/index.js';
+import { applyBillingEvent } from '../services/billing.js';
+import { verifyWebhookSignature } from '../services/stripe/index.js';
 
 export async function webhookRoutes(fastify: FastifyInstance): Promise<void> {
   // Capture the raw body on application/json for Stripe's signature check.
@@ -53,54 +48,15 @@ export async function webhookRoutes(fastify: FastifyInstance): Promise<void> {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'signature verification failed';
       req.log.warn({ err: msg }, 'Stripe signature verification failed');
-      throw new ApiError(400, 'invalid_signature', `Signature verification failed: ${msg}`);
+      throw new ApiError(400, 'invalid_signature', 'Signature verification failed.');
     }
 
-    // Only act on events we understand.
-    const payload = parseCheckoutCompleted(event);
-    if (payload) {
-      // Vendor must still belong to the org (defence-in-depth).
-      const [vendor] = await db
-        .select({ id: vendors.id, organizationId: vendors.organizationId })
-        .from(vendors)
-        .where(eq(vendors.id, payload.vendorId))
-        .limit(1);
-
-      if (!vendor || vendor.organizationId !== payload.organizationId) {
-        req.log.warn(
-          {
-            vendorId: payload.vendorId,
-            orgId: payload.organizationId,
-            sessionId: payload.stripeSessionId,
-          },
-          'Stripe webhook: vendor/org mismatch — ignoring',
-        );
-        return reply.code(200).send({ received: true, acted: false });
-      }
-
-      const entitlements = getEntitlements(payload.tier);
-      const baseUpdate = {
-        stripePaymentIntent: payload.stripePaymentIntent,
-        slaHours: entitlements.slaHours,
-        status: 'queued' as const,
-        startedAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      if (payload.runId) {
-        await db.update(runs).set(baseUpdate).where(eq(runs.id, payload.runId));
-      } else {
-        // No run was pre-created — spawn one now so the buyer sees
-        // something in their dashboard immediately.
-        await db.insert(runs).values({
-          vendorId: payload.vendorId,
-          organizationId: payload.organizationId,
-          tier: payload.tier,
-          ...baseUpdate,
-        });
-      }
-    }
-
-    return reply.code(200).send({ received: true, acted: Boolean(payload) });
+    const result = await applyBillingEvent(event);
+    // Return only the acknowledgment; internal identifiers and rejection reasons stay in logs.
+    req.log.info(
+      { outcome: result.outcome, eventType: event.type },
+      'Stripe billing event processed',
+    );
+    return reply.code(200).send({ received: true, acted: result.acted });
   });
 }

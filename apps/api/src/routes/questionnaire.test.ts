@@ -83,7 +83,7 @@ describe('questionnaire tenant boundaries', () => {
     vi.spyOn(pool, 'query').mockResolvedValue(rows([{ id: user }]));
     const txQuery = vi.fn(async (sql: string) => {
       if (sql.startsWith('SELECT id, legal_name')) return rows([{ id: vendor }]);
-      if (sql.startsWith('SELECT id FROM users')) return rows([{ id: user }]);
+      if (sql.startsWith('SELECT id, role FROM users')) return rows([{ id: user }]);
       if (sql.startsWith('INSERT INTO runs')) return rows([{ id: user }]);
       return rows([]);
     });

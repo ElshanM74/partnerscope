@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { pool } from '../db/client.js';
 import {
   intakeQuestions,
+  profiles,
   questionnaireCatalogue,
   validateQuestionnaire,
 } from '../services/questionnaire.js';
@@ -18,14 +19,19 @@ export async function questionnaireRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (req, reply) => {
     if (!req.organization) return reply.code(401).send({ error: 'unauthorized' });
     const membership = req.user?.sub
-      ? await pool.query('SELECT id FROM users WHERE id=$1 AND organization_id=$2', [
+      ? await pool.query('SELECT id, role FROM users WHERE id=$1 AND organization_id=$2', [
           req.user.sub,
           req.organization.id,
         ])
       : await pool.query('SELECT id FROM organizations WHERE id=$1', [req.organization.id]);
     if (!membership.rowCount) return reply.code(401).send({ error: 'unauthorized' });
+    if (req.method !== 'GET' && membership.rows[0].role === 'viewer')
+      return reply.code(403).send({ error: 'read_only_role' });
   });
-  app.get('/v1/questions/intake', async () => questionnaireCatalogue());
+  app.get('/v1/questions/intake', async (req) => {
+    const query = z.object({ profile: profiles.default('ai') }).parse(req.query);
+    return questionnaireCatalogue(query.profile);
+  });
   app.post('/v1/vendors/:id/assess', async (req, reply) => {
     const parsed = idSchema.safeParse(req.params);
     if (!parsed.success) return reply.code(400).send({ error: 'invalid_id' });
@@ -47,12 +53,16 @@ export async function questionnaireRoutes(app: FastifyInstance) {
       }
       if (req.user?.sub) {
         const member = await client.query(
-          'SELECT id FROM users WHERE id=$1 AND organization_id=$2 FOR KEY SHARE',
+          'SELECT id, role FROM users WHERE id=$1 AND organization_id=$2 FOR KEY SHARE',
           [req.user.sub, org],
         );
         if (!member.rowCount) {
           await client.query('ROLLBACK');
           return reply.code(401).send({ error: 'unauthorized' });
+        }
+        if (member.rows[0].role === 'viewer') {
+          await client.query('ROLLBACK');
+          return reply.code(403).send({ error: 'read_only_role' });
         }
       }
       for (const answer of result.supplied) {

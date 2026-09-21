@@ -2,8 +2,6 @@
 interface Props {
   locale?: 'en' | 'de';
 }
-const { locale = 'en' } = Astro.props;
-const base = locale === 'de' ? '/de' : '';
 
 interface Tier {
   name: string;
@@ -30,31 +28,30 @@ const TIERS: Tier[] = [
       'Automated checks on the vendor domain: DNS, TLS, HTTP security headers, Certificate Transparency log',
       'Each check reported with time, object tested and its limits — a failed service is reported as "not checked", not as a finding',
       'Open questions for the vendor, derived from what the checks could not see',
-      'No composite score and no proceed/decline verdict — those require Pro',
+      'No composite score or approval verdict; Pro adds a recommendation reviewed by a named analyst',
     ],
-    cta: { label: 'Request Starter — €99 →', href: `${base}/get-started?tier=starter` },
-    finePrint: 'We confirm scope within one business day and send a Stripe payment link.',
+    cta: { label: 'Start Starter →', href: '/dashboard' },
+    finePrint: 'Sign in, add a company and order Starter from its page. Secure payment starts the checks; your technical PDF is delivered in the dashboard.',
   },
   {
     name: 'Pro',
     priceLabel: '€299',
-    priceSub: 'Single vendor · one AI product and use case · analyst-led',
+    priceSub: 'One supplier · your task and criteria · analyst-reviewed',
     highlight: true,
     tagline: 'Serious vendor decisions — new contract, renewal, audit response.',
     bestFor: 'Serious vendor decisions — new contract, renewal, audit response.',
     features: [
       'Everything in Starter, plus:',
-      'Context brief agreed before payment: product, use case, data involved, criticality, decision deadline',
-      'Documentary review of what you and the vendor supply — DPA, ISO 27001 / SOC 2 scope, Model or System Card, SBOM, BCP / IR plan',
-      'Sanctions screening against EU, UN and OFAC consolidated lists; insolvency-register check; UBO from the commercial register where available',
-      'EU AI Act applicability — Annex III / GPAI — and obligations gap, with the basis for each conclusion stated',
-      'AI red-team probe (prompt injection · jailbreak · PII leakage) where the vendor exposes a testable endpoint — otherwise reported as not tested',
-      'Written recommendation: verified facts, open gaps and conditions of use — each finding with source, date and verification status',
-      'Named analyst; scope, price and delivery date confirmed before payment',
+      'Your brief: the supplier, work to be performed and priority criteria',
+      'Public-source research into the supplier against your brief, with source links and stated limitations',
+      'Named analyst review before delivery: checked findings, unresolved gaps, conditions and a written recommendation',
+      'Additional documentary checks — DPA, ISO 27001 / SOC 2 scope, Model or System Card, SBOM, BCP / IR plan — only when separately agreed and the documents are available',
+      'Sanctions, insolvency and ownership checks; EU AI Act applicability and obligations review — additional manual scope agreed before execution',
+      'AI red-team probes require a separately agreed, authorized and testable endpoint; otherwise not assessed',
     ],
-    cta: { label: 'Start a Pro assessment →', href: `${base}/get-started?tier=pro` },
+    cta: { label: 'Start Pro →', href: '/dashboard' },
     secondaryCta: { label: 'Book a 15-min demo →', href: 'mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20Pro%20demo' },
-    finePrint: 'Delivered as a signed PDF within 5 business days of scope confirmation. Anything outside the agreed scope is stated as not assessed.',
+    finePrint: 'Sign in, add your supplier and brief, then order Pro. A named analyst reviews the findings before PDF delivery. Target: 5 business days after scope confirmation. Additional checks require an agreed scope.',
   },
   {
     name: 'Enterprise',
@@ -81,9 +78,9 @@ const TIERS: Tier[] = [
       <p class="eyebrow">Pricing</p>
       <h2>Three tiers. One methodology.</h2>
       <p class="tiers-sub">
-        Starter is an external technical snapshot of a vendor domain. Pro and Enterprise apply the
-        13-dimension framework: documentary review, a named analyst, and — for Enterprise — ongoing
-        monitoring after delivery.
+        Starter checks the external technical surface of a supplier domain. Pro adds public-source
+        research against your task and criteria, with a named analyst reviewing the recommendation.
+        Enterprise is a portfolio engagement with scope agreed before payment.
       </p>
     </div>
 

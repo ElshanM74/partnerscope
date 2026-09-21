@@ -6,7 +6,8 @@ FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME=/usr/local/pnpm \
     PATH=/usr/local/pnpm:$PATH \
     NODE_ENV=production \
-    PUPPETEER_SKIP_DOWNLOAD=false
+    PUPPETEER_SKIP_DOWNLOAD=true \
+    PUPPETEER_CACHE_DIR=/opt/puppeteer
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 # Chromium runtime deps for Puppeteer PDF rendering.
@@ -59,14 +60,16 @@ FROM base AS runtime
 WORKDIR /app
 RUN groupadd --system --gid 1001 api \
  && useradd --system --uid 1001 --gid api --no-create-home api \
- && mkdir -p /app/storage && chown -R api:api /app
+ && mkdir -p /app/storage /home/api && chown -R api:api /app /home/api
 
 # Only runtime deps.
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
 COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY --from=build /app/packages/core/package.json ./packages/core/package.json
 COPY --from=build /app/packages/tests/package.json ./packages/tests/package.json
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod \
+ && pnpm --filter @partnerscope/api exec puppeteer browsers install chrome \
+ && chmod -R a+rX /opt/puppeteer
 
 # Built artefacts.
 COPY --from=build /app/packages/core/dist ./packages/core/dist
@@ -80,9 +83,12 @@ COPY --from=build /app/migrations ./migrations
 
 ENV NODE_ENV=production \
     API_PORT=4000 \
+    HOME=/home/api \
     STORAGE_LOCAL_DIR=/app/storage
 
 USER api
+# Fail the image build if the final runtime user cannot start Chrome/render PDF.
+RUN cd /app/apps/api && node --input-type=module -e "import puppeteer from 'puppeteer'; const b=await puppeteer.launch({headless:true,args:['--no-sandbox','--disable-setuid-sandbox']}); const p=await b.newPage(); await p.setContent('<h1>PDF runtime smoke</h1>'); const pdf=await p.pdf(); if(pdf.length<100)throw new Error('PDF smoke failed'); await b.close();"
 EXPOSE 4000
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "apps/api/dist/server.js"]

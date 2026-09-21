@@ -30,7 +30,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           <h1>Welcome, <span id="dash-name">there</span>.</h1>
           <p class="dash-sub">
             You're logged in as <span id="dash-email" class="mono"></span> ·
-            <a href="/account">Account settings</a> ·
+            <a href="/account">Account settings &amp; purchased services</a> · <a id="dash-operations" href="/operations" hidden>Service operations</a> ·
             <a href="/research">Поиск партнёров · Beta ↗</a>
           </p>
         </header>
@@ -346,9 +346,11 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
       }
       if (!res.ok) throw new Error(`me failed: ${res.status}`);
       const body = await res.json() as {
-        user: { id: string; organizationId: string | null; email: string; fullName: string | null; role: string };
+        user: { id: string; organizationId: string | null; email: string; fullName: string | null; role: string; isStaff?: boolean }; isStaff?: boolean;
       };
       const u = body.user;
+      const operationsLink = document.getElementById("dash-operations");
+      if (operationsLink) operationsLink.hidden = !(u.isStaff || body.isStaff);
       try { localStorage.setItem('ps_user', JSON.stringify(u)); } catch {}
 
       const name = u.fullName?.trim() || u.email.split('@')[0] || 'there';

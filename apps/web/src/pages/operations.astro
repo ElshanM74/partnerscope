@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<Base title="Service operations — PartnerScope" description="Staff assessment review and delivery.">
+<section class="section" id="operations" data-api-base={apiBase}><div class="container" style="max-width:960px">
+<a href="/dashboard">← Dashboard</a><h1>Service operations</h1>
+<p>Review source evidence and limitations before publishing an analyst recommendation. Only authorized platform staff can publish or retry assessments.</p>
+<button class="btn btn-ghost" id="refresh">Refresh queue</button><p id="state" role="status">Loading…</p><div id="orders"></div>
+</div></section>
+</Base>
+<style is:global>
+.operation-card {border:1px solid #cbd5e1;border-radius:.5rem;padding:1.2rem;margin:1rem 0;overflow-wrap:anywhere}
+.operation-card textarea {display:block;width:100%;padding:.6rem;margin:.5rem 0 1rem;min-height:6rem}
+.operation-card pre {white-space:pre-wrap;max-height:30rem;overflow:auto}
+</style>
+<script>
+const root=document.getElementById('operations')!;
+const apiBase=root.dataset.apiBase || '/api';
+const token=localStorage.getItem('ps_token');
+const headers={authorization:`Bearer ${token}`,'content-type':'application/json'};
+const state=document.getElementById('state')!;
+const orders=document.getElementById('orders')!;
+const text=(parent:HTMLElement,tag:string,value:string)=>{const el=document.createElement(tag);el.textContent=value;parent.append(el);return el;};
+async function load(){
+ if(!token){location.href='/login';return;}
+ state.textContent='Loading…';
+ try{
+  const response=await fetch(`${apiBase}/v1/admin/assessments`,{headers});
+  if(response.status===403){state.textContent='This page requires platform staff access. Your organization administrator role does not grant this permission.';orders.replaceChildren();return;}
+  if(!response.ok)throw new Error(`Unable to load queue (${response.status}).`);
+  const result=await response.json();orders.replaceChildren();
+  for(const run of result.data || []){
+   const card=document.createElement('article');card.className='operation-card';orders.append(card);
+   text(card,'h2',`${run.vendorName || run.vendorId} · ${run.tier}`);
+   text(card,'p',`${run.status} · ${run.id}`);
+   const evidence=document.createElement('details');text(evidence,'summary','Evidence, source links and limitations');
+   text(evidence,'pre',JSON.stringify(run.reportJson || {},null,2));card.append(evidence);
+   for(const source of run.reportJson?.research?.sources || []){
+    try{const url=new URL(source.url);if(!['https:','http:'].includes(url.protocol))continue;const link=document.createElement('a');link.href=url.href;link.textContent=source.title || source.url;link.target='_blank';link.rel='noopener noreferrer';card.append(link,document.createElement('br'));}catch{}
+   }
+   const message=text(card,'p','');message.setAttribute('role','status');
+   if(['analyst_review','delivered'].includes(run.status)){
+    const preview=document.createElement('button');preview.className='btn btn-ghost';preview.textContent=run.status==='analyst_review' ? 'Download staff draft PDF' : 'Download published PDF';card.append(preview);
+    preview.addEventListener('click',async()=>{preview.disabled=true;message.textContent='Preparing PDF…';try{const response=await fetch(`${apiBase}/v1/admin/assessments/${encodeURIComponent(run.id)}/report.pdf`,{headers});if(!response.ok)throw new Error(`PDF unavailable (${response.status}).`);const url=URL.createObjectURL(await response.blob());const link=document.createElement('a');link.href=url;link.download=`PartnerScope-${run.id}${run.status==='analyst_review' ? '-draft' : ''}.pdf`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message.textContent='PDF downloaded.';}catch(error){message.textContent=error instanceof Error ? error.message : 'Download failed.';}finally{preview.disabled=false;}});
+   }
+   if(run.tier==='enterprise' && run.status==='draft'){
+    const scopeForm=document.createElement('form');text(scopeForm,'h3','Approve agreed Enterprise scope');
+    const refLabel=text(scopeForm,'label','Contract / engagement reference');const reference=document.createElement('input');reference.required=true;reference.minLength=5;reference.maxLength=200;refLabel.append(reference);
+    const scopeLabel=text(scopeForm,'label','Agreed work, supplier portfolio, deliverables and responsibilities');const scope=document.createElement('textarea');scope.required=true;scope.minLength=30;scope.maxLength=12000;scopeLabel.append(scope);
+    const confirmation=text(scopeForm,'label','');const confirmed=document.createElement('input');confirmed.type='checkbox';confirmed.required=true;confirmation.append(confirmed,document.createTextNode(' I confirm this scope is agreed with the client and can be delivered. My staff identity will be recorded.'));
+    const approve=document.createElement('button');approve.className='btn btn-primary';approve.type='submit';approve.textContent='Approve scope for payment';scopeForm.append(document.createElement('br'),approve);card.append(scopeForm);
+    scopeForm.addEventListener('submit',async(event)=>{event.preventDefault();approve.disabled=true;message.textContent='Recording scope approval…';try{const response=await fetch(`${apiBase}/v1/admin/assessments/${encodeURIComponent(run.id)}/scope`,{method:'POST',headers,body:JSON.stringify({contractReference:reference.value,scope:scope.value,confirmed:confirmed.checked})});if(!response.ok){const result=await response.json();throw new Error(result.message || result.error?.message || `Scope approval failed (${response.status}).`);}await load();}catch(error){message.textContent=error instanceof Error ? error.message : 'Scope approval failed.';approve.disabled=false;}});
+   }
+   if(run.status==='analyst_review'){
+    const form=document.createElement('form');
+    const recommendationLabel=text(form,'label','Recommendation');const recommendation=document.createElement('textarea');recommendation.required=true;recommendation.minLength=30;recommendation.maxLength=12000;recommendationLabel.append(recommendation);
+    const conditionsLabel=text(form,'label','Conditions, unresolved gaps and reassessment triggers');const conditions=document.createElement('textarea');conditions.required=true;conditions.minLength=10;conditions.maxLength=12000;conditionsLabel.append(conditions);
+    const confirmation=text(form,'label','');const confirmed=document.createElement('input');confirmed.type='checkbox';confirmed.required=true;confirmation.append(confirmed,document.createTextNode(' I reviewed the sources and accept responsibility for this recommendation. My signed-in staff identity will be recorded.'));
+    const publish=document.createElement('button');publish.type='submit';publish.className='btn btn-primary';publish.textContent='Publish reviewed assessment';form.append(document.createElement('br'),publish);card.append(form);
+    form.addEventListener('submit',async(event)=>{event.preventDefault();publish.disabled=true;message.textContent='Publishing…';try{const response=await fetch(`${apiBase}/v1/admin/assessments/${encodeURIComponent(run.id)}/review`,{method:'POST',headers,body:JSON.stringify({recommendation:recommendation.value,conditions:conditions.value,confirmed:confirmed.checked})});if(!response.ok){const error=await response.json();throw new Error(error.message || error.error?.message || `Publish failed (${response.status}).`);}await load();}catch(error){message.textContent=error instanceof Error ? error.message : 'Publish failed.';publish.disabled=false;}});
+   }
+   if(run.status==='failed'){
+    const retry=document.createElement('button');retry.className='btn btn-primary';retry.textContent='Retry failed assessment';card.append(retry);
+    retry.addEventListener('click',async()=>{retry.disabled=true;message.textContent='Queuing retry…';try{const response=await fetch(`${apiBase}/v1/admin/assessments/${encodeURIComponent(run.id)}/retry`,{method:'POST',headers,body:'{}'});if(!response.ok)throw new Error(`Retry failed (${response.status}).`);await load();}catch(error){message.textContent=error instanceof Error ? error.message : 'Retry failed.';retry.disabled=false;}});
+   }
+  }
+  state.textContent=orders.children.length ? `${orders.children.length} assessments` : 'No assessments in the queue.';
+ }catch(error){state.textContent=error instanceof Error ? error.message : 'Unable to load service queue.';}
+}
+document.getElementById('refresh')!.addEventListener('click',()=>void load());
+void load();
+</script>

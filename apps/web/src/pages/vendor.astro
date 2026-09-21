@@ -30,9 +30,23 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
         <div id="vd-redflag" class="vd-redflag" hidden></div>
         <div id="vd-pending" class="vd-pending" hidden>
           <strong>Assessment pending.</strong> This vendor was added to the
-          database but the 13-domain questionnaire hasn't been completed yet.
+          database but an assessment has not been completed yet.
         </div>
 
+        <details class="vd-dim"><summary>Order a service for this supplier</summary>
+          <p>Enterprise portfolio work requires an agreed scope. <a href="mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20Enterprise%20call">Request Enterprise scoping →</a></p>
+          <div id="vd-enterprise-agreed" hidden></div>
+          <form id="vd-order">
+            <p><label>Service <select id="vd-tier"><option value="starter">Starter — €99, one technical domain snapshot</option><option value="pro">Pro — €299, analyst-reviewed assessment</option></select></label></p>
+            <p class="muted tiny">Starter reports domain checks. Pro requires analyst review before delivery.</p>
+            <p><label>Task<textarea id="vd-task" required minlength="10" maxlength="2000" rows="2"></textarea></label></p>
+            <p><label>Priority criteria<textarea id="vd-criteria" required minlength="3" maxlength="1000" rows="2"></textarea></label></p>
+            <p><label>Country<input id="vd-country" minlength="2" maxlength="100" /></label></p>
+            <p><label>Buyer email<input id="vd-buyer" required type="email" /></label></p>
+            <button class="btn btn-primary" type="submit">Continue to secure payment</button>
+            <p id="vd-order-msg" role="status"></p>
+          </form>
+        </details>
         <section id="vd-questionnaire" hidden aria-label="Saved questionnaire"></section>
         <div id="vd-layers" hidden>
           <h2 class="vd-h2">Layer 1 · Risk dimensions <span class="vd-count" id="vd-dim-count"></span></h2>
@@ -62,6 +76,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
 </Base>
 
 <style is:global>
+  #vd-order textarea, #vd-order input, #vd-order select { display:block; width:100%; padding:.6rem; margin-top:.3rem; }
   .vd-inner { max-width: 940px; }
   #vd-questionnaire { overflow-wrap: anywhere; }
   #vd-questionnaire .vd-dim { margin: .6rem 0; }
@@ -142,8 +157,90 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
     $('vd-meta')!.textContent = [d.vendor.domain, d.vendor.country, d.vendor.industry].filter(Boolean).join(' · ');
     ($('vd-assess') as HTMLAnchorElement).href = `/assess?vendor=${id}`;
 
+    const orderForm = $('vd-order') as HTMLFormElement;
+    const buyer = $('vd-buyer') as HTMLInputElement;
+    try { buyer.value = JSON.parse(localStorage.getItem('ps_user') || '{}').email || ''; } catch {}
+    ($('vd-country') as HTMLInputElement).value = d.vendor.country || '';
+    const existingContext = d.run?.reportJson?.context;
+    if (existingContext) { ($('vd-task') as HTMLTextAreaElement).value = existingContext.task || ''; ($('vd-criteria') as HTMLTextAreaElement).value = existingContext.criteria || ''; if (existingContext.country) ($('vd-country') as HTMLInputElement).value = existingContext.country; }
+    if (['starter','pro'].includes(d.run?.tier)) ($('vd-tier') as HTMLSelectElement).value = d.run.tier;
+    let pendingOrderId: string | null = d.run?.status === 'draft' && ['starter','pro'].includes(d.run?.tier) && existingContext ? d.run.id : null;
+    let pendingOrderKey = pendingOrderId ? JSON.stringify({tier:d.run.tier,context:{task:existingContext.task,criteria:existingContext.criteria,country:($('vd-country') as HTMLInputElement).value.trim() || undefined}}) : '';
+    if (d.run?.tier === 'enterprise' && d.run.status === 'draft' && d.run.reportJson?.enterpriseScopeApproved === true) {
+      const agreement = d.run.reportJson.scopeApproval;
+      const panel = $('vd-enterprise-agreed')!; panel.hidden=false;
+      const summary = document.createElement('p'); summary.textContent=`Agreed Enterprise engagement: ${agreement.contractReference} — ${agreement.scope}`;
+      const label = document.createElement('label'); label.textContent='Billing email';
+      const email = document.createElement('input'); email.type='email'; email.required=true; email.value=buyer.value; label.append(email);
+      const pay = document.createElement('button'); pay.type='button';pay.className='btn btn-primary';pay.textContent='Pay for agreed Enterprise engagement';
+      const notice = document.createElement('p');notice.setAttribute('role','status'); panel.append(summary,label,pay,notice);
+      pay.addEventListener('click',async()=>{ if(!email.reportValidity())return; pay.disabled=true;notice.textContent='Preparing agreed engagement payment…';try{const response=await fetch(`${apiBase}/v1/checkout/session`,{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({vendorId:id,tier:'enterprise',runId:d.run.id,buyerEmail:email.value})});const result=await response.json();if(!response.ok)throw new Error(result.message || result.error?.message || `Payment unavailable (${response.status}).`);const url=new URL(result.url);if(url.protocol!=='https:' || url.hostname!=='checkout.stripe.com')throw new Error('Unexpected payment address.');location.href=url.href;}catch(error){notice.textContent=error instanceof Error ? error.message : 'Payment unavailable.';}finally{pay.disabled=false;}});
+    }
+    orderForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = orderForm.querySelector('button')!; button.disabled = true;
+      const message = $('vd-order-msg')!; message.textContent = 'Preparing your order…';
+      try {
+        const tier = ($('vd-tier') as HTMLSelectElement).value;
+        const context = {task: ($('vd-task') as HTMLTextAreaElement).value, criteria: ($('vd-criteria') as HTMLTextAreaElement).value, country: ($('vd-country') as HTMLInputElement).value.trim() || undefined};
+        const key = JSON.stringify({tier,context});
+        const headers = {authorization:`Bearer ${token}`, 'content-type':'application/json'};
+        if (!pendingOrderId || pendingOrderKey !== key) {
+          const result = await fetch(`${apiBase}/v1/runs`, {method:'POST',headers,body:JSON.stringify({vendorId:id,tier,context})});
+          if (!result.ok) throw new Error(`Could not create order (${result.status}).`);
+          const created = await result.json(); pendingOrderId = created.id || created.run?.id || created.runId; pendingOrderKey = key;
+          if (!pendingOrderId) throw new Error('Order identifier missing. Check dashboard before retrying.');
+        }
+        const checkout = await fetch(`${apiBase}/v1/checkout/session`, {method:'POST',headers,body:JSON.stringify({vendorId:id,tier,runId:pendingOrderId,buyerEmail:buyer.value})});
+        const session = await checkout.json();
+        if (!checkout.ok) throw new Error(session.message || session.error?.message || `Payment unavailable (${checkout.status}). Your draft order is saved.`);
+        const target = new URL(session.url);
+        if (target.protocol !== 'https:' || target.hostname !== 'checkout.stripe.com') throw new Error('Unexpected payment address.');
+        location.href = target.href;
+      } catch (error) { message.textContent = error instanceof Error ? error.message : 'Could not prepare payment.'; }
+      finally { button.disabled = false; }
+    });
+
+    if (d.run && d.run.reportJson?.source !== 'questionnaire' && (d.run.reportJson?.source === 'assessment' || d.run.compositeScore === null)) {
+      const run = d.run;
+      const report = run.reportJson || {};
+      $('vd-score')!.textContent = run.tier;
+      $('vd-band')!.textContent = run.status;
+      const section = $('vd-questionnaire')!; section.hidden = false;
+      const add = (tag: string, text: string) => { const el = document.createElement(tag); el.textContent = text; section.append(el); return el; };
+      add('h2', 'Service assessment');
+      const descriptions: Record<string,string> = {draft:'Draft order. Complete payment to begin execution.',queued:'Your assessment is queued for processing.',running:'Checks are running. Refresh this page to see progress.',analyst_review:'Checks are prepared. An analyst must review the evidence and publish the recommendation. This is a draft.',delivered:'Assessment delivered.',failed:'Processing failed. The service team can retry this assessment.'};
+      add('p', run.tier === 'enterprise' && run.status === 'draft' ? (run.reportJson?.enterpriseScopeApproved === true ? 'Enterprise scope approved. Continue to payment for the agreed engagement.' : 'Enterprise draft: scope must be agreed with the service team before payment.') : descriptions[run.status] || `Status: ${run.status}`);
+      if (['queued','running','analyst_review'].includes(run.status)) { const refresh=document.createElement('button'); refresh.className='btn btn-ghost'; refresh.textContent='Refresh status'; refresh.addEventListener('click',()=>location.reload()); section.append(refresh); }
+      if (report.scope) add('p', typeof report.scope === 'string' ? report.scope : JSON.stringify(report.scope));
+      if (report.context) { add('h3','Your brief'); add('p',`Task: ${report.context.task || 'Not supplied'}`); add('p',`Criteria: ${report.context.criteria || 'Not supplied'}`); }
+      for (const test of report.tests || []) {
+        add('h3', `${test.name || test.testId || test.id || 'Technical check'} · ${test.status || 'unknown'}`);
+        add('p', String(test.finding || test.summary || test.message || test.error || ''));
+        if (test.detail) add('pre', typeof test.detail === 'string' ? test.detail : JSON.stringify(test.detail,null,2));
+        if (['error','not_run'].includes(test.status)) add('p', 'This check did not complete. It is not evidence of a supplier failure.');
+      }
+      const renderEvidence = (value: unknown, depth = 0) => {
+        if (depth > 8 || value == null) return;
+        if (Array.isArray(value)) { value.forEach((item) => renderEvidence(item, depth + 1)); return; }
+        if (typeof value === 'object') { for (const [key, child] of Object.entries(value)) { add('strong', key); renderEvidence(child, depth + 1); } return; }
+        const text = String(value);
+        try { const url = new URL(text); if (url.protocol === 'https:' || url.protocol === 'http:') { const link = document.createElement('a'); link.href=url.href; link.textContent=text; link.target='_blank'; link.rel='noopener noreferrer'; section.append(link,document.createElement('br')); return; } } catch {}
+        add('p',text);
+      };
+      if (report.research) { add('h3','Research and sources'); renderEvidence(report.research); }
+      if (report.limitations) { add('h3','Limitations'); renderEvidence(report.limitations); }
+      if (report.review) { add('h3','Analyst recommendation'); renderEvidence(report.review); }
+      if (report.preparedAt) add('p', `Prepared: ${new Date(report.preparedAt).toLocaleString()}`);
+      if (run.status === 'delivered') {
+        const download = document.createElement('button'); download.className='btn btn-primary'; download.textContent='Download report PDF';
+        download.addEventListener('click',async () => { download.disabled=true; try { const pdf = await fetch(`${apiBase}/v1/runs/${encodeURIComponent(run.id)}/report.pdf`, {headers:{authorization:`Bearer ${token}`}}); if (!pdf.ok) throw new Error(`PDF unavailable (${pdf.status}).`); const url=URL.createObjectURL(await pdf.blob()); const link=document.createElement('a'); link.href=url; link.download=`PartnerScope-${run.id}.pdf`; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); } catch(error) { add('p',error instanceof Error ? error.message : 'Download failed.'); } finally {download.disabled=false;} }); section.append(download);
+      }
+      return;
+    }
+
     if (d.run?.reportJson?.source === 'questionnaire') {
-      const report = d.run.reportJson as { answeredCount: number; unknownCount: number; totalCount: number; answers: Array<{questionId:string;prompt:string;dimensionCode:string;status:string;answerLabel:string}>; gaps:Array<{questionId:string;prompt:string;dimensionCode:string}> };
+      const report = d.run.reportJson as { context?: {task?:string;criteria?:string}; profile?:string; answeredCount: number; unknownCount: number; totalCount: number; answers: Array<{questionId:string;prompt:string;dimensionCode:string;status:string;answerLabel:string}>; gaps:Array<{questionId:string;prompt:string;dimensionCode:string}> };
       $('vd-score')!.textContent = 'Saved';
       $('vd-band')!.textContent = 'Self-reported answers';
       const section = $('vd-questionnaire')!; section.hidden = false;
@@ -156,6 +253,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
       savedAt.textContent = `Saved ${new Date(d.run.deliveredAt || d.run.createdAt).toLocaleString()}`;
       const permalink = document.createElement('a'); permalink.href = `/vendor?id=${encodeURIComponent(id)}&runId=${encodeURIComponent(d.run.id)}`; permalink.textContent = 'Link to this saved assessment';
       section.append(heading, summary, notice, savedAt, permalink);
+      if (report.context) { const brief = document.createElement('p'); brief.textContent = `Scope: ${report.profile || 'AI'} · Task: ${report.context.task || 'Not supplied'} · Criteria: ${report.context.criteria || 'Not supplied'}`; section.append(brief); }
       const answersHeading = document.createElement('h3'); answersHeading.textContent = 'Supplied answers'; section.append(answersHeading);
       for (const answer of report.answers) {
         const card = document.createElement('div'); card.className = 'vd-dim';

@@ -283,7 +283,7 @@ describe('edge cases', () => {
       expect(e.priceEur).toBeGreaterThanOrEqual(0);
       if (e.tier === 'enterprise') {
         expect(e.minVendors).toBe(15);
-        expect(e.continuousMonitoring).toBe(true);
+        expect(e.continuousMonitoring).toBe(false); // No automated collector is deployed.
         expect(e.slaPriorityHours).toBe(24);
       }
     }

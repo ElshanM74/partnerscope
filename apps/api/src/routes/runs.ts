@@ -1,50 +1,27 @@
-/**
- * Run lifecycle endpoints.
- *
- *   POST   /v1/runs                      — create a run (DRAFT)
- *   GET    /v1/runs                      — list runs for the org
- *   GET    /v1/runs/:id                  — fetch one run + latest scoring snapshot
- *   POST   /v1/runs/:id/responses        — submit questionnaire responses (batch)
- *   POST   /v1/runs/:id/submit           — transition draft → queued, triggers scoring
- *   GET    /v1/runs/:id/report.pdf       — stream the generated PDF
- *
- * Starter + Free Snapshot are scored inline in Wave 2.A: scoring → PDF →
- * TX-02 email → storage persist → runs.reportPdfUrl. Pro & Enterprise still
- * enqueue and will be picked up by a BullMQ worker in a later wave.
- */
-
+import { getEntitlements, questionsForTier } from '@partnerscope/core';
+/** Authenticated assessment orders, supplied responses, execution and PDF access. */
 import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-
-import {
-  type Response,
-  type Tier,
-  calculateScoring,
-  getEntitlements,
-  likertToScore,
-  questionsForTier,
-} from '@partnerscope/core';
-import { type TestResult, runSuite } from '@partnerscope/tests';
-
-import { env } from '../config/env.js';
-import { db } from '../db/client.js';
+import { db, pool } from '../db/client.js';
 import { responses, runs, vendors } from '../db/schema.js';
 import { ApiError } from '../plugins/error-handler.js';
-import { sendTx02ReportReady } from '../services/email/index.js';
-import { buildReportId, renderStarterReportPdf } from '../services/pdf/index.js';
-import { sendPushToUser } from '../services/push.js';
+import { hasRunEntitlement } from '../services/billing.js';
+import { validateQuestionnaire } from '../services/questionnaire.js';
 import { StorageKeys, getStorage } from '../services/storage.js';
-
-// ────────────────────────────────────────────────────────────────
-// Schemas
-// ────────────────────────────────────────────────────────────────
 
 const TierSchema = z.enum(['free_snapshot', 'starter', 'pro', 'enterprise']);
 
 const RunCreateSchema = z.object({
   vendorId: z.string().uuid(),
   tier: TierSchema,
+  context: z
+    .object({
+      task: z.string().trim().min(10).max(2000),
+      criteria: z.string().trim().min(3).max(1000),
+      country: z.string().trim().min(2).max(100).optional(),
+    })
+    .optional(),
 });
 
 const RawAnswerSchema = z.discriminatedUnion('type', [
@@ -64,18 +41,6 @@ const BatchResponsesSchema = z.object({
   responses: z.array(ResponseInputSchema).min(1).max(200),
 });
 
-const SubmitBodySchema = z
-  .object({
-    buyerEmail: z.string().email().optional(),
-    buyerName: z.string().min(1).max(200).optional(),
-  })
-  .optional()
-  .default({});
-
-// ────────────────────────────────────────────────────────────────
-// Helpers
-// ────────────────────────────────────────────────────────────────
-
 async function loadRunForOrg(runId: string, organizationId: string) {
   const [run] = await db
     .select()
@@ -86,124 +51,19 @@ async function loadRunForOrg(runId: string, organizationId: string) {
   return run;
 }
 
-async function loadVendor(vendorId: string) {
-  const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-  if (!vendor) throw new ApiError(404, 'vendor_not_found', 'Vendor not found.');
-  return vendor;
-}
-
-function responsesFromRawRows(
-  rows: { questionId: string; rawAnswer: unknown; numericScore: number | null }[],
-): Response[] {
-  return rows.map((r) => ({
-    questionId: r.questionId,
-    rawAnswer: r.rawAnswer as Response['rawAnswer'],
-    numericScore: r.numericScore,
-  }));
-}
-
-function tierDisplayName(tier: Tier): string {
-  switch (tier) {
-    case 'free_snapshot':
-      return 'Free Snapshot';
-    case 'starter':
-      return 'Starter';
-    case 'pro':
-      return 'Pro';
-    case 'enterprise':
-      return 'Enterprise';
-  }
-}
-
-function formatDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
-// ────────────────────────────────────────────────────────────────
-// Starter delivery pipeline — scoring → PDF → storage → email.
-// Pure side-effectful helper. Fails the request if any step fails.
-// ────────────────────────────────────────────────────────────────
-
-async function deliverStarterReport(args: {
-  runId: string;
-  tier: Tier;
-  vendor: { legalName: string; domain: string; country: string | null };
-  buyerEmail: string | null;
-  buyerName: string | null;
-  buyerCompany: string;
-  scoringResponses: Response[];
-  /** Injection point for tests. If omitted, the real `runSuite` is called. */
-  runTestSuite?: typeof runSuite;
-}): Promise<{
-  reportPdfUrl: string;
-  scoring: ReturnType<typeof calculateScoring>;
-  tests: TestResult[];
-  emailDelivered: boolean;
-}> {
-  const scoring = calculateScoring({ tier: args.tier, responses: args.scoringResponses });
-
-  // Only Starter runs the automated test suite; Free Snapshot is questionnaire-only.
-  const suite = args.runTestSuite ?? runSuite;
-  const tests: TestResult[] =
-    args.tier === 'starter'
-      ? await suite({ tier: 'starter', domain: args.vendor.domain }).catch(() => [])
-      : [];
-
-  const now = new Date();
-  const validUntil = new Date(now);
-  validUntil.setUTCDate(validUntil.getUTCDate() + 90);
-
-  const reportId = buildReportId(args.tier, args.runId, now.getUTCFullYear());
-
-  const pdf = await renderStarterReportPdf({
-    reportId,
-    issueDate: formatDate(now),
-    validUntil: formatDate(validUntil),
-    tierName: tierDisplayName(args.tier),
-    vendor: {
-      legalName: args.vendor.legalName,
-      domain: args.vendor.domain,
-      country: args.vendor.country,
-    },
-    buyer: {
-      name: args.buyerName,
-      company: args.buyerCompany,
-      email: args.buyerEmail,
-    },
-    scoring,
-    tests: tests.map((t) => ({ id: t.id, status: t.status, finding: t.finding })),
-    upgradeUrl: `${env.APP_PUBLIC_URL}/upgrade?from=${reportId}`,
-  });
-
-  const storage = getStorage();
-  const stored = await storage.put(StorageKeys.runReportPdf(args.runId), pdf, 'application/pdf');
-  const reportPdfUrl = storage.url(stored.key);
-
-  let emailDelivered = false;
-  if (args.buyerEmail) {
-    const emailResult = await sendTx02ReportReady({
-      to: args.buyerEmail,
-      buyerName: args.buyerName ?? 'there',
-      tierName: tierDisplayName(args.tier),
-      vendorLegalName: args.vendor.legalName,
-      compositeScore: scoring.compositeScore,
-      riskBand: scoring.riskBand,
-      hardRedFlag: scoring.hardRedFlag,
-      reportPdfUrl,
-      dashboardUrl: `${env.APP_PUBLIC_URL}/runs/${args.runId}`,
-      validUntil: formatDate(validUntil),
-    });
-    emailDelivered = emailResult.delivered;
-  }
-
-  return { reportPdfUrl, scoring, tests, emailDelivered };
-}
-
-// ────────────────────────────────────────────────────────────────
-// Routes
-// ────────────────────────────────────────────────────────────────
-
 export async function runRoutes(fastify: FastifyInstance): Promise<void> {
+  fastify.addHook('preHandler', async (req) => {
+    if (!req.organization) throw new ApiError(401, 'unauthorized', 'Organization required.');
+    if (req.user?.sub) {
+      const active = await pool.query('SELECT role FROM users WHERE id=$1 AND organization_id=$2', [
+        req.user.sub,
+        req.organization.id,
+      ]);
+      if (!active.rowCount) throw new ApiError(401, 'unauthorized', 'Active membership required.');
+      if (req.method !== 'GET' && active.rows[0].role === 'viewer')
+        throw new ApiError(403, 'forbidden', 'Read-only account.');
+    }
+  });
   fastify.post('/v1/runs', async (req, reply) => {
     if (!req.organization) throw new ApiError(401, 'unauthorized', 'No organization context.');
     const body = RunCreateSchema.parse(req.body);
@@ -226,6 +86,8 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
         organizationId: req.organization.id,
         tier: body.tier,
         status: 'draft',
+        requestedBy: req.user?.sub,
+        reportJson: body.context ? { context: body.context } : null,
         slaHours: entitlements.slaHours,
       })
       .returning();
@@ -275,14 +137,36 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
       );
     }
 
+    try {
+      validateQuestionnaire({
+        answers: body.responses.map((r) => {
+          const answer = r.rawAnswer;
+          if (!['likert', 'single_select', 'multi_select'].includes(answer.type))
+            throw new Error('unsupported_response');
+          return {
+            questionId: r.questionId,
+            value:
+              answer.type === 'multi_select'
+                ? answer.values
+                : 'value' in answer
+                  ? answer.value
+                  : undefined,
+          };
+        }),
+      });
+    } catch {
+      throw new ApiError(
+        422,
+        'invalid_response',
+        'Use supported question types and valid options.',
+      );
+    }
+
     const rowsToUpsert = body.responses.map((r) => ({
       runId: id,
       questionId: r.questionId,
       rawAnswer: r.rawAnswer,
-      numericScore:
-        r.rawAnswer.type === 'likert'
-          ? likertToScore(r.rawAnswer.value as 1 | 2 | 3 | 4 | 5)
-          : null,
+      numericScore: null,
     }));
 
     // Upsert each response (unique on run_id + question_id).
@@ -308,7 +192,6 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.post<{ Params: { id: string } }>('/v1/runs/:id/submit', async (req) => {
     if (!req.organization) throw new ApiError(401, 'unauthorized', 'No organization context.');
     const id = z.string().uuid().parse(req.params.id);
-    const body = SubmitBodySchema.parse(req.body ?? {});
     const run = await loadRunForOrg(id, req.organization.id);
     if (run.status !== 'draft') {
       throw new ApiError(
@@ -316,6 +199,26 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
         'run_not_draft',
         `Run is not in draft state (current: ${run.status}).`,
       );
+    }
+
+    if (run.tier !== 'free_snapshot') {
+      if (!req.isStaff && !(await hasRunEntitlement(id, req.organization.id)))
+        throw new ApiError(402, 'payment_required', 'Payment for this assessment is required.');
+      const [queued] = await db
+        .update(runs)
+        .set({
+          status: 'queued',
+          updatedAt: new Date(),
+          reportJson: {
+            ...((run.reportJson as Record<string, unknown>) ?? {}),
+            ...(req.isStaff ? { staffRequested: true } : {}),
+          },
+        })
+        .where(and(eq(runs.id, id), eq(runs.status, 'draft')))
+        .returning();
+      if (!queued)
+        throw new ApiError(409, 'run_not_draft', 'Assessment has already been submitted.');
+      return queued;
     }
 
     const rows = await db
@@ -331,69 +234,37 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
       throw new ApiError(400, 'no_responses', 'Run has no responses — cannot submit.');
     }
 
-    // Starter / Free Snapshot: compute inline + generate PDF + send email.
-    if (run.tier === 'starter' || run.tier === 'free_snapshot') {
-      const vendor = await loadVendor(run.vendorId);
-      const delivery = await deliverStarterReport({
-        runId: id,
-        tier: run.tier as Tier,
-        vendor: {
-          legalName: vendor.legalName,
-          domain: vendor.domain,
-          country: vendor.country,
-        },
-        buyerEmail: body.buyerEmail ?? null,
-        buyerName: body.buyerName ?? null,
-        buyerCompany: req.organization.legalName,
-        scoringResponses: responsesFromRawRows(rows),
-      });
-
-      const [updated] = await db
-        .update(runs)
-        .set({
-          status: 'delivered',
-          compositeScore: delivery.scoring.compositeScore,
-          riskBand: delivery.scoring.riskBand,
-          hardRedFlag: delivery.scoring.hardRedFlag,
-          capReason: delivery.scoring.capReason,
-          scoringVersion: delivery.scoring.scoringVersion,
-          frameworkVersion: delivery.scoring.frameworkVersion,
-          reportJson: { scoring: delivery.scoring, tests: delivery.tests },
-          reportPdfUrl: delivery.reportPdfUrl,
-          deliveredAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(runs.id, id))
-        .returning();
-
-      // Fire-and-forget push notification to the user who requested the run.
-      // Never await or fail the request on push errors — the report is already
-      // delivered via email + dashboard. Push is a nice-to-have native surface
-      // (4.2 signal for iOS App Review).
-      if (updated?.requestedBy) {
-        void sendPushToUser(updated.requestedBy, {
-          title: 'Assessment ready',
-          body: `${vendor.legalName} scored ${delivery.scoring.compositeScore} (${delivery.scoring.riskBand})`,
-          data: { runId: id },
-        }).catch((err) => {
-          req.log.warn({ err, runId: id }, 'push notification failed');
-        });
-      }
-
-      return {
-        ...updated,
-        emailDelivered: delivery.emailDelivered,
-        testsRan: delivery.tests.length,
-      };
-    }
-
-    // Pro / Enterprise: flip to queued; worker picks up later.
-    const [updated] = await db
+    const result = validateQuestionnaire({
+      answers: rows.map((row) => {
+        const answer = row.rawAnswer as {
+          type?: string;
+          value?: number | string;
+          values?: string[];
+          unknown?: boolean;
+        };
+        return answer.unknown
+          ? { questionId: row.questionId, unknown: true }
+          : {
+              questionId: row.questionId,
+              value: answer.type === 'multi_select' ? answer.values : answer.value,
+            };
+      }),
+    });
+    const [saved] = await db
       .update(runs)
-      .set({ status: 'queued', startedAt: new Date(), updatedAt: new Date() })
-      .where(eq(runs.id, id))
+      .set({
+        status: 'delivered',
+        reportJson: result.report,
+        compositeScore: null,
+        riskBand: null,
+        hardRedFlag: false,
+        deliveredAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(runs.id, id), eq(runs.status, 'draft')))
       .returning();
-    return updated;
+    if (!saved) throw new ApiError(409, 'run_not_draft', 'Assessment already submitted.');
+    return saved;
   });
 
   fastify.get<{ Params: { id: string } }>('/v1/runs/:id/report.pdf', async (req, reply) => {
@@ -401,8 +272,16 @@ export async function runRoutes(fastify: FastifyInstance): Promise<void> {
     const id = z.string().uuid().parse(req.params.id);
     const run = await loadRunForOrg(id, req.organization.id);
 
+    if (run.status !== 'delivered')
+      throw new ApiError(409, 'report_not_ready', 'The final report is not yet delivered.');
     const storage = getStorage();
-    const key = StorageKeys.runReportPdf(run.id);
+    const candidate = (run.reportJson as { pdfKey?: string } | null)?.pdfKey;
+    const key =
+      typeof candidate === 'string' &&
+      candidate.startsWith(`runs/${run.id}/`) &&
+      /^runs\/[a-f0-9-]+\/(?:review|attempt)-[a-f0-9-]+\.pdf$/.test(candidate)
+        ? candidate
+        : StorageKeys.runReportPdf(run.id);
     if (!(await storage.exists(key))) {
       throw new ApiError(404, 'report_not_ready', 'Report PDF not yet generated.');
     }
