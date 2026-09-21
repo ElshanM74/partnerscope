@@ -105,7 +105,7 @@ Comparison box: Starter (current) vs Pro (€499):
 ## Footer on every page
 
 ```
-PartnerScope · EKM Global Consulting GmbH · partnerscope.eu
+PartnerScope · EM Consulting · partnerscope.eu
 Report PS-{{YEAR}}-STA-{{SEQUENCE}} · {{PAGE}}/{{TOTAL}} · Confidential
 ```
 

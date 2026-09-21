@@ -41,7 +41,7 @@ const SUCCESS_HTML = `<!doctype html>
   <p class="muted">Transactional emails (assessment reports, payment receipts) are not affected — those continue if you have an active request.</p>
   <p class="muted">If you change your mind or need to reach us: <a href="mailto:elshan.musayev@partnerscope.eu">elshan.musayev@partnerscope.eu</a></p>
   <hr style="border:none;border-top:1px solid #e3e6ec;margin:32px 0" />
-  <p class="muted">PartnerScope · EKM Global Consulting GmbH · Baden-Baden, Germany · <a href="https://partnerscope.eu">partnerscope.eu</a></p>
+  <p class="muted">PartnerScope · EM Consulting · Baden-Baden, Germany · <a href="https://partnerscope.eu">partnerscope.eu</a></p>
 </body>
 </html>`;
 

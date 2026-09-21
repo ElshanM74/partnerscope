@@ -66,4 +66,4 @@ All EUR, tax-exclusive. Automatic tax enabled. Invoices include VAT where applic
 
 - PCI SAQ A (Stripe Elements used; no card data touches our servers)
 - VAT: Reverse charge for B2B EU outside DE; DE 19% for domestic; AT 20% for AT customers; CH 7.7% for CH
-- Invoice fields: legal entity "EKM Global Consulting GmbH", USt-IdNr, address
+- Invoice fields: legal entity "EM Consulting", USt-IdNr, address

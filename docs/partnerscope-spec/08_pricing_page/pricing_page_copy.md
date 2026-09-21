@@ -131,5 +131,5 @@ A: Starter and Pro yes. Enterprise requires a call for scoping (portfolio sizing
 
 ## Legal strip (footer of page)
 
-EKM Global Consulting GmbH · Vienna, AT · Registered FN {{fn_number}}  
+EM Consulting · Baden-Baden, DE
 Terms · Privacy · DPA · Sub-processors · Imprint · Contact

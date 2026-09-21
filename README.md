@@ -6,7 +6,7 @@ with automated tests, documentary review, and AI red-teaming.
 Aligned with EU AI Act, GDPR, DORA, and NIS2.
 
 - **Domain:** partnerscope.eu
-- **Owner:** EKM Global Consulting GmbH — Elshan Musayev
+- **Owner:** EM Consulting — Elshan Musayev
 - **Status:** v2.0 (3-tier consolidation — Starter €99 / Pro €499 / Enterprise €4 900 qtr)
 
 ---
@@ -104,4 +104,4 @@ the spec; if the spec and code disagree, the spec wins — update the code.
 
 ## License
 
-UNLICENSED — internal EKM Global Consulting GmbH property.
+UNLICENSED — internal EM Consulting property.

@@ -1,7 +1,7 @@
 # PartnerScope — Final Integration Package
 
 **Version:** 2026-04-20 (3-tier consolidation)
-**Owner:** Elshan Musayev — EKM Global Consulting
+**Owner:** Elshan Musayev — EM Consulting
 **Domain:** partnerscope.eu
 **Purpose:** Complete blueprint for Claude Code integration. Contains all internal logic, client-facing deliverables, API contracts, DB schemas, AI payloads, and copy.
 

@@ -47,5 +47,5 @@ Upon completion, vendor submits evidence package → PartnerScope verifies → n
 This plan is advisory. Completing it improves the PartnerScope score but does not
 constitute certification or legal compliance. Vendor remains responsible for
 regulatory adherence.
-PartnerScope · EKM Global Consulting GmbH · partnerscope.eu
+PartnerScope · EM Consulting · partnerscope.eu
 ```

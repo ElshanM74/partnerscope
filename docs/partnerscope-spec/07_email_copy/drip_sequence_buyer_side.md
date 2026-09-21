@@ -35,7 +35,7 @@ per vendor. Report is drop-in for your ISMS.
 Want a 15-minute demo this week?
 
 — Elshan
-EKM Global Consulting GmbH · partnerscope.eu
+EM Consulting · partnerscope.eu
 ```
 
 ---
@@ -199,7 +199,7 @@ demo or just the free snapshot, the door stays open:
 Thanks for reading this far.
 
 — Elshan
-EKM Global Consulting GmbH · partnerscope.eu
+EM Consulting · partnerscope.eu
 ```
 
 ---

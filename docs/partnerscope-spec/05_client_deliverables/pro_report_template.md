@@ -140,7 +140,7 @@ All charts rendered as PNG at 300 DPI, embedded in PDF.
 
 ```
 Report PS-{{YEAR}}-PRO-{{SEQ}} · Pro tier · SLA 48h
-© 2026 EKM Global Consulting GmbH · partnerscope.eu · All rights reserved.
+© 2026 EM Consulting · partnerscope.eu · All rights reserved.
 Distribution: {{BUYER_COMPANY}} internal use only. Sharing beyond buyer
 organization requires written consent.
 Aligned with EU AI Act, GDPR, DORA, NIS2 frameworks. Not a legal opinion.
