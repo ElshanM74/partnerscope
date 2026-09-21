@@ -1,0 +1,212 @@
+---
+import '../styles/global.css';
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="description" content="Поиск и предварительная проверка подрядчиков по открытым источникам." />
+    <title>Поиск партнёров — PartnerScope</title>
+  </head>
+  <body>
+    <header class="topbar"><a class="brand" href="/dashboard">PartnerScope<span>RESEARCH</span></a><a href="/dashboard">Личный кабинет ↗</a></header>
+    <main id="research-app" data-api-base={apiBase}>
+      <header class="intro"><span class="eyebrow">Тестовая версия · Открытые источники</span><h1>Партнёр под вашу задачу.</h1><p>Найдите подрядчиков или проверьте компанию. Сравните сведения об опыте, команде и сроках с тем, что важно вам.</p></header>
+      <div class="workspace">
+        <section class="panel input-panel" aria-labelledby="brief-title">
+          <div class="section-heading"><span class="step">01</span><h2 id="brief-title">Задача исследования</h2></div>
+          <form id="research-form">
+            <fieldset id="brief-fields">
+              <label for="mode">Что нужно сделать</label><select id="mode" name="mode"><option value="search">Найти подрядчиков</option><option value="check">Проверить компанию</option></select>
+              <label for="company">Компания или сайт <span id="company-hint">— необязательно</span></label><input id="company" name="company" maxlength="200" placeholder="Название, сайт или регистрационный номер" />
+              <label for="country">Страна или регион</label><input id="country" name="country" required minlength="2" maxlength="100" placeholder="Например, Азербайджан" />
+              <label for="task">Для какой работы нужен партнёр</label><textarea id="task" name="task" required minlength="10" maxlength="2000" rows="4" placeholder="Например: строительство оптоволоконных линий и обслуживание базовых станций"></textarea>
+              <label for="criteria">Что для вас важно</label><textarea id="criteria" name="criteria" required minlength="3" maxlength="1000" rows="3" placeholder="Наличие команды, сопоставимые проекты, соблюдение сроков"></textarea>
+              <p class="privacy-note">Данные запроса передаются провайдеру ИИ с интернет-поиском. Используйте публичную деловую информацию; не вводите секреты, персональные или конфиденциальные данные.</p>
+              <button class="primary" id="submit-research" type="submit">Начать исследование <span aria-hidden="true">↗</span></button>
+            </fieldset>
+          </form>
+          <p id="progress" class="progress" role="status" aria-live="polite" hidden></p>
+          <p id="error" class="error" role="alert" hidden></p>
+        </section>
+        <section class="panel report-panel" aria-labelledby="report-title">
+          <div class="section-heading"><span class="step">02</span><h2 id="report-title">Результат и основания</h2></div>
+          <div id="empty-state" class="empty-state"><div class="empty-symbol" aria-hidden="true">↗</div><h3>Начните с вашей задачи</h3><p>Здесь появится исследование с источниками, ограничениями и вопросами для дальнейшей проверки.</p><ul><li>Сведения о компаниях и релевантном опыте</li><li>Подтверждения, противоречия и пробелы</li><li>Следующие шаги для квалификации</li></ul></div>
+          <article id="result" hidden><p id="report-meta" class="report-meta"></p><p id="report-brief" class="report-brief"></p><p class="result-notice">Отчёт сформирован ИИ по открытым источникам и может содержать ошибки. Он не подтверждает доступность команды или готовность выполнить заказ. Проверьте ключевые сведения перед решением.</p><div class="report-actions"><button id="export" type="button">Скачать JSON</button><button id="print" type="button">Печать / PDF</button></div><div id="report-body" class="report-body"></div><section class="sources"><h3>Источники</h3><ol id="sources-list"></ol><p id="sources-empty" hidden>Проверяемые ссылки не получены. Не используйте такой результат как подтверждение фактов.</p></section></article>
+        </section>
+      </div>
+      <section class="panel history-panel" aria-labelledby="history-title"><div class="section-heading"><span class="step">03</span><h2 id="history-title">Сохранённые исследования</h2></div><p id="history-status" role="status">Загружаем историю…</p><ul id="history-list"></ul></section>
+      <footer>PartnerScope · Предварительная проверка деловых партнёров <a href="/legal/privacy">Privacy</a></footer>
+    </main>
+  </body>
+</html>
+
+<script>
+  type Brief = { mode: 'search' | 'check'; company: string; country: string; task: string; criteria: string };
+  type Summary = { id: string; createdAt: string; request: Brief };
+  type Report = Summary & { report: string; sources: Array<{ url: string; title: string }>; citations?: Array<{ startIndex: number; endIndex: number; url: string; title: string }> };
+  const get = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const apiBase = get('research-app').dataset.apiBase ?? '/api';
+  let token: string | null = null;
+  try { token = localStorage.getItem('ps_token'); } catch { /* Login handles unavailable storage. */ }
+  const form = get<HTMLFormElement>('research-form');
+  const fields = get<HTMLFieldSetElement>('brief-fields');
+  const mode = get<HTMLSelectElement>('mode');
+  const company = get<HTMLInputElement>('company');
+  const progress = get('progress');
+  const error = get('error');
+  let current: Report | null = null;
+  let busy = false;
+  if (!token) window.location.replace('/login');
+  mode.addEventListener('change', () => {
+    company.required = mode.value === 'check';
+    get('company-hint').textContent = company.required ? '— обязательно' : '— необязательно';
+  });
+  function safeUrl(value: string): string | null {
+    try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : null; } catch { return null; }
+  }
+  function date(value: string): string {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString('ru-RU');
+  }
+  async function request(path: string, init: RequestInit = {}) {
+    const response = await fetch(`${apiBase}/v1/research${path}`, { ...init, headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' } });
+    if (response.status === 401) { window.location.replace('/login'); throw new Error('Войдите в аккаунт, чтобы продолжить.'); }
+    if (!response.ok) {
+      const messages: Record<number, string> = { 400: 'Проверьте поля запроса.', 403: 'Недостаточно прав для этого исследования.', 404: 'Исследование не найдено.', 422: 'Недостаточно источников для отчёта. Уточните название, сайт или регистрационный номер. Это не означает ненадёжность компании.', 429: 'Лимит запросов достигнут. Повторите позже.', 502: 'Поисковый сервис не вернул результат. Повторите позже.', 503: 'Исследование временно недоступно. Попробуйте позже.', 504: 'Поиск занял слишком много времени. Проверьте историю перед повтором.' };
+      throw new Error(messages[response.status] ?? 'Не удалось выполнить запрос. Попробуйте позже.');
+    }
+    return response.json();
+  }
+  function show(report: Report) {
+    if (typeof report.report !== 'string' || !report.request || !report.id) throw new Error('Получен неполный отчёт. Повторите загрузку.');
+    current = report;
+    get('empty-state').hidden = true;
+    get('result').hidden = false;
+    get('report-meta').textContent = `${date(report.createdAt)} · ${report.request.country} · ${report.request.mode === 'check' ? 'Проверка компании' : 'Поиск подрядчиков'}`;
+    get('report-brief').textContent = [report.request.company, report.request.task, `Критерии: ${report.request.criteria}`].filter(Boolean).join('\n');
+    // Citation offsets address the original provider text. Ignore malformed or
+    // overlapping ranges; all output is constructed with text nodes.
+    const body = get('report-body'); body.replaceChildren();
+    let cursor = 0;
+    const citations = [...(report.citations ?? [])].sort((a, b) => a.startIndex - b.startIndex);
+    for (const citation of citations) {
+      const { startIndex: start, endIndex: end } = citation;
+      const url = safeUrl(citation.url);
+      if (!url || !Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > report.report.length) continue;
+      body.append(document.createTextNode(report.report.slice(cursor, start)));
+      const link = document.createElement('a'); link.href = url;
+      link.target = '_blank'; link.rel = 'noopener noreferrer';
+      link.textContent = report.report.slice(start, end);
+      link.title = citation.title || new URL(url).hostname;
+      link.setAttribute('aria-label', `Источник: ${citation.title || new URL(url).hostname}`);
+      body.append(link); cursor = end;
+    }
+    body.append(document.createTextNode(report.report.slice(cursor)));
+    const sources = get('sources-list'); sources.replaceChildren();
+    const seen = new Set<string>();
+    for (const source of [...(report.sources ?? []), ...(report.citations ?? [])]) {
+      const url = safeUrl(source.url); if (!url || seen.has(url)) continue;
+      seen.add(url);
+      const li = document.createElement('li'); const link = document.createElement('a');
+      link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+      link.textContent = `${source.title || new URL(url).hostname} — ${new URL(url).hostname}`;
+      li.append(link); sources.append(li);
+    }
+    get('sources-empty').hidden = seen.size > 0;
+  }
+  async function history() {
+    const status = get('history-status');
+    try {
+      const data = await request('') as { reports: Summary[] };
+      const list = get('history-list'); list.replaceChildren();
+      for (const report of data.reports) {
+        const li = document.createElement('li'); const a = document.createElement('a'); const stamp = document.createElement('span');
+        a.href = `/research?id=${encodeURIComponent(report.id)}`;
+        a.textContent = `${report.request.company || report.request.task} · ${report.request.country}`;
+        stamp.textContent = date(report.createdAt); li.append(a, stamp); list.append(li);
+      }
+      status.textContent = data.reports.length ? '' : 'Исследований пока нет. Готовый результат сохранится здесь.';
+    } catch (cause) { status.textContent = cause instanceof Error ? cause.message : 'История недоступна.'; }
+  }
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); if (busy || !token || !form.reportValidity()) return;
+    const data = new FormData(form);
+    const brief: Brief = { mode: mode.value as Brief['mode'], company: company.value.trim(), country: String(data.get('country')).trim(), task: String(data.get('task')).trim(), criteria: String(data.get('criteria')).trim() };
+    if (brief.country.length < 2 || brief.task.length < 10 || brief.criteria.length < 3 || (brief.mode === 'check' && !brief.company)) { error.textContent = 'Заполните страну, задачу и критерии; для проверки укажите компанию.'; error.hidden = false; return; }
+    busy = true; fields.disabled = true; error.hidden = true;
+    current = null; get('result').hidden = true; get('empty-state').hidden = false;
+    progress.hidden = false; progress.textContent = 'Ищем сведения и сопоставляем источники. Обычно это занимает до минуты. Оставьте страницу открытой.';
+    const controller = new AbortController(); const timeout = window.setTimeout(() => controller.abort(), 150_000);
+    try {
+      const report = await request('', { method: 'POST', body: JSON.stringify(brief), signal: controller.signal }) as Report;
+      show(report); window.history.replaceState(null, '', `/research?id=${encodeURIComponent(report.id)}`);
+      progress.textContent = 'Исследование готово и сохранено.'; await history();
+    } catch (cause) {
+      progress.hidden = true; error.hidden = false;
+      error.textContent = cause instanceof Error && cause.name === 'AbortError' ? 'Время ожидания истекло. Запрос мог завершиться на сервере: проверьте историю перед повтором.' : cause instanceof Error ? cause.message : 'Ошибка соединения. Попробуйте позже.';
+      await history();
+    } finally { window.clearTimeout(timeout); fields.disabled = false; busy = false; }
+  });
+  get('export').addEventListener('click', () => {
+    if (!current) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(current, null, 2)], { type: 'application/json;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = `partnerscope-${current.id.replace(/[^a-zA-Z0-9_-]/g, '')}.json`; a.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  get('print').addEventListener('click', () => window.print());
+  if (token) {
+    void history();
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (id) {
+      busy = true; fields.disabled = true; progress.hidden = false; progress.textContent = 'Загружаем сохранённое исследование…';
+      void request(`/${encodeURIComponent(id)}`).then((report: Report) => { show(report); progress.hidden = true; }).catch((cause: unknown) => { error.textContent = cause instanceof Error ? cause.message : 'Не удалось загрузить отчёт.'; error.hidden = false; progress.hidden = true; }).finally(() => { busy = false; fields.disabled = false; });
+    }
+  }
+</script>
+
+<style>
+  :global(body) { background: #f3f5f3; color: #172b25; }
+  [hidden] { display: none !important; }
+  .topbar { max-width: 1320px; margin: auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dbe2dc; }
+  .topbar a { color: #244b3d; text-decoration: none; font-size: .88rem; }
+  .topbar .brand { font-size: 1.3rem; font-weight: 750; letter-spacing: -.04em; }
+  .brand span { margin-left: 14px; font-size: .6rem; letter-spacing: .16em; color: #6a7d70; }
+  main { max-width: 1320px; margin: auto; padding: 48px 32px 20px; }
+  .intro { max-width: 770px; margin-bottom: 36px; }
+  .eyebrow { color: #48614e; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
+  h1 { font-size: clamp(2rem, 4.5vw, 3.6rem); letter-spacing: -.05em; line-height: 1.1; margin: 14px 0 18px; }
+  .intro p { color: #5c6b63; font-size: 1.08rem; line-height: 1.6; }
+  .workspace { display: grid; grid-template-columns: minmax(300px, .86fr) minmax(0, 1.35fr); gap: 24px; align-items: start; }
+  .panel { background: white; border: 1px solid #dbe2dc; border-radius: 16px; padding: 28px; }
+  .section-heading { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; }
+  .step { color: #60816c; border: 1px solid #dbe2dc; border-radius: 50%; height: 28px; width: 28px; display: grid; place-items: center; font-size: .7rem; flex-shrink: 0; }
+  h2 { font-size: 1.08rem; margin: 0; letter-spacing: -.02em; }
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  label { display: block; font-size: .84rem; font-weight: 600; margin: 18px 0 7px; }
+  label:first-child { margin-top: 0; } label span { color: #667569; font-weight: 400; }
+  input, select, textarea { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ccd6ce; border-radius: 8px; color: #183629; background: #fcfdfc; font: inherit; font-size: .9rem; }
+  textarea { resize: vertical; line-height: 1.5; } input:focus, select:focus, textarea:focus { outline: 2px solid #52826a; outline-offset: 2px; }
+  button { font: inherit; cursor: pointer; } button:focus-visible, a:focus-visible { outline: 2px solid #52826a; outline-offset: 3px; }
+  .primary { display: flex; justify-content: space-between; width: 100%; border: 0; border-radius: 8px; background: #204d39; color: #fff; padding: 15px 17px; font-size: .92rem; font-weight: 600; }
+  fieldset:disabled { opacity: .65; } fieldset:disabled button { cursor: wait; }
+  .privacy-note { font-size: .74rem; color: #647167; line-height: 1.55; margin: 18px 0; }
+  .progress, .error { padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.5; margin: 16px 0 0; }
+  .progress { background: #eef5ef; color: #2d5c3d; } .error { background: #fff1ee; color: #913b2e; }
+  .report-panel { min-height: 580px; }
+  .empty-state { max-width: 420px; margin: 75px auto; color: #647167; line-height: 1.65; }
+  .empty-symbol { font-size: 2rem; color: #517360; } .empty-state h3 { color: #284135; font-size: 1.25rem; margin: 15px 0; }
+  .empty-state ul { padding-left: 20px; font-size: .88rem; } .empty-state li { margin: 8px 0; }
+  .report-meta { color: #627066; font-size: .76rem; } .report-brief { white-space: pre-wrap; font-weight: 600; font-size: .95rem; margin: 15px 0; overflow-wrap: anywhere; }
+  .result-notice { font-size: .78rem; line-height: 1.55; padding: 12px 14px; border-left: 3px solid #b7cabb; background: #f5f8f4; color: #536658; }
+  .report-actions { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; } .report-actions button { border: 1px solid #cdd9cf; border-radius: 6px; background: white; padding: 8px 12px; color: #31563f; font-size: .78rem; }
+  .report-body { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .94rem; line-height: 1.85; }
+  .report-body :global(a) { color: #20683f; text-decoration: underline; text-underline-offset: 3px; }
+  .sources { margin-top: 28px; padding-top: 20px; border-top: 1px solid #dbe2dc; font-size: .82rem; overflow-wrap: anywhere; } .sources h3 { font-size: .95rem; } .sources ol { padding-left: 20px; } .sources :global(li) { margin: 9px 0; } .sources :global(a) { color: #285e42; }
+  .history-panel { margin-top: 24px; } #history-status { color: #647167; font-size: .85rem; } #history-list { padding: 0; list-style: none; margin: 0; } #history-list :global(li) { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid #e5ebe6; padding: 15px 0; font-size: .85rem; } #history-list :global(a) { color: #2b583f; overflow-wrap: anywhere; } #history-list :global(span) { color: #69776d; white-space: nowrap; font-size: .75rem; }
+  footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px 0; color: #6d7d70; font-size: .73rem; } footer a { color: inherit; }
+  @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } main { padding: 32px 16px 12px; } .topbar { padding: 20px 16px; } .brand span { display: none; } .panel { padding: 22px; } .report-panel { min-height: 350px; } .empty-state { margin: 30px auto; } #history-list :global(li) { flex-direction: column; gap: 6px; } }
+  @media print { :global(body) { background: white; } .topbar, .intro, .input-panel, .history-panel, .report-actions, footer { display: none !important; } main { padding: 0; max-width: none; } .workspace { display: block; } .report-panel { border: 0; padding: 0; } .report-body { font-size: 10pt; } .sources :global(a)::after { content: ' (' attr(href) ')'; } }
+</style>

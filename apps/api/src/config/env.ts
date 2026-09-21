@@ -30,6 +30,7 @@ const EnvSchema = z.object({
   STRIPE_CANCEL_URL: z.string().url().default('http://localhost:5173/plans'),
 
   OPENAI_API_KEY: z.string().optional(),
+  RESEARCH_MODEL: z.string().default('gpt-5.4'),
 
   // Storage — local disk by default; S3 fallback for prod.
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
