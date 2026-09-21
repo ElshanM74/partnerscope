@@ -403,7 +403,7 @@ export async function sendTx06aAssessmentDay3(input: Tx06aAssessmentDay3): Promi
   return sendDrip(
     input,
     'tx06a_assessment_day3',
-    `PartnerScope: making your partner stack assessment actionable`,
+    'PartnerScope: making your partner stack assessment actionable',
     'tx06a_assessment_day3',
   );
 }
@@ -412,7 +412,7 @@ export async function sendTx07aAssessmentDay7(input: Tx07aAssessmentDay7): Promi
   return sendDrip(
     input,
     'tx07a_assessment_day7',
-    `PartnerScope: 30-minute walkthrough offer`,
+    'PartnerScope: 30-minute walkthrough offer',
     'tx07a_assessment_day7',
   );
 }
@@ -430,7 +430,7 @@ export async function sendTx07bPilotDay5(input: Tx07bPilotDay5): Promise<SendRes
   return sendDrip(
     input,
     'tx07b_pilot_day5',
-    `PartnerScope Pilot 2026: 8-week structure`,
+    'PartnerScope Pilot 2026: 8-week structure',
     'tx07b_pilot_day5',
   );
 }

@@ -60,7 +60,7 @@ export default defineConfig({
           '/reset-password',
           '/404',
         ];
-        return !EXCLUDED.some((seg) => route === seg || route.startsWith(seg + '/'));
+        return !EXCLUDED.some((seg) => route === seg || route.startsWith(`${seg}/`));
       },
       changefreq: 'weekly',
       priority: 0.7,
