@@ -431,7 +431,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
               const deliveredLine = r.deliveredAt
                 ? `<p class="run-delivered">${escapeHtml(formatDeliveredAt(r.deliveredAt))}</p>`
                 : '';
-              const direction = v?.industry ? v.industry.split(' · ')[0] : 'Other';
+              const direction = (v?.industry ? v.industry.split(' · ')[0] : undefined) ?? 'Other';
               return `
                 <div class="run-row" data-direction="${escapeHtml(direction)}" data-band="${escapeHtml(r.riskBand || 'none')}">
                   <div>
@@ -454,7 +454,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
           if (unassessed.length > 0) {
             if (runs.length === 0) list.innerHTML = '';
             list.innerHTML += unassessed.map(([id, v]) => `
-                <div class="run-row" data-direction="${escapeHtml(v.industry ? v.industry.split(' · ')[0] : 'Other')}" data-band="none">
+                <div class="run-row" data-direction="${escapeHtml((v.industry ? v.industry.split(' · ')[0] : undefined) ?? 'Other')}" data-band="none">
                   <div>
                     <p class="run-name"><a href="/vendor?id=${escapeHtml(id)}" class="run-link">${escapeHtml(v.legalName)}</a></p>
                     <p class="run-domain">${escapeHtml([v.domain, v.country].filter(Boolean).join(' · ')) || '—'}</p>
@@ -474,7 +474,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
         if (filtersEl && runs.length > 0) {
           const dirs = Array.from(new Set(runs.map((r) => {
             const v = vendors.get(r.vendorId);
-            return v?.industry ? v.industry.split(' · ')[0] : 'Other';
+            return (v?.industry ? v.industry.split(' · ')[0] : undefined) ?? 'Other';
           }))).sort();
           const bands = ['HIGH', 'MEDIUM', 'LOW', 'MINIMAL'].filter((b) =>
             runs.some((r) => r.riskBand === b));
