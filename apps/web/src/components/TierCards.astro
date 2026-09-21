@@ -1,4 +1,10 @@
 ---
+interface Props {
+  locale?: 'en' | 'de';
+}
+const { locale = 'en' } = Astro.props;
+const base = locale === 'de' ? '/de' : '';
+
 interface Tier {
   name: string;
   priceLabel: string;
@@ -17,17 +23,17 @@ const TIERS: Tier[] = [
   {
     name: 'Starter',
     priceLabel: '€99',
-    priceSub: 'Single vendor · 24h SLA · one-time',
-    tagline: 'Spot-check a vendor, or stress-test our methodology.',
-    bestFor: 'Spot-checking a new vendor, or stress-testing our methodology.',
+    priceSub: 'Single vendor · external technical snapshot · one-time',
+    tagline: 'An external technical snapshot of one vendor domain — plus the questions to ask them next.',
+    bestFor: 'Spot-checking a new vendor before a deeper review.',
     features: [
-      'Automated checks: DNS/TLS, security headers, breach history, mail deliverability, basic sanctions, CT log scan',
-      '39-question self-service questionnaire',
-      '5–8 page PDF report with risk scorecard, top concerns, upgrade path',
-      'Valid 90 days',
+      'Automated checks on the vendor domain: DNS, TLS, HTTP security headers, Certificate Transparency log',
+      'Each check reported with time, object tested and its limits — a failed service is reported as "not checked", not as a finding',
+      'Open questions for the vendor, derived from what the checks could not see',
+      'No composite score and no proceed/decline verdict — those require Pro',
     ],
-    cta: { label: 'Buy Starter — €99 →', href: '#buy-starter' },
-    finePrint: 'SEPA / card payment via Stripe. Instant delivery of portal link.',
+    cta: { label: 'Request Starter — €99 →', href: `${base}/get-started?tier=starter` },
+    finePrint: 'We confirm scope within one business day and send a Stripe payment link.',
   },
   {
     name: 'Pro',
@@ -49,7 +55,7 @@ const TIERS: Tier[] = [
       'Analyst + QA reviewer named on report',
       'Valid 180 days · 72h re-score included',
     ],
-    cta: { label: 'Start a Pro assessment →', href: '/get-started?tier=pro' },
+    cta: { label: 'Start a Pro assessment →', href: `${base}/get-started?tier=pro` },
     secondaryCta: { label: 'Book a 15-min demo →', href: 'mailto:elshan.musayev@partnerscope.eu?subject=PartnerScope%20Pro%20demo' },
   },
   {
@@ -82,9 +88,9 @@ const TIERS: Tier[] = [
       <p class="eyebrow">Pricing</p>
       <h2>Three tiers. One methodology.</h2>
       <p class="tiers-sub">
-        Every tier shares the 13-dimension framework. The difference is depth: which tests we run,
-        how many questions, whether a named analyst signs the report, and whether we keep watching
-        after delivery.
+        Starter is an external technical snapshot of a vendor domain. Pro and Enterprise apply the
+        13-dimension framework: documentary review, a named analyst, and — for Enterprise — ongoing
+        monitoring after delivery.
       </p>
     </div>
 

@@ -449,6 +449,23 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
             }).join('');
             if (empty) empty.hidden = true;
           }
+          const assessed = new Set(runs.map((r) => r.vendorId));
+          const unassessed = Array.from(vendors.entries()).filter(([id]) => !assessed.has(id));
+          if (unassessed.length > 0) {
+            if (runs.length === 0) list.innerHTML = '';
+            list.innerHTML += unassessed.map(([id, v]) => `
+                <div class="run-row" data-direction="${escapeHtml(v.industry ? v.industry.split(' · ')[0] : 'Other')}" data-band="none">
+                  <div>
+                    <p class="run-name"><a href="/vendor?id=${escapeHtml(id)}" class="run-link">${escapeHtml(v.legalName)}</a></p>
+                    <p class="run-domain">${escapeHtml([v.domain, v.country].filter(Boolean).join(' · ')) || '—'}</p>
+                  </div>
+                  <div class="run-meta">
+                    <span class="pill pill-status-draft">not assessed</span>
+                  </div>
+                </div>
+              `).join('');
+            if (empty) empty.hidden = true;
+          }
         }
 
         // ── Filter chips (by direction + risk band) — client-side show/hide
@@ -555,20 +572,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL ?? '/api';
             });
             if (r.status === 409) { setMsg('This vendor (domain) is already in your database.', true); return; }
             if (!r.ok) { setMsg(`Could not add vendor (HTTP ${r.status}).`, true); return; }
-            // Run the real scoring engine on the new vendor so it gets an
-            // engine-computed composite + 13 dimension scores (not a manual
-            // number). Best-effort — vendor is already created either way.
-            try {
-              const created = await r.json() as { id?: string };
-              if (created?.id) {
-                setMsg('Scoring…');
-                await fetch(`${apiBase}/v1/vendors/${created.id}/auto-assess`, {
-                  method: 'POST',
-                  headers: { authorization: `Bearer ${token}` },
-                });
-              }
-            } catch { /* vendor still created; assessment is best-effort */ }
-            setMsg('Added ✓ reloading…');
+            setMsg('Added ✓ — not assessed yet. Reloading…');
             window.location.reload();
           } catch {
             setMsg('Network error — please retry.', true);

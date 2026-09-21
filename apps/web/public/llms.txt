@@ -14,7 +14,7 @@ PartnerScope is operated by EM Consulting (Baden-Baden, Germany) and serves DACH
 
 ## Pricing
 
-- Starter: €99 one-time, single vendor
+- Starter: €99 one-time, single vendor — external technical snapshot (DNS, TLS, HTTP security headers, Certificate Transparency) plus open questions for the vendor; no composite score
 - Pro: €299 one-time, single vendor with AI red-teaming
 - Enterprise: €4,900 per quarter, 15-vendor minimum, €199 per quarter per additional vendor; €2,500 one-time onboarding
 
@@ -33,7 +33,7 @@ PartnerScope is operated by EM Consulting (Baden-Baden, Germany) and serves DACH
 
 ## How it differs from competitors
 
-- AI red-teaming is built into every assessment, not an add-on (most competitors handle questionnaires only)
+- AI red-teaming is built into Pro and Enterprise assessments, not sold as an add-on (most competitors handle questionnaires only)
 - EU AI Act classification is native to the workflow (not a separate compliance product)
 - 13-dimension scoring vs. typical 4-6 dimension cyber-only checks
 - Pricing transparent at all tiers (no "contact us" gating)

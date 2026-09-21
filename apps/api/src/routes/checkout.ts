@@ -15,7 +15,7 @@ import { ApiError } from '../plugins/error-handler.js';
 import { createCheckoutSession } from '../services/stripe/index.js';
 
 const CheckoutCreateSchema = z.object({
-  tier: z.enum(['starter', 'pro', 'enterprise']),
+  tier: z.enum(['pro', 'enterprise']),
   vendorId: z.string().uuid(),
   buyerEmail: z.string().email(),
   runId: z.string().uuid().optional(),
